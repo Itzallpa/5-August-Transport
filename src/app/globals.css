@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+:root {
+  --font-kanit: 'Kanit', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  --primary-red: #D32F2F;
+  --primary-red-hover: #B71C1C;
+  --primary-red-light: #FFEBEE;
+  --dark-navy: #0F172A;
+  --dark-charcoal: #111827;
+}
+
+body {
+  font-family: var(--font-kanit), var(--font-inter), system-ui, -apple-system, sans-serif;
+}
+
+/* Custom logistics themed utilities */
+.text-brand-red {
+  color: #D32F2F;
+}
+
+.bg-brand-red {
+  background-color: #D32F2F;
+}
+
+.bg-brand-red-hover:hover {
+  background-color: #B71C1C;
+}
+
+.border-brand-red {
+  border-color: #D32F2F;
+}
+
+.gradient-hero-overlay {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(17, 24, 39, 0.85) 60%, rgba(211, 47, 47, 0.45) 100%);
+}
+
+.gradient-card-border {
+  background: linear-gradient(135deg, rgba(211, 47, 47, 0.2), rgba(255, 255, 255, 0.05));
+}
+
+.truck-card-shadow {
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+}
+
+.truck-card-shadow:hover {
+  box-shadow: 0 20px 35px -10px rgba(211, 47, 47, 0.18), 0 10px 15px -5px rgba(15, 23, 42, 0.06);
+}
+
+/* Glassmorphism */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.glass-panel-dark {
+  background: rgba(17, 24, 39, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
