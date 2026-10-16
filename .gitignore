@@ -34,13 +34,13 @@ yarn-error.log*
 .env*
 !.env.example
 
-# SQLite database
+# sqlite database
 *.db
 *.db-journal
 *.sqlite
 *.sqlite3
 
-# IDE and local caches
+# ide & local caches
 .gemini/
 
 # vercel
