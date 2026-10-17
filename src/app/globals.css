@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "sweetalert2/dist/sweetalert2.min.css";
 
 :root {
   --font-kanit: 'Kanit', sans-serif;
@@ -6,60 +7,166 @@
   --primary-red: #D32F2F;
   --primary-red-hover: #B71C1C;
   --primary-red-light: #FFEBEE;
-  --dark-navy: #0F172A;
-  --dark-charcoal: #111827;
+  --dark-charcoal: #18181B;
 }
 
 body {
   font-family: var(--font-kanit), var(--font-inter), system-ui, -apple-system, sans-serif;
+  background-color: #F8FAFC;
+  color: #1E293B;
 }
 
-/* Custom logistics themed utilities */
-.text-brand-red {
-  color: #D32F2F;
+/* Custom SweetAlert2 corporate Thai font and color overrides */
+div:where(.swal2-container) {
+  font-family: var(--font-kanit), var(--font-inter), system-ui, -apple-system, sans-serif !important;
 }
 
-.bg-brand-red {
+div:where(.swal2-container) .swal2-popup {
+  border-radius: 1rem !important;
+  padding: 1.75rem !important;
+  box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.1) !important;
+  border: 1px solid #E2E8F0 !important;
+}
+
+div:where(.swal2-container) .swal2-title {
+  font-size: 1.4rem !important;
+  font-weight: 700 !important;
+  color: #18181B !important;
+}
+
+div:where(.swal2-container) .swal2-html-container {
+  color: #475569 !important;
+  font-size: 0.95rem !important;
+  line-height: 1.6 !important;
+}
+
+div:where(.swal2-container) button.swal2-confirm {
+  background-color: #D32F2F !important;
+  border-radius: 0.5rem !important;
+  font-weight: 600 !important;
+  padding: 0.6rem 1.5rem !important;
+  box-shadow: 0 4px 6px -1px rgba(211, 47, 47, 0.2) !important;
+}
+
+div:where(.swal2-container) button.swal2-confirm:hover {
+  background-color: #B71C1C !important;
+}
+
+div:where(.swal2-container) button.swal2-cancel {
+  background-color: #64748B !important;
+  border-radius: 0.5rem !important;
+  font-weight: 500 !important;
+  padding: 0.6rem 1.5rem !important;
+}
+
+/* Classic Bootstrap-style helper classes for clean, authentic corporate UI */
+.bs-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+}
+
+.bs-card-hover {
+  transition: all 0.2s ease-in-out;
+}
+.bs-card-hover:hover {
+  box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  border-color: #CBD5E1;
+  transform: translateY(-2px);
+}
+
+.bs-btn-primary {
   background-color: #D32F2F;
+  color: #FFFFFF;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease-in-out;
+  border: 1px solid transparent;
 }
-
-.bg-brand-red-hover:hover {
+.bs-btn-primary:hover {
   background-color: #B71C1C;
+  color: #FFFFFF;
 }
 
-.border-brand-red {
-  border-color: #D32F2F;
+.bs-btn-outline-primary {
+  background-color: transparent;
+  color: #D32F2F;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease-in-out;
+  border: 1.5px solid #D32F2F;
+}
+.bs-btn-outline-primary:hover {
+  background-color: #D32F2F;
+  color: #FFFFFF;
 }
 
-.gradient-hero-overlay {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(17, 24, 39, 0.85) 60%, rgba(211, 47, 47, 0.45) 100%);
+.bs-btn-secondary {
+  background-color: #18181B;
+  color: #FFFFFF;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease-in-out;
+  border: 1px solid transparent;
+}
+.bs-btn-secondary:hover {
+  background-color: #27272A;
+  color: #FFFFFF;
 }
 
-.gradient-card-border {
-  background: linear-gradient(135deg, rgba(211, 47, 47, 0.2), rgba(255, 255, 255, 0.05));
+.bs-badge-danger {
+  background-color: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #FECACA;
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
-.truck-card-shadow {
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+.bs-badge-primary {
+  background-color: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid #DBEAFE;
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
-.truck-card-shadow:hover {
-  box-shadow: 0 20px 35px -10px rgba(211, 47, 47, 0.18), 0 10px 15px -5px rgba(15, 23, 42, 0.06);
-}
-
-/* Glassmorphism */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-}
-
-.glass-panel-dark {
-  background: rgba(17, 24, 39, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.bs-badge-light {
+  background-color: #F1F5F9;
+  color: #475569;
+  border: 1px solid #E2E8F0;
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
 /* Custom scrollbar */
@@ -67,16 +174,13 @@ body {
   width: 8px;
   height: 8px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #F1F5F9;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #CBD5E1;
   border-radius: 4px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #94A3B8;
 }

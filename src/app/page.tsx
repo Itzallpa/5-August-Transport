@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import ValueProps from "@/components/ValueProps";
 import FleetSection from "@/components/FleetSection";
+import GallerySection from "@/components/GallerySection";
 import QuoteCalculator from "@/components/QuoteCalculator";
 import AboutSection from "@/components/AboutSection";
 import Milestones from "@/components/Milestones";
@@ -35,34 +36,37 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-white selection:bg-[#D32F2F] selection:text-white">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 selection:bg-[#D32F2F] selection:text-white">
       {/* 1. Global Navigation Bar */}
       <Navbar content={content ?? undefined} />
 
       <main className="flex-1">
-        {/* 2. Hero Section */}
+        {/* 2. Hero Section - Authentic Thai Transport Banner */}
         <Hero content={content ?? undefined} />
 
-        {/* 3. Key Value Propositions (6 Strengths with Icons) */}
-        <ValueProps />
-
-        {/* 4. Fleet & Services Showcase (7 Vehicle Categories) */}
-        <FleetSection />
-
-        {/* 5. Freight Cost Estimator / Quick Quote Tool */}
-        <QuoteCalculator content={content ?? undefined} />
-
-        {/* 6. About Us & Company Background */}
+        {/* 3. About Us & Company Background */}
         <AboutSection content={content ?? undefined} />
 
-        {/* 7. Milestones & Timeline */}
+        {/* 4. Fleet & Vehicle Catalog (7 Vehicle Categories) */}
+        <FleetSection content={content ?? undefined} />
+
+        {/* 5. Real Transport Operations Gallery */}
+        <GallerySection />
+
+        {/* 6. Key Value Propositions (Friendly & Human-Crafted) */}
+        <ValueProps content={content ?? undefined} />
+
+        {/* 7. Freight Cost Estimator / Quick Quote Tool */}
+        <QuoteCalculator content={content ?? undefined} />
+
+        {/* 8. Milestones & Timeline */}
         <Milestones milestones={milestones} />
 
-        {/* 8. Driver Recruitment Application Form */}
+        {/* 9. Driver Recruitment Application Form */}
         <DriverRecruitmentForm content={content ?? undefined} />
       </main>
 
-      {/* 9. Corporate Footer */}
+      {/* 10. Corporate Footer */}
       <Footer content={content ?? undefined} />
     </div>
   );

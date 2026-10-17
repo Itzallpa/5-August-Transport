@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdminAuth } from "@/lib/security";
 
 export async function GET() {
   try {
@@ -22,6 +23,14 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const auth = await requireAdminAuth();
+  if (!auth.authorized) {
+    return NextResponse.json(
+      { success: false, error: "Unauthorized: Access Denied" },
+      { status: 401 }
+    );
+  }
+
   try {
     const body = await request.json();
     const { name, contactPerson, phone, email } = body;

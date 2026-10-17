@@ -41,6 +41,14 @@ export const metadata: Metadata = {
     "KEX",
   ],
   authors: [{ name: "5 August Transport Company Limited" }],
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    apple: "/apple-icon.png",
+    shortcut: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({

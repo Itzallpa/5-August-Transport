@@ -13,6 +13,7 @@ enum ApplicationStatus {
   APPROVED
   REJECTED
   ASSIGNED
+  BANNED
 }
 
 model DriverApplication {
@@ -24,10 +25,12 @@ model DriverApplication {
   licenseType       String            // e.g., "ท.2 (ใบขับขี่ประเภท 2)", "ท.3", "ท.4", "บ.2"
   vehicleType       String            // e.g., "4 ล้อ ตู้ทึบ", "4 ล้อ จัมโบ้", "6 ล้อ", "6 ล้อ จัมโบ้", "10 ล้อ", "รถเทรลเลอร์", "หัวลาก Container", "สมัครขับรถของบริษัท"
   experienceYears   Int
+  documentUrl       String?           // Uploaded photo/document URL of driver license, ID card, or truck photo
   status            ApplicationStatus @default(PENDING)
   assignedPartnerId String?
   assignedPartner   Partner?          @relation(fields: [assignedPartnerId], references: [id])
   notes             String?
+  banReason         String?           // Reason for banning or AI fraud detection note
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
 }
@@ -79,8 +82,10 @@ model SiteContent {
   email                 String   @default("5augusttransport@gmail.com")
   address               String   @default("เลขที่ 88/5 หมู่ที่ 3 ตำบลบางพลีใหญ่ อำเภอบางพลี จังหวัดสมุทรปราการ 10540 (ศูนย์กระจายสินค้าภาคกลาง)")
   operatingHours        String   @default("เปิดบริการตลอด 24 ชั่วโมง (24/7 Logistics Support)")
+  logoUrl               String?
 
   // 2. Hero Section
+  heroImageUrl          String   @default("/images/hero.jpg")
   heroBadge             String   @default("ครอบคลุมทั่วประเทศ • รวดเร็ว • ปลอดภัย • ตรงเวลา • คุ้มค่า")
   heroHeading           String   @default("ทุกเส้นทาง")
   heroHeadingHighlight  String   @default("เราพร้อมส่งต่อความมั่นใจ")
@@ -96,7 +101,28 @@ model SiteContent {
   heroStat4Label        String   @default("เปิดรับสมัครคนขับ")
   heroStat4Value        String   @default("ทุกวัน")
 
-  // 3. About Section
+  // 3. Value Props (จุดเด่น 6 ประการ)
+  valueBadge            String   @default("จุดเด่นและมาตรฐานการบริการ")
+  valueTitle            String   @default("ทำไมธุรกิจชั้นนำจึงไว้วางใจ")
+  valueTitleHighlight   String   @default("5 August Transport")
+  valueSubtitle         String   @default("เรามุ่งมั่นพัฒนาคุณภาพการบริการอย่างต่อเนื่อง ทั้งด้านกองยานพาหนะ บุคลากร และเทคโนโลยี เพื่อส่งมอบความมั่นใจสูงสุดให้แก่ลูกค้าทุกท่าน")
+
+  // 4. Fleet Section (กองยานพาหนะ)
+  fleetImageUrl         String   @default("/images/fleet.jpg")
+  fleetBadge            String   @default("ประเภทรถที่ให้บริการ • ตอบโจทย์ทุกประเภทงานขนส่ง")
+  fleetTitle            String   @default("กองยานพาหนะมาตรฐานระดับสากล")
+  fleetSubtitle         String   @default("พร้อมตอบสนองทุกโจทย์ธุรกิจ ตั้งแต่การจัดส่งสินค้าพัสดุด่วนในเมือง (Last-Mile) จนถึงการขนส่งสินค้าอุตสาหกรรมข้ามภาค และงานตู้คอนเทนเนอร์นำเข้า-ส่งออก")
+  fleetBannerTag        String   @default("Full-Scale Fleet")
+  fleetBannerTitle      String   @default("มีรถพร้อมวิ่งมากกว่า 200 คัน ตรวจสภาพและบำรุงรักษาตามรอบสม่ำเสมอ")
+  fleetBannerSubtitle   String   @default("ทุกคันติดตั้ง GPS Tracking ควบคุมความเร็วตามกฎหมายกรมการขนส่งทางบก")
+
+  // 5. Quote Section
+  quoteTitle            String   @default("ประเมินค่าขนส่งเบื้องต้น (Freight Cost Estimator)")
+  quoteSubtitle         String   @default("คำนวณอัตราค่าบริการขนส่งอย่างโปร่งใส รวดเร็ว และเป็นธรรม แม่นยำตามระยะทางและประเภทยานพาหนะ")
+  quoteNotice           String   @default("* ราคาที่แสดงเป็นการประมาณการเบื้องต้น อาจมีการปรับเปลี่ยนตามลักษณะสินค้าพิเศษ ประกันภัยเพิ่มเติม หรือเส้นทางเฉพาะ")
+
+  // 6. About Section
+  aboutImageUrl         String   @default("/images/operations.jpg")
   aboutBadge            String   @default("เกี่ยวกับเรา (About Us)")
   aboutTitle            String   @default("ความเป็นมาและวิสัยทัศน์ของ บริษัท 5 สิงหา ทรานสปอร์ต จำกัด")
   aboutSubtitle         String   @default("มุ่งมั่นสร้างมาตรฐานใหม่แห่งการขนส่งไทย ด้วยความซื่อสัตย์ ตรงเวลา และความปลอดภัยสูงสุด")
@@ -105,8 +131,12 @@ model SiteContent {
   aboutVision           String   @default("ก้าวสู่การเป็นผู้นำด้านโลจิสติกส์และห่วงโซ่อุปทานที่ได้รับความไว้วางใจสูงสุดในประเทศไทย ด้วยการผสานเทคโนโลยีสมัยใหม่เข้ากับการบริการที่จริงใจและตรงต่อเวลา")
   aboutMission          String   @default("ส่งมอบสินค้าทุกชิ้นด้วยความปลอดภัยสูงสุด ตรงตามเวลาที่นัดหมาย พัฒนาศักยภาพและคุณภาพชีวิตของพนักงานขับรถร่วม พร้อมเติบโตเคียงข้างคู่ค้าธุรกิจอย่างยั่งยืน")
   aboutRegisteredCapital String  @default("5,000,000 บาท (ชำระเต็มจำนวน)")
+  aboutOperationsBadge  String   @default("24/7 Logistics Control Tower")
+  aboutOperationsSub    String   @default("ติดตามสถานะความปลอดภัยและ GPS ทุกคัน")
+  aboutExpYears         String   @default("10+ ปี")
+  aboutExpText          String   @default("ความเชี่ยวชาญในธุรกิจขนส่งและโลจิสติกส์")
 
-  // 4. Recruitment Section
+  // 7. Recruitment Section
   recruitBadge          String   @default("ร่วมงานกับเรา (Careers)")
   recruitTitle          String   @default("ร่วมเป็นส่วนหนึ่งของทีมคนขับมืออาชีพ 5 สิงหา ทรานสปอร์ต")
   recruitSubtitle       String   @default("เปิดรับสมัครพนักงานขับรถร่วมและคนขับประจำสาย KEX และศูนย์กระจายสินค้าชั้นนำทั่วประเทศ รายได้มั่นคง มีงานป้อนตลอดทั้งปี")
@@ -116,10 +146,12 @@ model SiteContent {
   recruitBenefit3       String   @default("มีทีมประสานงานและ Support ตลอดเส้นทาง 24 ชม.")
   recruitBenefit4       String   @default("สิทธิประโยชน์และโบนัสเที่ยวพิเศษสำหรับคนขับผลงานดี")
 
-  // 5. Quote Section
-  quoteTitle            String   @default("ประเมินค่าขนส่งเบื้องต้น (Freight Cost Estimator)")
-  quoteSubtitle         String   @default("คำนวณอัตราค่าบริการขนส่งอย่างโปร่งใส รวดเร็ว และเป็นธรรม แม่นยำตามระยะทางและประเภทยานพาหนะ")
-  quoteNotice           String   @default("* ราคาที่แสดงเป็นการประมาณการเบื้องต้น อาจมีการปรับเปลี่ยนตามลักษณะสินค้าพิเศษ ประกันภัยเพิ่มเติม หรือเส้นทางเฉพาะ")
+  // 8. Footer Section
+  footerContactBadge    String   @default("ติดต่อฝ่ายปฏิบัติการเดินรถ")
+  footerContactTitle    String   @default("พร้อมเป็นพันธมิตรโลจิสติกส์ที่ขับเคลื่อนความสำเร็จของธุรกิจคุณ")
+  footerContactSubtitle String   @default("ต้องการปรึกษาการขนส่งสินค้าประจำโรงงาน, เหมาเที่ยว, หรือกระจายสินค้า DC โทรหาเราได้ตลอด 24 ชั่วโมง")
+  footerCopyright       String   @default("© 2026 บริษัท 5 สิงหา ทรานสปอร์ต จำกัด. สงวนลิขสิทธิ์ทั้งหมด.")
+  facebookUrl           String   @default("https://facebook.com")
 
   updatedAt             DateTime @updatedAt
   createdAt             DateTime @default(now())

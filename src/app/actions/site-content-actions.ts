@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { requireAdminAuth } from "@/lib/security";
 
 export type SiteContentData = {
   // 1. Company & Contact Info
@@ -17,8 +18,10 @@ export type SiteContentData = {
   email: string;
   address: string;
   operatingHours: string;
+  logoUrl?: string | null;
 
   // 2. Hero Section
+  heroImageUrl: string;
   heroBadge: string;
   heroHeading: string;
   heroHeadingHighlight: string;
@@ -34,7 +37,28 @@ export type SiteContentData = {
   heroStat4Label: string;
   heroStat4Value: string;
 
-  // 3. About Section
+  // 3. Value Props (จุดเด่น 6 ประการ)
+  valueBadge: string;
+  valueTitle: string;
+  valueTitleHighlight: string;
+  valueSubtitle: string;
+
+  // 4. Fleet Section (กองยานพาหนะ)
+  fleetImageUrl: string;
+  fleetBadge: string;
+  fleetTitle: string;
+  fleetSubtitle: string;
+  fleetBannerTag: string;
+  fleetBannerTitle: string;
+  fleetBannerSubtitle: string;
+
+  // 5. Quote Section
+  quoteTitle: string;
+  quoteSubtitle: string;
+  quoteNotice: string;
+
+  // 6. About Section
+  aboutImageUrl: string;
   aboutBadge: string;
   aboutTitle: string;
   aboutSubtitle: string;
@@ -43,8 +67,12 @@ export type SiteContentData = {
   aboutVision: string;
   aboutMission: string;
   aboutRegisteredCapital: string;
+  aboutOperationsBadge: string;
+  aboutOperationsSub: string;
+  aboutExpYears: string;
+  aboutExpText: string;
 
-  // 4. Recruitment Section
+  // 7. Recruitment Section
   recruitBadge: string;
   recruitTitle: string;
   recruitSubtitle: string;
@@ -54,10 +82,12 @@ export type SiteContentData = {
   recruitBenefit3: string;
   recruitBenefit4: string;
 
-  // 5. Quote Section
-  quoteTitle: string;
-  quoteSubtitle: string;
-  quoteNotice: string;
+  // 8. Footer Section
+  footerContactBadge: string;
+  footerContactTitle: string;
+  footerContactSubtitle: string;
+  footerCopyright: string;
+  facebookUrl: string;
 };
 
 export async function getSiteContent() {
@@ -80,6 +110,11 @@ export async function getSiteContent() {
 }
 
 export async function updateSiteContent(data: Partial<SiteContentData>) {
+  const auth = await requireAdminAuth();
+  if (!auth.authorized) {
+    return { success: false, error: "Unauthorized: ไม่มีสิทธิ์ดำเนินการ" };
+  }
+
   try {
     // Sanitize and trim strings
     const sanitizedData: Record<string, string> = {};

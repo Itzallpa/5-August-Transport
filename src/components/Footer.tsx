@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Phone, Mail, MessageSquare, MapPin, Clock, ShieldCheck, ArrowUpRight } from "lucide-react";
 import { COMPANY_INFO, FLEET_CATEGORIES } from "@/lib/constants";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
@@ -14,22 +15,26 @@ export default function Footer({ content }: { content?: Partial<SiteContentData>
   const email = content?.email || COMPANY_INFO.email;
   const address = content?.address || COMPANY_INFO.address;
   const operatingHours = content?.operatingHours || COMPANY_INFO.operatingHours;
+  const footerContactBadge = content?.footerContactBadge || "ติดต่อฝ่ายปฏิบัติการเดินรถ";
+  const footerContactTitle = content?.footerContactTitle || "พร้อมเป็นพันธมิตรโลจิสติกส์ที่ขับเคลื่อนความสำเร็จของธุรกิจคุณ";
+  const footerContactSubtitle = content?.footerContactSubtitle || "ต้องการปรึกษาการขนส่งสินค้าประจำโรงงาน, เหมาเที่ยว, หรือกระจายสินค้า DC โทรหาเราได้ตลอด 24 ชั่วโมง";
+  const footerCopyright = content?.footerCopyright || `© 2026 ${nameEn} (${nameTh}). สงวนลิขสิทธิ์ทั้งหมด.`;
 
   return (
-    <footer id="contact" className="bg-slate-950 text-white border-t border-slate-800 relative pt-16 pb-12">
+    <footer id="contact" className="bg-[#121212] text-white border-t border-[#27272A] relative pt-16 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Direct Contact Banner */}
-        <div className="rounded-3xl bg-slate-900 border border-slate-800 p-8 sm:p-10 mb-16 shadow-xl shadow-black/20">
+        <div className="rounded-2xl bg-[#18181B] border border-[#27272A] p-8 sm:p-10 mb-16 shadow-lg">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
             <div className="md:col-span-8 space-y-2">
               <span className="px-3 py-1 rounded-full bg-red-600/20 text-red-400 border border-red-500/30 text-xs font-bold uppercase tracking-wider">
-                ติดต่อฝ่ายปฏิบัติการเดินรถ
+                {footerContactBadge}
               </span>
               <h3 className="text-2xl sm:text-3xl font-black text-white">
-                พร้อมเป็นพันธมิตรโลจิสติกส์ที่ขับเคลื่อนความสำเร็จของธุรกิจคุณ
+                {footerContactTitle}
               </h3>
               <p className="text-sm text-slate-300 font-light">
-                ต้องการปรึกษาการขนส่งสินค้าประจำโรงงาน, เหมาเที่ยว, หรือกระจายสินค้า DC โทรหาเราได้ตลอด 24 ชั่วโมง
+                {footerContactSubtitle}
               </p>
             </div>
 
@@ -56,21 +61,21 @@ export default function Footer({ content }: { content?: Partial<SiteContentData>
         </div>
 
         {/* 4 Columns Footer Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-slate-850">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-[#27272A]">
           {/* Col 1: Brand & Bio */}
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#D32F2F] text-white flex items-center justify-center font-extrabold text-xl shadow-md">
-                5
+            <div className="space-y-2.5">
+              <div className="relative bg-white rounded-2xl px-4 py-2 shadow-xl h-18 sm:h-20 w-48 sm:w-52 shrink-0 flex items-center justify-center border border-white/20">
+                <Image
+                  src="/images/logo.png"
+                  alt="5 August Transport Logo"
+                  fill
+                  className="object-contain p-1"
+                />
               </div>
-              <div>
-                <span className="text-lg font-black tracking-wider uppercase block text-white">
-                  August Transport
-                </span>
-                <span className="text-xs text-slate-400 font-light block">
-                  {nameTh}
-                </span>
-              </div>
+              <span className="text-xs text-slate-300 font-bold block">
+                {nameTh} (5 AUGUST TRANSPORT)
+              </span>
             </div>
 
             <p className="text-xs text-slate-400 font-light leading-relaxed">
@@ -128,12 +133,6 @@ export default function Footer({ content }: { content?: Partial<SiteContentData>
                 <a href="#recruitment" className="hover:text-white transition-colors text-red-400 font-semibold">
                   ร่วมงานกับเรา (สมัครขับรถ)
                 </a>
-              </li>
-              <li>
-                <Link href="/admin" className="hover:text-amber-400 transition-colors flex items-center gap-1">
-                  <span>ระบบจัดการแอดมิน (Admin Back-Office)</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </Link>
               </li>
             </ul>
           </div>
@@ -201,7 +200,7 @@ export default function Footer({ content }: { content?: Partial<SiteContentData>
         {/* Bottom Copyright */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
           <p>
-            © 2026 {nameEn} ({nameTh}). All rights reserved.
+            {footerCopyright}
           </p>
           <div className="flex items-center gap-4">
             <span className="text-slate-600">ออกแบบและพัฒนาระบบโดย Antigravity Engineering</span>

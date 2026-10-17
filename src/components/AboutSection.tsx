@@ -11,6 +11,11 @@ export default function AboutSection({ content }: { content?: Partial<SiteConten
   const aboutVision = content?.aboutVision || "มุ่งสู่การเป็นผู้นำด้านโลจิสติกส์และการขนส่งสินค้าที่ได้รับความไว้วางใจสูงสุดในภูมิภาค ขับเคลื่อนด้วยเทคโนโลยีและความเป็นมืออาชีพ";
   const aboutMission = content?.aboutMission || "ส่งมอบสินค้าตรงเวลา ปลอดภัย 100% พร้อมสร้างงานและรายได้ที่มั่นคงเป็นธรรมแก่ผู้ร่วมขับรถทุกคน และสนับสนุนการเติบโตของธุรกิจลูกค้าอย่างยั่งยืน";
   const aboutCapital = content?.aboutRegisteredCapital || "5,000,000 บาท (ชำระเต็มจำนวน)";
+  const aboutImageUrl = content?.aboutImageUrl || "/images/operations.jpg";
+  const operationsBadge = content?.aboutOperationsBadge || "24/7 Logistics Control Tower";
+  const operationsSub = content?.aboutOperationsSub || "ติดตามสถานะความปลอดภัยและ GPS ทุกคัน";
+  const expYears = content?.aboutExpYears || "10+ ปี";
+  const expText = content?.aboutExpText || "ความเชี่ยวชาญในธุรกิจขนส่งและโลจิสติกส์";
 
   return (
     <section id="about" className="py-24 bg-white text-slate-900 relative">
@@ -21,9 +26,10 @@ export default function AboutSection({ content }: { content?: Partial<SiteConten
             <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-200 group">
               <div className="relative h-72 sm:h-96 w-full">
                 <Image
-                  src="/images/operations.jpg"
+                  src={aboutImageUrl}
                   alt="5 August Transport Logistics Control Center"
                   fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                   className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
                 />
               </div>
@@ -35,8 +41,8 @@ export default function AboutSection({ content }: { content?: Partial<SiteConten
                     <Navigation className="w-5 h-5 text-red-400" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-sm">24/7 Logistics Control Tower</h4>
-                    <p className="text-xs text-slate-300">ติดตามสถานะความปลอดภัยและ GPS ทุกคัน</p>
+                    <h4 className="font-bold text-sm">{operationsBadge}</h4>
+                    <p className="text-xs text-slate-300">{operationsSub}</p>
                   </div>
                 </div>
                 <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
@@ -48,9 +54,9 @@ export default function AboutSection({ content }: { content?: Partial<SiteConten
             {/* Credibility highlights */}
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                <div className="font-black text-2xl text-[#D32F2F]">10+ ปี</div>
+                <div className="font-black text-2xl text-[#D32F2F]">{expYears}</div>
                 <div className="text-xs text-slate-600 font-medium mt-0.5">
-                  ความเชี่ยวชาญในธุรกิจขนส่งและโลจิสติกส์
+                  {expText}
                 </div>
               </div>
 

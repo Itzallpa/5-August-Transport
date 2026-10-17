@@ -1,10 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdminAuth } from "@/lib/security";
 
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdminAuth();
+  if (!auth.authorized) {
+    return NextResponse.json(
+      { success: false, error: "Unauthorized: Access Denied" },
+      { status: 401 }
+    );
+  }
+
   try {
     const { id } = await params;
     const body = await request.json();

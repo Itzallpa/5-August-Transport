@@ -1,7 +1,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdminAuth } from "@/lib/security";
 
 export async function GET(request: Request) {
+  const auth = await requireAdminAuth();
+  if (!auth.authorized) {
+    return NextResponse.json(
+      { success: false, error: "Unauthorized: Access Denied" },
+      { status: 401 }
+    );
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");

@@ -4,10 +4,19 @@ import { useState } from "react";
 import Image from "next/image";
 import { FLEET_CATEGORIES, COMPANY_INFO } from "@/lib/constants";
 import { Truck, CheckCircle2, Ruler, Weight, Box, Sparkles, ArrowRight } from "lucide-react";
+import type { SiteContentData } from "@/app/actions/site-content-actions";
 
-export default function FleetSection() {
+export default function FleetSection({ content }: { content?: Partial<SiteContentData> }) {
   const [activeFilter, setActiveFilter] = useState<string>("ALL");
   const [selectedVehicle, setSelectedVehicle] = useState<typeof FLEET_CATEGORIES[0] | null>(null);
+
+  const fleetBadge = content?.fleetBadge || "ประเภทรถที่ให้บริการ • ตอบโจทย์ทุกประเภทงานขนส่ง";
+  const fleetTitle = content?.fleetTitle || "กองยานพาหนะมาตรฐานระดับสากล";
+  const fleetSubtitle = content?.fleetSubtitle || "พร้อมตอบสนองทุกโจทย์ธุรกิจ ตั้งแต่การจัดส่งสินค้าพัสดุด่วนในเมือง (Last-Mile) จนถึงการขนส่งสินค้าอุตสาหกรรมข้ามภาค และงานตู้คอนเทนเนอร์นำเข้า-ส่งออก";
+  const fleetImageUrl = content?.fleetImageUrl || "/images/fleet.jpg";
+  const fleetBannerTag = content?.fleetBannerTag || "Full-Scale Fleet";
+  const fleetBannerTitle = content?.fleetBannerTitle || "มีรถพร้อมวิ่งมากกว่า 200 คัน ตรวจสภาพและบำรุงรักษาตามรอบสม่ำเสมอ";
+  const fleetBannerSubtitle = content?.fleetBannerSubtitle || "ทุกคันติดตั้ง GPS Tracking ควบคุมความเร็วตามกฎหมายกรมการขนส่งทางบก";
 
   const filteredFleet = FLEET_CATEGORIES.filter((item) => {
     if (activeFilter === "ALL") return true;
@@ -24,36 +33,37 @@ export default function FleetSection() {
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-12">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-100 text-red-700 border border-red-200 text-xs font-bold tracking-wider uppercase">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>ประเภทรถที่ให้บริการ • ตอบโจทย์ทุกประเภทงานขนส่ง</span>
+            <span>{fleetBadge}</span>
           </div>
 
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900">
-            กองยานพาหนะมาตรฐานระดับสากล
+            {fleetTitle}
           </h2>
 
           <p className="text-slate-600 text-base sm:text-lg font-light leading-relaxed">
-            พร้อมตอบสนองทุกโจทย์ธุรกิจ ตั้งแต่การจัดส่งสินค้าพัสดุด่วนในเมือง (Last-Mile) จนถึงการขนส่งสินค้าอุตสาหกรรมข้ามภาค และงานตู้คอนเทนเนอร์นำเข้า-ส่งออก
+            {fleetSubtitle}
           </p>
         </div>
 
         {/* Fleet Lineup Banner */}
         <div className="relative w-full h-64 sm:h-80 md:h-96 rounded-3xl overflow-hidden mb-12 shadow-2xl border border-slate-200">
           <Image
-            src="/images/fleet.jpg"
+            src={fleetImageUrl}
             alt="5 August Transport Vehicle Fleet Lineup"
             fill
+            sizes="(max-width: 1280px) 100vw, 1280px"
             className="object-cover object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/30 to-transparent flex items-end p-6 sm:p-10">
             <div className="space-y-2 text-white max-w-xl">
               <span className="px-3 py-1 rounded-md bg-[#D32F2F] text-xs font-bold uppercase tracking-wider">
-                Full-Scale Fleet
+                {fleetBannerTag}
               </span>
               <h3 className="text-xl sm:text-2xl font-bold">
-                มีรถพร้อมวิ่งมากกว่า 200 คัน ตรวจสภาพและบำรุงรักษาตามรอบสม่ำเสมอ
+                {fleetBannerTitle}
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 font-light">
-                ทุกคันติดตั้ง GPS Tracking ควบคุมความเร็วตามกฎหมายกรมการขนส่งทางบก
+                {fleetBannerSubtitle}
               </p>
             </div>
           </div>
@@ -86,15 +96,15 @@ export default function FleetSection() {
           {filteredFleet.map((truck) => (
             <div
               key={truck.id}
-              className="group flex flex-col justify-between rounded-2xl bg-white border border-slate-200 hover:border-red-400 p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+              className="group flex flex-col justify-between rounded-3xl bg-white border border-slate-200/90 hover:border-red-400 p-6 sm:p-7 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
             >
               <div>
                 {/* Header Badge */}
                 <div className="flex items-center justify-between mb-4">
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200">
+                  <span className="px-3.5 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200">
                     {truck.badge}
                   </span>
-                  <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 group-hover:bg-[#D32F2F] group-hover:text-white transition-colors">
+                  <div className="w-11 h-11 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-700 group-hover:bg-[#D32F2F] group-hover:text-white transition-all group-hover:scale-110 shadow-sm">
                     <Truck className="w-5 h-5" />
                   </div>
                 </div>
@@ -108,13 +118,13 @@ export default function FleetSection() {
                 </p>
 
                 {/* Specs Box */}
-                <div className="space-y-2.5 p-4 rounded-xl bg-slate-50 border border-slate-100 mb-5 text-xs sm:text-sm text-slate-700">
+                <div className="space-y-2.5 p-4 rounded-2xl bg-slate-50 border border-slate-100 mb-5 text-xs sm:text-sm text-slate-700">
                   <div className="flex items-center gap-2">
                     <Weight className="w-4 h-4 text-red-500 shrink-0" />
                     <span className="font-semibold">{truck.capacity}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Ruler className="w-4 h-4 text-blue-500 shrink-0" />
+                    <Ruler className="w-4 h-4 text-slate-600 shrink-0" />
                     <span>{truck.dimensions}</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -144,13 +154,13 @@ export default function FleetSection() {
               <div className="pt-4 border-t border-slate-100 flex items-center gap-3">
                 <a
                   href={`tel:${COMPANY_INFO.phoneRaw}`}
-                  className="flex-1 text-center py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-[#D32F2F] text-white font-semibold text-xs sm:text-sm transition-colors shadow-sm"
+                  className="flex-1 text-center py-2.5 px-3 rounded-full bg-slate-900 hover:bg-[#D32F2F] text-white font-bold text-xs sm:text-sm transition-all shadow-sm"
                 >
-                  สอบถามคิวรถ / ขอใบเสนอราคา
+                  สอบถามคิวรถ / ขอราคา
                 </a>
                 <button
                   onClick={() => setSelectedVehicle(truck)}
-                  className="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-medium"
+                  className="p-2.5 rounded-full border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-medium transition-colors"
                   title="ดูรายละเอียดเพิ่มเติม"
                 >
                   <ArrowRight className="w-4 h-4" />

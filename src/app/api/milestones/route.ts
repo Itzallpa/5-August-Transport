@@ -1,17 +1,23 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
+import { validateAntiScraping } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
-  try {
-    const milestones = await prisma.milestone.findMany({
-      where: { isActive: true },
-      orderBy: [{ orderIndex: "asc" }, { createdAt: "asc" }],
-    });
-    return NextResponse.json({ success: true, data: milestones });
-  } catch (error) {
-    console.error("GET /api/milestones error:", error);
-    return NextResponse.json({ success: false, error: "Failed to fetch milestones" }, { status: 500 });
+export async function GET(request: NextRequest) {
+  const check = validateAntiScraping(request);
+  if (!check.allowed) {
+    return NextResponse.json(
+      { success: false, error: check.reason || "Access Denied: Scraping is forbidden." },
+      { status: 403 }
+    );
   }
+
+  // Prevent external scrapers and competitor crawlers from harvesting milestone timelines
+  return NextResponse.json(
+    {
+      success: false,
+      error: "Access Denied: Public scraping of this endpoint is disabled for security reasons.",
+    },
+    { status: 403 }
+  );
 }

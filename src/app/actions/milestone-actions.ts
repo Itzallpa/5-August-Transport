@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { requireAdminAuth } from "@/lib/security";
 
 export type MilestoneInput = {
   year: string;
@@ -24,6 +25,10 @@ export async function getMilestones() {
 }
 
 export async function createMilestone(data: MilestoneInput) {
+  const auth = await requireAdminAuth();
+  if (!auth.authorized) {
+    return { success: false, error: "Unauthorized: ไม่มีสิทธิ์ดำเนินการ" };
+  }
   try {
     if (!data.year.trim() || !data.title.trim() || !data.description.trim()) {
       return { success: false, error: "กรุณากรอกปี หัวข้อ และรายละเอียดให้ครบถ้วน" };
@@ -60,6 +65,11 @@ export async function updateMilestone(
   id: string,
   data: Partial<MilestoneInput> & { isActive?: boolean }
 ) {
+  const auth = await requireAdminAuth();
+  if (!auth.authorized) {
+    return { success: false, error: "Unauthorized: ไม่มีสิทธิ์ดำเนินการ" };
+  }
+
   try {
     const updated = await prisma.milestone.update({
       where: { id },
@@ -88,6 +98,11 @@ export async function updateMilestone(
 }
 
 export async function deleteMilestone(id: string) {
+  const auth = await requireAdminAuth();
+  if (!auth.authorized) {
+    return { success: false, error: "Unauthorized: ไม่มีสิทธิ์ดำเนินการ" };
+  }
+
   try {
     const deleted = await prisma.milestone.delete({
       where: { id },
@@ -107,6 +122,11 @@ export async function deleteMilestone(id: string) {
 }
 
 export async function moveMilestoneOrder(id: string, direction: "up" | "down") {
+  const auth = await requireAdminAuth();
+  if (!auth.authorized) {
+    return { success: false, error: "Unauthorized: ไม่มีสิทธิ์ดำเนินการ" };
+  }
+
   try {
     const current = await prisma.milestone.findUnique({ where: { id } });
     if (!current) return { success: false, error: "ไม่พบข้อมูล" };

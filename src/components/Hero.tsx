@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Truck, ArrowRight, ShieldCheck, MapPin, Clock, Award, PhoneCall } from "lucide-react";
+import { Truck, ArrowRight, ShieldCheck, MapPin, Clock, Award, PhoneCall, MessageSquare } from "lucide-react";
 import { COMPANY_INFO } from "@/lib/constants";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
 
@@ -13,6 +13,10 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
   const heroCtaFleetText = content?.heroCtaFleetText || "ดูประเภทรถขนส่ง (7 ประเภท)";
   const phone = content?.phone || COMPANY_INFO.phone;
   const phoneRaw = content?.phoneRaw || COMPANY_INFO.phoneRaw;
+  const lineId = content?.lineId || COMPANY_INFO.lineId;
+
+  // Real Fleet Banner Image
+  const heroBannerImage = "/images/thai_transport_hero.jpg";
 
   // Stats
   const stat1Label = content?.heroStat1Label || "ตรงต่อเวลาเฉลี่ย";
@@ -25,40 +29,19 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
   const stat4Val = content?.heroStat4Value || "ทุกวัน";
 
   return (
-    <section id="home" className="relative min-h-[92vh] flex items-center justify-center overflow-hidden bg-slate-950 pt-20">
-      {/* Background Image with Dark Logistics Gradient Overlay */}
-      <div className="absolute inset-0 z-0">
-        <Image
-          src="/images/hero.jpg"
-          alt="5 August Transport Fleet Logistics"
-          fill
-          priority
-          className="object-cover object-center opacity-40 scale-105 transition-transform duration-10000"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/85 to-slate-900/60" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/70" />
-        {/* Subtle grid pattern */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: "radial-gradient(#ffffff 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-          }}
-        />
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Main Hero Copy (8 cols on lg) */}
-          <div className="lg:col-span-8 space-y-6 text-center lg:text-left">
+    <section id="home" className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-white via-zinc-50/70 to-white py-14 sm:py-20 border-b border-zinc-200">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+          {/* Main Hero Copy (7 cols on lg) */}
+          <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
             {/* Top Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-slate-700 text-slate-200 text-xs sm:text-sm font-semibold tracking-wide backdrop-blur-md">
-              <span className="w-2 h-2 rounded-full bg-red-600" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-50 border border-red-200 text-[#D32F2F] text-xs sm:text-sm font-bold tracking-wide shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-[#D32F2F] animate-pulse" />
               <span>{heroBadge}</span>
             </div>
 
             {/* Slogan & Headline */}
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-zinc-950 leading-tight tracking-tight">
               {heroHeading} <br />
               <span className="text-[#D32F2F]">
                 {heroHeadingHighlight}
@@ -66,111 +49,133 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
             </h1>
 
             {/* Sub-slogan */}
-            <p className="text-base sm:text-xl text-slate-200 font-light max-w-2xl leading-relaxed">
+            <p className="text-base sm:text-lg text-zinc-600 font-normal max-w-xl leading-relaxed">
               {heroSubheading}
             </p>
 
-            <div className="flex items-center justify-center lg:justify-start gap-2 text-sm text-slate-300 font-medium">
-              <span className="w-6 h-[1px] bg-red-600 inline-block" />
-              <span className="text-white font-semibold tracking-widest uppercase text-xs sm:text-sm">
+            <div className="flex items-center justify-center lg:justify-start gap-2.5 text-xs sm:text-sm text-zinc-400 font-semibold">
+              <span className="w-6 h-[2px] bg-[#D32F2F] inline-block" />
+              <span className="text-zinc-700 font-bold tracking-widest uppercase text-xs">
                 {trustedTagline}
               </span>
-              <span className="w-6 h-[1px] bg-red-600 inline-block" />
+              <span className="w-6 h-[2px] bg-[#D32F2F] inline-block" />
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-3.5 pt-2">
               <a
                 href="#recruitment"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-7 py-3.5 rounded-xl bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-bold text-base shadow-lg shadow-black/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-bold text-sm sm:text-base shadow-lg shadow-red-600/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <Truck className="w-5 h-5" />
-                <span>{heroCtaDriverText}</span>
+                <span>{heroCtaDriverText} (Apply Now)</span>
                 <ArrowRight className="w-4 h-4 ml-1" />
               </a>
 
               <a
                 href="#fleet"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-base border border-slate-700 hover:border-slate-500 transition-all backdrop-blur-md"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-white hover:bg-zinc-50 text-zinc-800 font-bold text-sm sm:text-base border-2 border-zinc-200 hover:border-zinc-300 transition-all shadow-sm"
               >
                 <span>{heroCtaFleetText}</span>
               </a>
 
               <a
                 href={`tel:${phoneRaw}`}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium text-sm border border-white/15 transition-colors"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 font-bold text-sm border border-zinc-200 transition-colors shadow-sm"
               >
-                <PhoneCall className="w-4 h-4 text-red-500" />
+                <PhoneCall className="w-4 h-4 text-[#D32F2F]" />
                 <span>{phone}</span>
+              </a>
+
+              <a
+                href={`https://line.me/ti/p/~${lineId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-[#06C755] hover:bg-[#05b34c] text-white font-bold text-sm shadow-sm transition-colors"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>LINE: @{lineId}</span>
               </a>
             </div>
 
             {/* Mini trust checklist */}
-            <div className="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs sm:text-sm text-slate-300">
-              <div className="flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>ประกันภัยสินค้าทุกเที่ยว</span>
+            <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-5 text-xs sm:text-sm text-zinc-600">
+              <div className="flex items-center gap-1.5 font-medium">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>ประกันภัยสินค้าทุกเที่ยว 100%</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-amber-400" />
-                <span>รายงานสถานะ GPS 24 ชม.</span>
+              <div className="flex items-center gap-1.5 font-medium">
+                <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>รายงานสถานะ GPS ตลอด 24 ชม.</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Award className="w-4 h-4 text-red-400" />
+              <div className="flex items-center gap-1.5 font-medium">
+                <Award className="w-4 h-4 text-[#D32F2F] shrink-0" />
                 <span>พันธมิตรเครือข่ายชั้นนำ (KEX)</span>
               </div>
             </div>
           </div>
 
-          {/* Right Floating Showcase Panel (4 cols on lg) - Flattened hierarchy without nested cards */}
-          <div className="lg:col-span-4 hidden lg:block">
-            <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-                <div className="flex items-center gap-2.5">
-                  <MapPin className="w-5 h-5 text-red-500" />
-                  <div>
-                    <h2 className="text-white font-bold text-sm">ศูนย์ปฏิบัติการเดินรถ</h2>
-                    <p className="text-xs text-slate-400">ควบคุมและกระจายงานทั่วประเทศ</p>
-                  </div>
-                </div>
-                <span className="flex items-center gap-1.5 text-xs text-emerald-400 font-semibold bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-800">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  ONLINE
-                </span>
+          {/* Right Floating Showcase Panel (5 cols on lg) */}
+          <div className="lg:col-span-5 space-y-4">
+            {/* Real Fleet Photo in Clean Frame */}
+            <div className="relative rounded-2xl overflow-hidden shadow-xl border border-zinc-200 bg-zinc-100 group">
+              <div className="relative w-full h-56 sm:h-64">
+                <Image
+                  src={heroBannerImage}
+                  alt="5 August Transport Fleet Logistics"
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 500px"
+                  className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                />
               </div>
 
-              {/* Stats grid using borders instead of nested cards */}
-              <div className="grid grid-cols-2 gap-px bg-slate-800 rounded-xl overflow-hidden border border-slate-800">
-                <div className="p-4 bg-slate-900">
-                  <span className="text-xs text-slate-400">{stat1Label}</span>
-                  <div className="text-2xl font-black text-emerald-400 mt-1">{stat1Val}</div>
-                  <span className="text-[10px] text-slate-500">มาตรฐานสากล</span>
+              {/* Floating Status Pill */}
+              <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md border border-zinc-200 text-xs font-bold text-zinc-800 shadow-md flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>ศูนย์ปฏิบัติการเดินรถ ONLINE</span>
+              </div>
+            </div>
+
+            {/* 4 Stats Grid in Crisp Clean White Card */}
+            <div className="bg-white rounded-2xl p-5 border border-zinc-200 shadow-lg space-y-4">
+              <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-[#D32F2F]" />
+                  <span className="text-xs font-bold text-zinc-800">ศูนย์ประสานงานครอบคลุม 77 จังหวัด ทั่วประเทศ</span>
                 </div>
-                <div className="p-4 bg-slate-900">
-                  <span className="text-xs text-slate-400">{stat2Label}</span>
-                  <div className="text-2xl font-black text-white mt-1">{stat2Val}</div>
-                  <span className="text-[10px] text-slate-500">คันทั่วประเทศ</span>
+                <span className="text-[11px] font-bold text-[#D32F2F] uppercase">24 Hours</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-100">
+                  <span className="text-[11px] text-zinc-500 font-medium block">{stat1Label}</span>
+                  <div className="text-xl sm:text-2xl font-black text-[#D32F2F] mt-0.5">{stat1Val}</div>
                 </div>
-                <div className="p-4 bg-slate-900">
-                  <span className="text-xs text-slate-400">{stat3Label}</span>
-                  <div className="text-2xl font-black text-white mt-1">{stat3Val}</div>
-                  <span className="text-[10px] text-slate-500">จังหวัดทั่วไทย</span>
+
+                <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-100">
+                  <span className="text-[11px] text-zinc-500 font-medium block">{stat2Label}</span>
+                  <div className="text-xl sm:text-2xl font-black text-zinc-900 mt-0.5">{stat2Val}</div>
                 </div>
-                <div className="p-4 bg-slate-900">
-                  <span className="text-xs text-slate-400">{stat4Label}</span>
-                  <div className="text-2xl font-black text-amber-400 mt-1">{stat4Val}</div>
-                  <span className="text-[10px] text-slate-500">มีงานประจำรองรับ</span>
+
+                <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-100">
+                  <span className="text-[11px] text-zinc-500 font-medium block">{stat3Label}</span>
+                  <div className="text-xl sm:text-2xl font-black text-zinc-900 mt-0.5">{stat3Val}</div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-zinc-50 border border-zinc-100">
+                  <span className="text-[11px] text-zinc-500 font-medium block">{stat4Label}</span>
+                  <div className="text-xl sm:text-2xl font-black text-emerald-600 mt-0.5">{stat4Val}</div>
                 </div>
               </div>
 
-              {/* Highlight callout with high-contrast text */}
-              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 flex items-center justify-between">
-                <span>ต้องการใบเสนอราคาขนส่งด่วน?</span>
+              <div className="p-3 rounded-xl bg-red-50/70 border border-red-100 text-xs text-zinc-700 flex items-center justify-between">
+                <span className="font-medium">ต้องการขอใบเสนอราคาด่วน?</span>
                 <a
                   href={`tel:${phoneRaw}`}
-                  className="font-bold text-red-400 hover:text-red-300 underline underline-offset-2"
+                  className="font-bold text-[#D32F2F] hover:underline"
                 >
-                  โทรทันที
+                  โทรสายด่วนทันที →
                 </a>
               </div>
             </div>
@@ -178,26 +183,25 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
         </div>
 
         {/* Bottom Ticker Bar */}
-        <div className="mt-16 pt-8 border-t border-slate-800 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <div className="space-y-1">
-            <div className="text-2xl sm:text-3xl font-black text-white">{stat1Val}</div>
-            <p className="text-xs sm:text-sm text-slate-400 font-medium">{stat1Label}</p>
+        <div className="mt-12 sm:mt-16 pt-8 border-t border-zinc-200 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div className="space-y-0.5">
+            <div className="text-2xl sm:text-3xl font-black text-[#D32F2F]">{stat1Val}</div>
+            <p className="text-xs text-zinc-500 font-medium">{stat1Label}</p>
           </div>
-          <div className="space-y-1">
-            <div className="text-2xl sm:text-3xl font-black text-[#D32F2F]">{stat2Val}</div>
-            <p className="text-xs sm:text-sm text-slate-400 font-medium">{stat2Label}</p>
+          <div className="space-y-0.5">
+            <div className="text-2xl sm:text-3xl font-black text-zinc-900">{stat2Val}</div>
+            <p className="text-xs text-zinc-500 font-medium">{stat2Label}</p>
           </div>
-          <div className="space-y-1">
-            <div className="text-2xl sm:text-3xl font-black text-white">{stat3Val}</div>
-            <p className="text-xs sm:text-sm text-slate-400 font-medium">{stat3Label}</p>
+          <div className="space-y-0.5">
+            <div className="text-2xl sm:text-3xl font-black text-zinc-900">{stat3Val}</div>
+            <p className="text-xs text-zinc-500 font-medium">{stat3Label}</p>
           </div>
-          <div className="space-y-1">
-            <div className="text-2xl sm:text-3xl font-black text-amber-400">24/7</div>
-            <p className="text-xs sm:text-sm text-slate-400 font-medium">ศูนย์ควบคุม GPS เรียลไทม์</p>
+          <div className="space-y-0.5">
+            <div className="text-2xl sm:text-3xl font-black text-[#D32F2F]">24 ชม.</div>
+            <p className="text-xs text-zinc-500 font-medium">GPS ติดตามเรียลไทม์</p>
           </div>
         </div>
       </div>
     </section>
   );
 }
-
