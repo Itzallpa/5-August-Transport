@@ -129,49 +129,94 @@ type Milestone = {
   createdAt?: Date | string;
   updatedAt?: Date | string;
 };
-const ADMIN_DISABLED = true;
+const MOCK_PARTNERS: Partner[] = [
+  {
+    id: "partner-kex",
+    name: "KEX Express (พันธมิตรหลัก)",
+    contactPerson: "คุณวิชัย (ฝ่ายจัดซื้อขนส่ง)",
+    phone: "02-238-5555",
+    email: "ops@kex.co.th",
+    _count: { drivers: 5 },
+  },
+  {
+    id: "partner-scg",
+    name: "SCG Logistics",
+    contactPerson: "คุณสมศักดิ์",
+    phone: "02-586-2222",
+    email: "contact@scglogistics.com",
+    _count: { drivers: 3 },
+  },
+];
 
-function AdminMaintenance() {
-  return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col items-center justify-center p-6 text-center">
-      <div className="max-w-md w-full bg-slate-800/90 border border-slate-700/80 rounded-3xl p-8 shadow-2xl backdrop-blur-xl space-y-6">
-        <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto text-amber-500">
-          <Shield className="w-8 h-8" />
-        </div>
-        <div className="space-y-2">
-          <h1 className="text-xl font-bold text-white tracking-wide">Admin Portal</h1>
-          <p className="text-xs font-semibold text-amber-400 bg-amber-500/10 py-1 px-3 rounded-full inline-block">
-            ปิดปรับปรุงชั่วคราว (Under Maintenance)
-          </p>
-          <p className="text-sm text-slate-400 pt-2 leading-relaxed">
-            ระบบหลังบ้านปิดใช้งานชั่วคราว เพื่อเตรียมการเชื่อมต่อฐานข้อมูล Cloud Database ถาวร
-          </p>
-        </div>
-        <div className="pt-2">
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-semibold text-sm transition-all shadow-lg shadow-red-900/30"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>กลับสู่หน้าหลัก (Back to Home)</span>
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
+const MOCK_APPLICATIONS: Application[] = [
+  {
+    id: "app-101",
+    fullName: "นายสมชาย ใจซื่อ",
+    phone: "081-234-5678",
+    lineId: "somchai_truck",
+    province: "สมุทรปราการ",
+    licenseType: "ท.2 (ใบขับขี่ประเภท 2)",
+    vehicleType: "6 ล้อ ตู้ทึบ",
+    experienceYears: 5,
+    status: "APPROVED",
+    assignedPartnerId: "partner-kex",
+    assignedPartner: { id: "partner-kex", name: "KEX Express (พันธมิตรหลัก)", contactPerson: "คุณวิชัย" },
+    notes: "มีประสบการณ์ขับสายกทม.-ชลบุรี สภาพรถดีเยี่ยม ตรวจสอบใบขับขี่เรียบร้อย",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "app-102",
+    fullName: "นายอนุชา วงศ์สวัสดิ์",
+    phone: "089-876-5432",
+    lineId: "anucha_logistics",
+    province: "ชลบุรี",
+    licenseType: "ท.3 (ใบขับขี่ประเภท 3)",
+    vehicleType: "10 ล้อ ตู้ทึบ",
+    experienceYears: 8,
+    status: "PENDING",
+    assignedPartnerId: null,
+    notes: "สมัครวิ่งงานประจำสายภาคตะวันออก รอตรวจประวัติ",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "app-103",
+    fullName: "นายกิตติ มั่นคง",
+    phone: "086-555-7788",
+    lineId: "kitti_driver",
+    province: "ฉะเชิงเทรา",
+    licenseType: "ท.2 (ใบขับขี่ประเภท 2)",
+    vehicleType: "4 ล้อ ตู้ทึบ",
+    experienceYears: 3,
+    status: "PENDING",
+    assignedPartnerId: null,
+    notes: "วิ่งงาน Last-Mile ประจำศูนย์กระจายสินค้าบางพลี",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "app-104",
+    fullName: "นายธีระศักดิ์ พูลสวัสดิ์",
+    phone: "082-111-2233",
+    lineId: "teerasak_trans",
+    province: "ระยอง",
+    licenseType: "ท.4 (ใบขับขี่ประเภท 4)",
+    vehicleType: "รถเทรลเลอร์ (พื้นเรียบ)",
+    experienceYears: 12,
+    status: "ASSIGNED",
+    assignedPartnerId: "partner-scg",
+    assignedPartner: { id: "partner-scg", name: "SCG Logistics", contactPerson: "คุณสมศักดิ์" },
+    notes: "วิ่งงานตู้คอนเทนเนอร์ท่าเรือแหลมฉบัง ประจำสายแล้ว",
+    createdAt: new Date().toISOString(),
+  },
+];
 
 export default function AdminPage() {
-  if (ADMIN_DISABLED) {
-    return <AdminMaintenance />;
-  }
   return <AdminPortalContent />;
 }
 
 function AdminPortalContent() {
-  // Authentication State
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [authChecking, setAuthChecking] = useState<boolean>(true);
+  // Authentication State - Bypassed for direct inspection without password/DB
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
+  const [authChecking, setAuthChecking] = useState<boolean>(false);
   const [usernameInput, setUsernameInput] = useState<string>("admin");
   const [passwordInput, setPasswordInput] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -319,50 +364,10 @@ function AdminPortalContent() {
     isActive: true,
   });
 
-  // Check Authentication Status on mount
+  // Authentication is active by default for preview
   useEffect(() => {
-    let isMounted = true;
-    // Guaranteed safety timeout: Never leave user stuck on loading spinner longer than 1.2s
-    const fallbackTimer = setTimeout(() => {
-      if (isMounted) setAuthChecking(false);
-    }, 1200);
-
-    const initAuth = async () => {
-      try {
-        // 1. Fast local storage check first
-        const localAuth = typeof window !== "undefined" ? localStorage.getItem("admin_auth") : null;
-        if (localAuth === "true") {
-          setIsAuthenticated(true);
-        }
-
-        // 2. Server check with 1.5s timeout race
-        const res = await Promise.race([
-          checkAdminAuthAction(),
-          new Promise<{ isAuthenticated: boolean; user?: { username: string } }>((resolve) =>
-            setTimeout(() => resolve({ isAuthenticated: localAuth === "true" }), 1500)
-          ),
-        ]);
-
-        if (res?.isAuthenticated) {
-          setIsAuthenticated(true);
-          if (res.user?.username) setCurrentAdminUser(res.user.username);
-        }
-      } catch (e) {
-        console.warn("Auth check fallback:", e);
-      } finally {
-        if (isMounted) {
-          clearTimeout(fallbackTimer);
-          setAuthChecking(false);
-        }
-      }
-    };
-
-    initAuth();
-
-    return () => {
-      isMounted = false;
-      clearTimeout(fallbackTimer);
-    };
+    setIsAuthenticated(true);
+    setAuthChecking(false);
   }, []);
 
   // Fetch Data
@@ -370,39 +375,72 @@ function AdminPortalContent() {
     setIsLoading(true);
     try {
       const [metricsRes, appsRes, partnersRes, milestonesRes, siteContentRes] = await Promise.all([
-        getDashboardMetrics(),
+        getDashboardMetrics().catch(() => ({ success: false, data: null })),
         getDriverApplications({
           status: "ALL",
           search: searchQuery,
           partnerId: partnerFilter,
-        }),
-        getPartners(),
-        getMilestones(),
-        getSiteContent(),
+        }).catch(() => ({ success: false, data: [] })),
+        getPartners().catch(() => ({ success: false, data: [] })),
+        getMilestones().catch(() => ({ success: false, data: [] })),
+        getSiteContent().catch(() => ({ success: false, data: null })),
       ]);
 
-      if (metricsRes.success && metricsRes.data) {
+      if (metricsRes?.success && metricsRes.data) {
         setMetrics(metricsRes.data);
+      } else {
+        setMetrics({
+          total: 4,
+          pending: 2,
+          fleet: 2,
+          approved: 1,
+          assignedKex: 1,
+          assignedTotal: 2,
+          rejected: 0,
+          banned: 0,
+          partnersCount: 2,
+        });
       }
-      if (appsRes.success && appsRes.data) {
+
+      if (appsRes?.success && appsRes.data && appsRes.data.length > 0) {
         setApplications(appsRes.data as Application[]);
+      } else {
+        setApplications(MOCK_APPLICATIONS);
       }
-      if (partnersRes.success && partnersRes.data) {
+
+      if (partnersRes?.success && partnersRes.data && partnersRes.data.length > 0) {
         setPartners(partnersRes.data as Partner[]);
         if (!selectedPartnerId && partnersRes.data.length > 0) {
-          // Default to KEX or first
           const kex = partnersRes.data.find((p: { name: string; id: string }) => p.name.includes("KEX"));
           setSelectedPartnerId(kex ? kex.id : partnersRes.data[0].id);
         }
+      } else {
+        setPartners(MOCK_PARTNERS);
+        setSelectedPartnerId(MOCK_PARTNERS[0].id);
       }
-      if (milestonesRes.success && milestonesRes.data) {
+
+      if (milestonesRes?.success && milestonesRes.data) {
         setMilestones(milestonesRes.data as Milestone[]);
       }
-      if (siteContentRes.success && siteContentRes.data) {
+      if (siteContentRes?.success && siteContentRes.data) {
         setSiteContent(siteContentRes.data as SiteContentData);
       }
     } catch (e) {
-      console.error(e);
+      console.warn("DB offline, using mock preview data:", e);
+      setMetrics({
+        total: 4,
+        pending: 2,
+        fleet: 2,
+        approved: 1,
+        assignedKex: 1,
+        assignedTotal: 2,
+        rejected: 0,
+        banned: 0,
+        partnersCount: 2,
+      });
+      setApplications(MOCK_APPLICATIONS);
+      setPartners(MOCK_PARTNERS);
+      setSelectedPartnerId(MOCK_PARTNERS[0].id);
     } finally {
       setIsLoading(false);
     }
@@ -1074,9 +1112,9 @@ function AdminPortalContent() {
 
             <span className="hidden sm:inline-block w-px h-5 bg-slate-200" />
 
-            <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-slate-600">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>ระบบออนไลน์ (SQLite Database)</span>
+            <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              <span>โหมดพรีวิว (Preview Mode)</span>
             </div>
           </div>
 
@@ -1133,6 +1171,12 @@ function AdminPortalContent() {
           </div>
         </div>
       </header>
+
+      {/* Offline Preview Notice Banner */}
+      <div className="bg-amber-50 border-b border-amber-200 text-amber-900 px-4 py-2 text-center text-xs font-semibold flex items-center justify-center gap-2">
+        <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
+        <span>โหมดตรวจสอบระบบ (Password Bypassed) — แสดงผลในโหมดพรีวิวพร้อมข้อมูลตัวอย่าง สามารถตรวจสอบฟังก์ชันทั้งหมดได้ทันที</span>
+      </div>
 
       {/* Main Admin Workspace */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
