@@ -38,6 +38,11 @@ yarn-error.log*
 *.db
 *.db-journal
 *.sqlite
+
+# python
+__pycache__/
+*.pyc
+
 *.sqlite3
 
 # ide & local caches
