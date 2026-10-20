@@ -65,3 +65,10 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
+if (process.env.NODE_ENV === "development") {
+  const dynamicImport = new Function("specifier", "return import(specifier)");
+  dynamicImport("@opennextjs/cloudflare")
+    .then((m: { initOpenNextCloudflareForDev: () => void }) => m.initOpenNextCloudflareForDev())
+    .catch(() => {});
+}
