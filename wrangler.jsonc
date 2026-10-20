@@ -11,14 +11,12 @@
 		"directory": ".open-next/assets",
 		"binding": "ASSETS"
 	},
-	"services": [
-		{
-			// Self-reference service binding, the service name must match the worker name
-			// see https://opennext.js.org/cloudflare/caching
-			"binding": "WORKER_SELF_REFERENCE",
-			"service": "five-august-app"
-		}
-	],
+	// "services": [
+	// 	{
+	// 		"binding": "WORKER_SELF_REFERENCE",
+	// 		"service": "five-august-app"
+	// 	}
+	// ],
 	"images": {
 		// Enable image optimization
 		// see https://opennext.js.org/cloudflare/howtos/image
