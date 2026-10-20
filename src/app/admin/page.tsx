@@ -129,8 +129,46 @@ type Milestone = {
   createdAt?: Date | string;
   updatedAt?: Date | string;
 };
+const ADMIN_DISABLED = true;
+
+function AdminMaintenance() {
+  return (
+    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col items-center justify-center p-6 text-center">
+      <div className="max-w-md w-full bg-slate-800/90 border border-slate-700/80 rounded-3xl p-8 shadow-2xl backdrop-blur-xl space-y-6">
+        <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto text-amber-500">
+          <Shield className="w-8 h-8" />
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-xl font-bold text-white tracking-wide">Admin Portal</h1>
+          <p className="text-xs font-semibold text-amber-400 bg-amber-500/10 py-1 px-3 rounded-full inline-block">
+            ปิดปรับปรุงชั่วคราว (Under Maintenance)
+          </p>
+          <p className="text-sm text-slate-400 pt-2 leading-relaxed">
+            ระบบหลังบ้านปิดใช้งานชั่วคราว เพื่อเตรียมการเชื่อมต่อฐานข้อมูล Cloud Database ถาวร
+          </p>
+        </div>
+        <div className="pt-2">
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-semibold text-sm transition-all shadow-lg shadow-red-900/30"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>กลับสู่หน้าหลัก (Back to Home)</span>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function AdminPage() {
+  if (ADMIN_DISABLED) {
+    return <AdminMaintenance />;
+  }
+  return <AdminPortalContent />;
+}
+
+function AdminPortalContent() {
   // Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [authChecking, setAuthChecking] = useState<boolean>(true);
