@@ -9,14 +9,23 @@ import Milestones from "@/components/Milestones";
 import DriverRecruitmentForm from "@/components/DriverRecruitmentForm";
 import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
-import type { Milestone, SiteContent } from "@prisma/client";
+import type { SiteContentData } from "@/app/actions/site-content-actions";
 
+type Milestone = {
+  id: string;
+  year: string;
+  title: string;
+  description: string;
+  tag?: string | null;
+  orderIndex?: number;
+  isActive?: boolean;
+};
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   let milestones: Milestone[] = [];
-  let content: SiteContent | null = null;
+  let content: Partial<SiteContentData> | null = null;
 
   try {
     const [fetchedMilestones, fetchedContent] = await Promise.all([

@@ -353,7 +353,7 @@ export default function AdminPage() {
         setPartners(partnersRes.data as Partner[]);
         if (!selectedPartnerId && partnersRes.data.length > 0) {
           // Default to KEX or first
-          const kex = partnersRes.data.find((p) => p.name.includes("KEX"));
+          const kex = partnersRes.data.find((p: { name: string; id: string }) => p.name.includes("KEX"));
           setSelectedPartnerId(kex ? kex.id : partnersRes.data[0].id);
         }
       }

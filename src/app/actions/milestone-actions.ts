@@ -135,7 +135,7 @@ export async function moveMilestoneOrder(id: string, direction: "up" | "down") {
       orderBy: [{ orderIndex: "asc" }, { createdAt: "asc" }],
     });
 
-    const currentIndex = all.findIndex((m) => m.id === id);
+    const currentIndex = all.findIndex((m: { id: string }) => m.id === id);
     if (currentIndex === -1) return { success: false, error: "ไม่พบข้อมูล" };
 
     const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
