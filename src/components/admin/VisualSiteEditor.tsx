@@ -244,8 +244,15 @@ export default function VisualSiteEditor({
           headers: { "X-Requested-With": "5-August-Transport-App" },
           body: fd,
         });
-        const data = await res.json();
-        if (data.success && data.url) {
+
+        let data: any = null;
+        try {
+          data = await res.json();
+        } catch {
+          // Response is not JSON
+        }
+
+        if (res.ok && data?.success && data?.url) {
           onDone(data.url);
           Swal.fire({
             icon: "success",
@@ -254,15 +261,25 @@ export default function VisualSiteEditor({
             showConfirmButton: false,
           });
         } else {
+          const errMsg =
+            data?.error ||
+            (res.status === 413
+              ? "ไฟล์มีขนาดใหญ่เกินไป (เกินขีดจำกัดของเซิร์ฟเวอร์)"
+              : `เกิดข้อผิดพลาดในการอัปโหลด (รหัส ${res.status})`);
           Swal.fire({
             icon: "error",
             title: "อัปโหลดไม่สำเร็จ",
-            text: data.error || "เกิดข้อผิดพลาด",
+            text: errMsg,
             confirmButtonColor: "#D32F2F",
           });
         }
-      } catch {
-        Swal.fire({ icon: "error", title: "การเชื่อมต่อขัดข้อง", confirmButtonColor: "#D32F2F" });
+      } catch (err: any) {
+        Swal.fire({
+          icon: "error",
+          title: "การเชื่อมต่อขัดข้อง",
+          text: err?.message || "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์อัปโหลดได้",
+          confirmButtonColor: "#D32F2F",
+        });
       } finally {
         setUploading(false);
       }
@@ -284,8 +301,15 @@ export default function VisualSiteEditor({
           headers: { "X-Requested-With": "5-August-Transport-App" },
           body: fd,
         });
-        const data = await res.json();
-        if (data.success && data.url) {
+
+        let data: any = null;
+        try {
+          data = await res.json();
+        } catch {
+          // Response is not JSON
+        }
+
+        if (res.ok && data?.success && data?.url) {
           onFieldChange(field as keyof SiteContentData, data.url);
           Swal.fire({
             icon: "success",
@@ -293,9 +317,26 @@ export default function VisualSiteEditor({
             timer: 1400,
             showConfirmButton: false,
           });
+        } else {
+          const errMsg =
+            data?.error ||
+            (res.status === 413
+              ? "ไฟล์มีขนาดใหญ่เกินไป (เกินขีดจำกัดของเซิร์ฟเวอร์)"
+              : `เกิดข้อผิดพลาดในการอัปโหลด (รหัส ${res.status})`);
+          Swal.fire({
+            icon: "error",
+            title: "อัปโหลดไม่สำเร็จ",
+            text: errMsg,
+            confirmButtonColor: "#D32F2F",
+          });
         }
-      } catch {
-        Swal.fire({ icon: "error", title: "การเชื่อมต่อขัดข้อง", confirmButtonColor: "#D32F2F" });
+      } catch (err: any) {
+        Swal.fire({
+          icon: "error",
+          title: "การเชื่อมต่อขัดข้อง",
+          text: err?.message || "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์อัปโหลดได้",
+          confirmButtonColor: "#D32F2F",
+        });
       } finally {
         setUploading(false);
       }

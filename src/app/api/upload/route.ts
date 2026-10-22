@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       request.headers.get("x-real-ip") ||
       "unknown-ip";
 
-    const rateLimit = checkRateLimit(`upload:${clientIp}`, 12, 60 * 1000);
+    const rateLimit = checkRateLimit(`upload:${clientIp}`, 40, 60 * 1000);
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { success: false, error: "คุณอัปโหลดไฟล์บ่อยเกินไป กรุณารอสักครู่ (Rate Limit Exceeded)" },
@@ -81,10 +81,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 2. Strict file size cap (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
+    // 2. Strict file size cap (max 15MB)
+    if (file.size > 15 * 1024 * 1024) {
       return NextResponse.json(
-        { success: false, error: "ขนาดไฟล์ต้องไม่เกิน 5MB" },
+        { success: false, error: "ขนาดไฟล์ต้องไม่เกิน 15MB" },
         { status: 400 }
       );
     }

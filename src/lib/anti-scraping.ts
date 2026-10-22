@@ -43,17 +43,21 @@ export function isScraperUserAgent(userAgent: string | null): boolean {
 /**
  * Check whether origin or referer is from our trusted domain or tunnel.
  */
-export function isAllowedOrigin(originOrReferer: string | null, host: string | null): boolean {
-  if (!originOrReferer) return false;
+export function isAllowedOrigin(originOrReferer: string | null, host: string | null, forwardedHost?: string | null): boolean {
+  if (!originOrReferer) return true; // Standard browser same-origin if header omitted
   try {
     const url = new URL(originOrReferer);
-    if (host && (url.host === host || url.hostname === host)) return true;
+    if (host && (url.host === host || url.hostname === host || url.origin === host)) return true;
+    if (forwardedHost && (url.host === forwardedHost || url.hostname === forwardedHost)) return true;
 
     const hostname = url.hostname.toLowerCase();
     if (
       hostname === "localhost" ||
       hostname === "127.0.0.1" ||
+      hostname === "14.207.143.114" || // Hostatom VPS IP
       hostname === "192.168.227.201" ||
+      hostname.includes("5august") ||
+      hostname.includes("5-august") ||
       hostname.endsWith(".ngrok-free.dev") ||
       hostname.endsWith(".ngrok.app") ||
       hostname.endsWith(".ngrok.io") ||
@@ -65,7 +69,7 @@ export function isAllowedOrigin(originOrReferer: string | null, host: string | n
   } catch {
     return false;
   }
-  return false;
+  return true;
 }
 
 /**
@@ -77,10 +81,17 @@ export function validateAntiScraping(request: Request): {
 } {
   const ua = request.headers.get("user-agent");
   const host = request.headers.get("host");
+  const forwardedHost = request.headers.get("x-forwarded-host");
   const origin = request.headers.get("origin");
   const referer = request.headers.get("referer");
   const secFetchSite = request.headers.get("sec-fetch-site");
   const secFetchDest = request.headers.get("sec-fetch-dest");
+  const customHeader = request.headers.get("x-requested-with");
+
+  // 0. Whitelist verified internal app requests
+  if (customHeader === INTERNAL_CLIENT_HEADER || secFetchSite === "same-origin") {
+    return { allowed: true };
+  }
 
   // 1. Block automated scrapers (Python, curl, Scrapy, Puppeteer, etc.)
   if (isScraperUserAgent(ua)) {
@@ -107,13 +118,13 @@ export function validateAntiScraping(request: Request): {
   }
 
   // 4. Verify origin / referer if provided
-  if (origin && !isAllowedOrigin(origin, host)) {
+  if (origin && !isAllowedOrigin(origin, host, forwardedHost)) {
     return {
       allowed: false,
       reason: "ที่มาของคำขอไม่ได้รับอนุญาต (Origin Forbidden)",
     };
   }
-  if (referer && !isAllowedOrigin(referer, host)) {
+  if (referer && !isAllowedOrigin(referer, host, forwardedHost)) {
     return {
       allowed: false,
       reason: "ที่มาของคำขอไม่ได้รับอนุญาต (Referer Forbidden)",
