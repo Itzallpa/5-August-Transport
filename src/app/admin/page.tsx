@@ -48,6 +48,7 @@ import {
   Ban,
   UserX,
   UserPlus,
+  Loader2,
 } from "lucide-react";
 import {
   getDashboardMetrics,
@@ -66,6 +67,8 @@ import {
   getAdminUsersAction,
   createAdminUserAction,
   deleteAdminUserAction,
+  resetUserPasswordByAdminAction,
+  updateAdminUserRoleAction,
   type AdminUserData,
 } from "@/app/actions/admin-actions";
 import {
@@ -227,8 +230,9 @@ function AdminPortalContent() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [currentAdminUser, setCurrentAdminUser] = useState<string>("admin");
+  const [currentAdminRole, setCurrentAdminRole] = useState<string>("ADMIN");
 
-  // Change Password Modal State
+  // Change Password Modal State (Self)
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState<boolean>(false);
   const [currentPasswordInput, setCurrentPasswordInput] = useState<string>("");
   const [newPasswordInput, setNewPasswordInput] = useState<string>("");
@@ -247,10 +251,21 @@ function AdminPortalContent() {
   // Admin User Management State
   const [adminUsers, setAdminUsers] = useState<AdminUserData[]>([]);
   const [isNewUserModalOpen, setIsNewUserModalOpen] = useState<boolean>(false);
-  const [newUsername, setNewUsername] = useState<string>("");
+  const [newUsername, setNewUsername] = useState<string>("" );
   const [newUserPassword, setNewUserPassword] = useState<string>("");
   const [newUserRole, setNewUserRole] = useState<string>("ADMIN");
   const [isCreatingUser, setIsCreatingUser] = useState<boolean>(false);
+
+  // Reset Other User Password State (Admin override)
+  const [isResetOtherModalOpen, setIsResetOtherModalOpen] = useState<boolean>(false);
+  const [targetResetUser, setTargetResetUser] = useState<AdminUserData | null>(null);
+  const [resetOtherPasswordInput, setResetOtherPasswordInput] = useState<string>("");
+  const [resetOtherConfirmInput, setResetOtherConfirmInput] = useState<string>("");
+  const [resetOtherRoleInput, setResetOtherRoleInput] = useState<string>("ADMIN");
+  const [showResetOtherPassword, setShowResetOtherPassword] = useState<boolean>(false);
+  const [isResettingOtherPassword, setIsResettingOtherPassword] = useState<boolean>(false);
+  const [resetOtherError, setResetOtherError] = useState<string | null>(null);
+  const [resetOtherSuccess, setResetOtherSuccess] = useState<string | null>(null);
 
   // CMS Sub-Tab
   const [cmsSubTab, setCmsSubTab] = useState<"company" | "hero" | "about" | "recruitment" | "quote">("company");
@@ -387,14 +402,18 @@ function AdminPortalContent() {
         if (res.isAuthenticated && res.user) {
           setIsAuthenticated(true);
           setCurrentAdminUser(res.user.username);
+          setCurrentAdminRole(res.user.role || "ADMIN");
           localStorage.setItem("admin_auth", "true");
           localStorage.setItem("admin_username", res.user.username);
+          localStorage.setItem("admin_role", res.user.role || "ADMIN");
         } else {
           const isLocalAuth = localStorage.getItem("admin_auth") === "true";
           const savedUser = localStorage.getItem("admin_username");
+          const savedRole = localStorage.getItem("admin_role");
           if (isLocalAuth) {
             setIsAuthenticated(true);
             if (savedUser) setCurrentAdminUser(savedUser);
+            if (savedRole) setCurrentAdminRole(savedRole || "ADMIN");
           }
         }
       } catch (e) {
@@ -506,7 +525,10 @@ function AdminPortalContent() {
       if (res.success && res.user) {
         setIsAuthenticated(true);
         setCurrentAdminUser(res.user.username);
+        setCurrentAdminRole(res.user.role || "ADMIN");
         localStorage.setItem("admin_auth", "true");
+        localStorage.setItem("admin_username", res.user.username);
+        localStorage.setItem("admin_role", res.user.role || "ADMIN");
         setPasswordInput("");
         setAuthError(null);
         showToast(`ยินดีต้อนรับคุณ ${res.user.username} เข้าสู่ระบบ`);
@@ -539,9 +561,11 @@ function AdminPortalContent() {
         await adminLogoutAction();
         localStorage.removeItem("admin_auth");
         localStorage.removeItem("admin_username");
+        localStorage.removeItem("admin_role");
         setIsAuthenticated(false);
         setPasswordInput("");
         setCurrentAdminUser("admin");
+        setCurrentAdminRole("ADMIN");
         Swal.fire({
           icon: "info",
           title: "ออกจากระบบเรียบร้อยแล้ว",
@@ -1019,6 +1043,58 @@ function AdminPortalContent() {
     });
   };
 
+  // Admin Override: Reset password for other users
+  const handleResetOtherUserPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!targetResetUser) return;
+    setResetOtherError(null);
+    setResetOtherSuccess(null);
+
+    if (!resetOtherPasswordInput) {
+      setResetOtherError("กรุณากรอกรหัสผ่านใหม่");
+      return;
+    }
+    if (resetOtherPasswordInput.length < 4) {
+      setResetOtherError("รหัสผ่านใหม่ต้องมีความยาวอย่างน้อย 4 ตัวอักษร");
+      return;
+    }
+    if (resetOtherPasswordInput !== resetOtherConfirmInput) {
+      setResetOtherError("รหัสผ่านใหม่และการยืนยันไม่ตรงกัน");
+      return;
+    }
+
+    setIsResettingOtherPassword(true);
+    try {
+      const passRes = await resetUserPasswordByAdminAction(
+        targetResetUser.id,
+        resetOtherPasswordInput
+      );
+      if (!passRes.success) {
+        setResetOtherError(passRes.error || "ไม่สามารถเปลี่ยนรหัสผ่านได้");
+        setIsResettingOtherPassword(false);
+        return;
+      }
+
+      // If role changed
+      if (resetOtherRoleInput && resetOtherRoleInput !== targetResetUser.role) {
+        await updateAdminUserRoleAction(targetResetUser.id, resetOtherRoleInput);
+      }
+
+      setResetOtherSuccess(passRes.message || `เปลี่ยนรหัสผ่านให้ผู้ใช้ "${targetResetUser.username}" สำเร็จแล้ว!`);
+      refreshData();
+
+      setTimeout(() => {
+        setIsResetOtherModalOpen(false);
+        setResetOtherSuccess(null);
+        showToast(`✓ เปลี่ยนรหัสผ่านให้ผู้ใช้ ${targetResetUser.username} เรียบร้อยแล้ว`);
+      }, 1400);
+    } catch {
+      setResetOtherError("เกิดข้อผิดพลาดในการเชื่อมต่อ");
+    } finally {
+      setIsResettingOtherPassword(false);
+    }
+  };
+
   // Status Badge Helper
   const renderStatusBadge = (status: string, partnerName?: string | null) => {
     switch (status) {
@@ -1249,8 +1325,11 @@ function AdminPortalContent() {
           <div className="flex items-center gap-2.5">
             {/* Logged in User Badge */}
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-slate-100 border border-slate-200 text-xs">
-              <User className="w-3.5 h-3.5 text-red-400" />
+              <User className="w-3.5 h-3.5 text-red-500" />
               <span className="text-slate-800 font-bold">{currentAdminUser}</span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-[#D32F2F]">
+                {currentAdminRole}
+              </span>
             </div>
 
             {/* Change Password Button */}
@@ -2623,32 +2702,54 @@ function AdminPortalContent() {
                               })}
                             </td>
                             <td className="px-6 py-4 text-right">
-                              {isSelf ? (
-                                <button
-                                  onClick={() => {
-                                    setChangePasswordError(null);
-                                    setChangePasswordSuccess(null);
-                                    setCurrentPasswordInput("");
-                                    setNewPasswordInput("");
-                                    setConfirmPasswordInput("");
-                                    setIsChangePasswordModalOpen(true);
-                                  }}
-                                  className="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold inline-flex items-center gap-1.5 transition-colors shadow-sm"
-                                  title="เปลี่ยนรหัสผ่านสำหรับบัญชีของคุณ"
-                                >
-                                  <KeyRound className="w-3.5 h-3.5 text-amber-600" />
-                                  <span>เปลี่ยนรหัสผ่านของฉัน</span>
-                                </button>
-                              ) : (
-                                <button
-                                  onClick={() => handleDeleteAdminUser(u.id, u.username)}
-                                  className="p-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 transition-colors shadow-sm inline-flex items-center gap-1 text-xs font-bold"
-                                  title={`ลบผู้ใช้ ${u.username}`}
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                  <span>ลบผู้ใช้</span>
-                                </button>
-                              )}
+                              <div className="flex items-center justify-end gap-2">
+                                {isSelf ? (
+                                  <button
+                                    onClick={() => {
+                                      setChangePasswordError(null);
+                                      setChangePasswordSuccess(null);
+                                      setCurrentPasswordInput("");
+                                      setNewPasswordInput("");
+                                      setConfirmPasswordInput("");
+                                      setIsChangePasswordModalOpen(true);
+                                    }}
+                                    className="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold inline-flex items-center gap-1.5 transition-colors shadow-sm"
+                                    title="เปลี่ยนรหัสผ่านสำหรับบัญชีของคุณ"
+                                  >
+                                    <KeyRound className="w-3.5 h-3.5 text-amber-600" />
+                                    <span>เปลี่ยนรหัสผ่านของฉัน</span>
+                                  </button>
+                                ) : (
+                                  <>
+                                    <button
+                                      onClick={() => {
+                                        setTargetResetUser(u);
+                                        setResetOtherPasswordInput("");
+                                        setResetOtherConfirmInput("");
+                                        setResetOtherRoleInput(u.role || "ADMIN");
+                                        setResetOtherError(null);
+                                        setResetOtherSuccess(null);
+                                        setShowResetOtherPassword(false);
+                                        setIsResetOtherModalOpen(true);
+                                      }}
+                                      className="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-bold inline-flex items-center gap-1.5 transition-colors shadow-sm"
+                                      title={`เปลี่ยนรหัสผ่านหรือสิทธิ์ให้ ${u.username}`}
+                                    >
+                                      <KeyRound className="w-3.5 h-3.5 text-blue-600" />
+                                      <span>เปลี่ยนรหัส</span>
+                                    </button>
+
+                                    <button
+                                      onClick={() => handleDeleteAdminUser(u.id, u.username)}
+                                      className="p-1.5 px-2.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 transition-colors shadow-sm inline-flex items-center gap-1 text-xs font-bold"
+                                      title={`ลบผู้ใช้ ${u.username}`}
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                      <span>ลบผู้ใช้</span>
+                                    </button>
+                                  </>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         );
@@ -3577,6 +3678,145 @@ function AdminPortalContent() {
                   type="button"
                   onClick={() => setIsNewUserModalOpen(false)}
                   className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors"
+                >
+                  ยกเลิก
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: RESET OTHER USER'S PASSWORD BY ADMIN */}
+      {isResetOtherModalOpen && targetResetUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 sm:p-7 space-y-5 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center">
+                  <KeyRound className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">เปลี่ยนรหัสผ่านของผู้ใช้ (Admin Override)</h3>
+                  <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+                    <span>ผู้ใช้งานเป้าหมาย:</span>
+                    <span className="font-bold text-slate-900 px-2 py-0.5 rounded bg-blue-50 border border-blue-200 text-blue-700">
+                      {targetResetUser.username}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsResetOtherModalOpen(false)}
+                className="text-slate-400 hover:text-slate-700 hover:bg-slate-100 p-1.5 rounded-lg text-lg font-bold transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs flex items-start gap-2.5">
+              <Shield className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold">สิทธิ์ผู้ดูแลระบบ (Admin Privileges):</span>
+                <p className="mt-0.5 text-amber-700">
+                  คุณสามารถตั้งรหัสผ่านใหม่ให้ผู้ใช้ <strong>{targetResetUser.username}</strong> ได้ทันที โดยไม่ต้องใช้รหัสผ่านเดิมของผู้ใช้
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleResetOtherUserPassword} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700">
+                  ระดับสิทธิ์ (Role)
+                </label>
+                <select
+                  value={resetOtherRoleInput}
+                  onChange={(e) => setResetOtherRoleInput(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 text-sm focus:bg-white focus:outline-none focus:border-[#D32F2F]"
+                >
+                  <option value="ADMIN">ADMIN (ผู้ดูแลระบบ)</option>
+                  {currentAdminRole === "SUPERADMIN" && (
+                    <option value="SUPERADMIN">SUPERADMIN (ผู้ดูแลระบบสูงสุด)</option>
+                  )}
+                  <option value="STAFF">STAFF (เจ้าหน้าที่ปฏิบัติการ)</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700">
+                  รหัสผ่านใหม่ (New Password) *
+                </label>
+                <div className="relative">
+                  <input
+                    type={showResetOtherPassword ? "text" : "password"}
+                    required
+                    value={resetOtherPasswordInput}
+                    onChange={(e) => setResetOtherPasswordInput(e.target.value)}
+                    placeholder="กรอกรหัสผ่านใหม่ (อย่างน้อย 4 ตัวอักษร)"
+                    className="w-full px-3.5 py-2.5 pr-10 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 text-sm focus:bg-white focus:outline-none focus:border-[#D32F2F]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowResetOtherPassword(!showResetOtherPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                    tabIndex={-1}
+                  >
+                    {showResetOtherPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700">
+                  ยืนยันรหัสผ่านใหม่ (Confirm Password) *
+                </label>
+                <input
+                  type={showResetOtherPassword ? "text" : "password"}
+                  required
+                  value={resetOtherConfirmInput}
+                  onChange={(e) => setResetOtherConfirmInput(e.target.value)}
+                  placeholder="กรอกรหัสผ่านใหม่อีกครั้งเพื่อยืนยัน"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 text-sm focus:bg-white focus:outline-none focus:border-[#D32F2F]"
+                />
+              </div>
+
+              {resetOtherError && (
+                <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  <span>{resetOtherError}</span>
+                </div>
+              )}
+
+              {resetOtherSuccess && (
+                <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>{resetOtherSuccess}</span>
+                </div>
+              )}
+
+              <div className="flex gap-2.5 pt-2">
+                <button
+                  type="submit"
+                  disabled={isResettingOtherPassword}
+                  className="flex-1 py-2.5 rounded-lg bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {isResettingOtherPassword ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>กำลังบันทึกข้อมูล...</span>
+                    </>
+                  ) : (
+                    <>
+                      <KeyRound className="w-4 h-4" />
+                      <span>บันทึกรหัสผ่านใหม่</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsResetOtherModalOpen(false)}
+                  className="px-4 py-2.5 rounded-lg bg-slate-100 text-slate-700 font-semibold text-sm hover:bg-slate-200 transition-colors"
                 >
                   ยกเลิก
                 </button>

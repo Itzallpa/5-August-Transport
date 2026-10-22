@@ -704,3 +704,122 @@ export async function deleteAdminUserAction(userId: string) {
   }
 }
 
+export async function resetUserPasswordByAdminAction(
+  targetUserId: string,
+  newPasswordInput: string
+) {
+  const auth = await requireAdminAuth();
+  if (!auth.authorized || !auth.user) {
+    return { success: false, error: "Unauthorized: กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  }
+
+  const requesterRole = (auth.user.role || "ADMIN").toUpperCase();
+  if (requesterRole !== "SUPERADMIN" && requesterRole !== "ADMIN") {
+    return {
+      success: false,
+      error: "สิทธิ์ไม่เพียงพอ: เฉพาะผู้ดูแลระบบ (Admin หรือ Super Admin) เท่านั้นที่สามารถเปลี่ยนรหัสผ่านของผู้ใช้อื่นได้",
+    };
+  }
+
+  try {
+    const newPassword = newPasswordInput.trim();
+    if (!newPassword || newPassword.length < 4) {
+      return { success: false, error: "รหัสผ่านใหม่ต้องมีความยาวอย่างน้อย 4 ตัวอักษร" };
+    }
+
+    const targetUser = await prisma.adminUser.findUnique({
+      where: { id: targetUserId },
+    });
+
+    if (!targetUser) {
+      return { success: false, error: "ไม่พบบัญชีผู้ใช้งานที่ต้องการเปลี่ยนรหัสผ่าน" };
+    }
+
+    // Role hierarchy check: only SUPERADMIN can change another SUPERADMIN
+    const targetRole = (targetUser.role || "ADMIN").toUpperCase();
+    if (targetRole === "SUPERADMIN" && requesterRole !== "SUPERADMIN") {
+      return {
+        success: false,
+        error: "สิทธิ์ไม่เพียงพอ: บัญชี Super Admin สามารถถูกแก้ไขได้โดยผู้มียศ Super Admin ด้วยกันเท่านั้น",
+      };
+    }
+
+    const passwordHash = await hashPassword(newPassword);
+
+    await prisma.adminUser.update({
+      where: { id: targetUserId },
+      data: { passwordHash },
+    });
+
+    revalidatePath("/admin");
+    return {
+      success: true,
+      message: `เปลี่ยนรหัสผ่านให้ผู้ใช้ "${targetUser.username}" สำเร็จเรียบร้อยแล้ว`,
+    };
+  } catch (error) {
+    console.error("Error resetting user password by admin:", error);
+    return { success: false, error: "เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่านผู้ใช้งาน" };
+  }
+}
+
+export async function updateAdminUserRoleAction(
+  targetUserId: string,
+  newRoleInput: string
+) {
+  const auth = await requireAdminAuth();
+  if (!auth.authorized || !auth.user) {
+    return { success: false, error: "Unauthorized: กรุณาเข้าสู่ระบบก่อนดำเนินการ" };
+  }
+
+  const requesterRole = (auth.user.role || "ADMIN").toUpperCase();
+  if (requesterRole !== "SUPERADMIN" && requesterRole !== "ADMIN") {
+    return {
+      success: false,
+      error: "สิทธิ์ไม่เพียงพอ: เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถเปลี่ยนระดับสิทธิ์ได้",
+    };
+  }
+
+  try {
+    const role = newRoleInput.trim().toUpperCase();
+    if (!["SUPERADMIN", "ADMIN", "STAFF"].includes(role)) {
+      return { success: false, error: "ระดับสิทธิ์ไม่ถูกต้อง" };
+    }
+
+    const targetUser = await prisma.adminUser.findUnique({
+      where: { id: targetUserId },
+    });
+
+    if (!targetUser) {
+      return { success: false, error: "ไม่พบบัญชีผู้ใช้" };
+    }
+
+    if (targetUser.role === "SUPERADMIN" && requesterRole !== "SUPERADMIN") {
+      return {
+        success: false,
+        error: "สิทธิ์ไม่เพียงพอ: ไม่สามารถเปลี่ยนสิทธิ์ของ Super Admin ได้",
+      };
+    }
+
+    if (role === "SUPERADMIN" && requesterRole !== "SUPERADMIN") {
+      return {
+        success: false,
+        error: "สิทธิ์ไม่เพียงพอ: เฉพาะ Super Admin เท่านั้นที่สามารถแต่งตั้งสิทธิ์ Super Admin ได้",
+      };
+    }
+
+    await prisma.adminUser.update({
+      where: { id: targetUserId },
+      data: { role },
+    });
+
+    revalidatePath("/admin");
+    return {
+      success: true,
+      message: `เปลี่ยนระดับสิทธิ์ของ "${targetUser.username}" เป็น ${role} สำเร็จแล้ว`,
+    };
+  } catch (error) {
+    console.error("Error updating user role:", error);
+    return { success: false, error: "เกิดข้อผิดพลาดในการเปลี่ยนระดับสิทธิ์" };
+  }
+}
+
