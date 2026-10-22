@@ -15,8 +15,8 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
   const phoneRaw = content?.phoneRaw || COMPANY_INFO.phoneRaw;
   const lineId = content?.lineId || COMPANY_INFO.lineId;
 
-  // Real Fleet Banner Image
-  const heroBannerImage = "/images/thai_transport_hero.jpg";
+  // Real Fleet Banner Image (from CMS or fallback)
+  const heroBannerImage = content?.heroImageUrl || "/images/thai_transport_hero.jpg";
 
   // Stats
   const stat1Label = content?.heroStat1Label || "ตรงต่อเวลาเฉลี่ย";

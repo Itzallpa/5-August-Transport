@@ -33,7 +33,7 @@ export default function Navbar({ content }: { content?: Partial<SiteContentData>
           <Link href="#home" className="flex items-center gap-3.5 group py-1 shrink-0">
             <div className="relative h-12 sm:h-14 w-36 sm:w-44 shrink-0 transition-transform group-hover:scale-105">
               <Image
-                src="/images/logo.png"
+                src={content?.logoUrl || "/images/logo.png"}
                 alt="5 August Transport Logo"
                 fill
                 priority
