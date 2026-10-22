@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Phone, Menu, X, Shield, Truck, MessageSquare } from "lucide-react";
+import { Phone, Menu, X, Truck, MessageSquare } from "lucide-react";
 import { COMPANY_INFO } from "@/lib/constants";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
 
@@ -82,14 +82,7 @@ export default function Navbar({ content }: { content?: Partial<SiteContentData>
               <span>สมัครร่วมงาน (Apply Now)</span>
             </a>
 
-            <Link
-              href="/admin"
-              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors border border-slate-200 text-xs flex items-center gap-1.5"
-              title="เข้าสู่ระบบ Admin Portal"
-            >
-              <Shield className="w-4 h-4 text-amber-500" />
-              <span className="hidden xl:inline font-semibold">แอดมิน</span>
-            </Link>
+
           </div>
 
           {/* Mobile Menu Button */}
@@ -139,23 +132,14 @@ export default function Navbar({ content }: { content?: Partial<SiteContentData>
               <span>สมัครร่วมงาน (Apply Now)</span>
             </a>
 
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
               <a
                 href={`tel:${phoneRaw}`}
-                className="flex items-center justify-center gap-2 flex-1 py-2.5 rounded-xl bg-slate-100 text-slate-800 font-semibold text-sm border border-slate-200"
+                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-slate-100 text-slate-800 font-semibold text-sm border border-slate-200"
               >
                 <Phone className="w-4 h-4 text-[#D32F2F]" />
                 <span>โทร: {phone}</span>
               </a>
-
-              <Link
-                href="/admin"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-semibold text-sm border border-slate-200"
-              >
-                <Shield className="w-4 h-4 text-amber-500" />
-                <span>Admin</span>
-              </Link>
             </div>
           </div>
         </div>
