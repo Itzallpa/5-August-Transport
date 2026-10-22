@@ -47,6 +47,7 @@ import {
   RotateCcw,
   Ban,
   UserX,
+  UserPlus,
 } from "lucide-react";
 import {
   getDashboardMetrics,
@@ -62,6 +63,10 @@ import {
   adminLogoutAction,
   checkAdminAuthAction,
   changeAdminPasswordAction,
+  getAdminUsersAction,
+  createAdminUserAction,
+  deleteAdminUserAction,
+  type AdminUserData,
 } from "@/app/actions/admin-actions";
 import {
   getMilestones,
@@ -232,10 +237,18 @@ function AdminPortalContent() {
   const [changePasswordSuccess, setChangePasswordSuccess] = useState<string | null>(null);
   const [isChangingPassword, setIsChangingPassword] = useState<boolean>(false);
 
-  // Active Tab: 'applications' | 'fleet' | 'rejected' | 'banned' | 'overview' | 'partners' | 'milestones' | 'siteContent'
+  // Active Tab: 'applications' | 'fleet' | 'rejected' | 'banned' | 'overview' | 'partners' | 'milestones' | 'siteContent' | 'users'
   const [activeTab, setActiveTab] = useState<
-    "applications" | "fleet" | "rejected" | "banned" | "overview" | "partners" | "milestones" | "siteContent"
+    "applications" | "fleet" | "rejected" | "banned" | "overview" | "partners" | "milestones" | "siteContent" | "users"
   >("applications");
+
+  // Admin User Management State
+  const [adminUsers, setAdminUsers] = useState<AdminUserData[]>([]);
+  const [isNewUserModalOpen, setIsNewUserModalOpen] = useState<boolean>(false);
+  const [newUsername, setNewUsername] = useState<string>("");
+  const [newUserPassword, setNewUserPassword] = useState<string>("");
+  const [newUserRole, setNewUserRole] = useState<string>("ADMIN");
+  const [isCreatingUser, setIsCreatingUser] = useState<boolean>(false);
 
   // CMS Sub-Tab
   const [cmsSubTab, setCmsSubTab] = useState<"company" | "hero" | "about" | "recruitment" | "quote">("company");
@@ -377,7 +390,7 @@ function AdminPortalContent() {
   const refreshData = async () => {
     setIsLoading(true);
     try {
-      const [metricsRes, appsRes, partnersRes, milestonesRes, siteContentRes] = await Promise.all([
+      const [metricsRes, appsRes, partnersRes, milestonesRes, siteContentRes, usersRes] = await Promise.all([
         getDashboardMetrics().catch(() => ({ success: false, data: null })),
         getDriverApplications({
           status: "ALL",
@@ -387,6 +400,7 @@ function AdminPortalContent() {
         getPartners().catch(() => ({ success: false, data: [] })),
         getMilestones().catch(() => ({ success: false, data: [] })),
         getSiteContent().catch(() => ({ success: false, data: null })),
+        getAdminUsersAction().catch(() => ({ success: false, data: [] })),
       ]);
 
       if (metricsRes?.success && metricsRes.data) {
@@ -426,6 +440,9 @@ function AdminPortalContent() {
       }
       if (siteContentRes?.success && siteContentRes.data) {
         setSiteContent(siteContentRes.data as SiteContentData);
+      }
+      if (usersRes?.success && usersRes.data) {
+        setAdminUsers(usersRes.data as AdminUserData[]);
       }
     } catch (e) {
       console.warn("Database query notice:", e);
@@ -881,6 +898,105 @@ function AdminPortalContent() {
     });
   };
 
+  // User Management Handlers
+  const handleCreateAdminUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newUsername.trim() || !newUserPassword.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: "กรุณากรอกข้อมูลให้ครบถ้วน",
+        text: "ชื่อผู้ใช้ (Username) และรหัสผ่านห้ามเว้นว่าง",
+        confirmButtonColor: "#D32F2F",
+      });
+      return;
+    }
+
+    if (newUsername.trim().length < 3) {
+      Swal.fire({
+        icon: "warning",
+        title: "ชื่อผู้ใช้สั้นเกินไป",
+        text: "ชื่อผู้ใช้ต้องมีความยาวอย่างน้อย 3 ตัวอักษร",
+        confirmButtonColor: "#D32F2F",
+      });
+      return;
+    }
+
+    if (newUserPassword.length < 6) {
+      Swal.fire({
+        icon: "warning",
+        title: "รหัสผ่านสั้นเกินไป",
+        text: "รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร เพื่อความปลอดภัย",
+        confirmButtonColor: "#D32F2F",
+      });
+      return;
+    }
+
+    setIsCreatingUser(true);
+    try {
+      const res = await createAdminUserAction(newUsername, newUserPassword, newUserRole);
+      if (res.success) {
+        Swal.fire({
+          icon: "success",
+          title: "สร้างผู้ใช้งานสำเร็จ!",
+          text: res.message || `สร้างผู้ใช้ "${newUsername}" เรียบร้อยแล้ว`,
+          confirmButtonColor: "#D32F2F",
+        });
+        setIsNewUserModalOpen(false);
+        setNewUsername("");
+        setNewUserPassword("");
+        setNewUserRole("ADMIN");
+        refreshData();
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด",
+          text: res.error || "ไม่สามารถสร้างผู้ใช้งานได้",
+          confirmButtonColor: "#D32F2F",
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาด",
+        text: "ระบบไม่สามารถดำเนินการได้ในขณะนี้",
+        confirmButtonColor: "#D32F2F",
+      });
+    } finally {
+      setIsCreatingUser(false);
+    }
+  };
+
+  const handleDeleteAdminUser = async (userId: string, targetUsername: string) => {
+    Swal.fire({
+      title: `ยืนยันการลบผู้ใช้ "${targetUsername}"?`,
+      text: "การดำเนินการนี้ไม่สามารถย้อนกลับได้ บัญชีผู้ใช้นี้จะไม่สามารถเข้าสู่ระบบ Admin ได้อีกต่อไป",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "ลบผู้ใช้นี้",
+      cancelButtonText: "ยกเลิก",
+      confirmButtonColor: "#D32F2F",
+      cancelButtonColor: "#64748B",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        startTransition(async () => {
+          const res = await deleteAdminUserAction(userId);
+          if (res.success) {
+            showToast(res.message || "ลบผู้ใช้สำเร็จ");
+            refreshData();
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "ไม่สามารถลบได้",
+              text: res.error || "เกิดข้อผิดพลาดในการลบผู้ใช้",
+              confirmButtonColor: "#D32F2F",
+            });
+          }
+        });
+      }
+    });
+  };
+
   // Status Badge Helper
   const renderStatusBadge = (status: string, partnerName?: string | null) => {
     switch (status) {
@@ -1257,6 +1373,18 @@ function AdminPortalContent() {
               <Globe className="w-3.5 h-3.5" />
               <span>แก้ไขหน้าแรก (CMS)</span>
             </button>
+
+            <button
+              onClick={() => setActiveTab("users")}
+              className={`px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 ${
+                activeTab === "users"
+                  ? "bg-[#D32F2F] text-white shadow-sm"
+                  : "text-slate-700 hover:text-slate-900 hover:bg-slate-50"
+              }`}
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              <span>จัดการผู้ใช้งาน ({adminUsers.length})</span>
+            </button>
           </div>
 
           {activeTab === "partners" && (
@@ -1287,6 +1415,21 @@ function AdminPortalContent() {
             >
               <Save className="w-4 h-4" />
               <span>{isPending ? "กำลังบันทึก..." : "บันทึกข้อมูลหน้าแรก"}</span>
+            </button>
+          )}
+
+          {activeTab === "users" && (
+            <button
+              onClick={() => {
+                setNewUsername("");
+                setNewUserPassword("");
+                setNewUserRole("ADMIN");
+                setIsNewUserModalOpen(true);
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#D32F2F] hover:bg-red-700 text-white font-bold text-xs sm:text-sm shadow-md transition-colors"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>+ เพิ่มผู้ใช้งานใหม่</span>
             </button>
           )}
         </div>
@@ -2352,6 +2495,133 @@ function AdminPortalContent() {
             onGoToMilestonesTab={() => setActiveTab("milestones")}
           />
         )}
+
+        {/* TAB 6: USER MANAGEMENT (ADMIN USERS) */}
+        {activeTab === "users" && (
+          <div className="space-y-6 animate-in fade-in duration-300">
+            {/* Header / Info Banner */}
+            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-red-50 text-[#D32F2F] border border-red-200 flex items-center justify-center shrink-0">
+                  <Shield className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900">
+                    จัดการผู้ใช้งานระบบหลังบ้าน (Admin Accounts)
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                    รายชื่อผู้มีสิทธิ์เข้าใช้งานระบบจัดการข้อมูล 5 August Transport รหัสผ่านถูกเข้ารหัสความปลอดภัยขั้นสูง (Scrypt)
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setNewUsername("");
+                  setNewUserPassword("");
+                  setNewUserRole("ADMIN");
+                  setIsNewUserModalOpen(true);
+                }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#D32F2F] hover:bg-red-700 text-white font-bold text-xs sm:text-sm shadow-md transition-colors shrink-0"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>+ สร้างผู้ใช้งานใหม่</span>
+              </button>
+            </div>
+
+            {/* Users Table */}
+            <div className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm text-slate-700">
+                  <thead className="bg-slate-50 text-slate-700 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                    <tr>
+                      <th className="px-6 py-4">ชื่อผู้ใช้ (Username)</th>
+                      <th className="px-6 py-4">ระดับสิทธิ์ (Role)</th>
+                      <th className="px-6 py-4">วันที่สร้างบัญชี</th>
+                      <th className="px-6 py-4 text-right">การจัดการ</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 bg-white">
+                    {adminUsers.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-12 text-center text-slate-400 font-medium">
+                          <Users className="w-8 h-8 mx-auto text-slate-300 mb-2" />
+                          กำลังโหลดข้อมูลผู้ใช้ หรือยังไม่มีข้อมูล
+                        </td>
+                      </tr>
+                    ) : (
+                      adminUsers.map((u) => {
+                        const isSelf = u.username.toLowerCase() === currentAdminUser.toLowerCase();
+                        return (
+                          <tr key={u.id} className="hover:bg-slate-50/60 transition-colors">
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-sm border border-slate-200">
+                                  {u.username.slice(0, 2).toUpperCase()}
+                                </div>
+                                <div>
+                                  <div className="font-bold text-slate-900 flex items-center gap-2">
+                                    <span>{u.username}</span>
+                                    {isSelf && (
+                                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        บัญชีของคุณ (กำลังใช้งาน)
+                                      </span>
+                                    )}
+                                  </div>
+                                  <span className="text-xs text-slate-400 font-mono">ID: {u.id.slice(0, 10)}...</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              {u.role === "SUPERADMIN" ? (
+                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-800 border border-purple-200">
+                                  <Shield className="w-3.5 h-3.5 text-purple-600" />
+                                  <span>Super Admin</span>
+                                </span>
+                              ) : u.role === "STAFF" ? (
+                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-800 border border-blue-200">
+                                  <User className="w-3.5 h-3.5 text-blue-600" />
+                                  <span>Staff (ปฏิบัติการ)</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-[#D32F2F] border border-red-200">
+                                  <Shield className="w-3.5 h-3.5 text-[#D32F2F]" />
+                                  <span>Admin (ผู้ดูแลระบบ)</span>
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 text-xs font-medium text-slate-600">
+                              {new Date(u.createdAt).toLocaleDateString("th-TH", {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                              {isSelf ? (
+                                <span className="text-xs text-slate-400 italic">ไม่สามารถลบตัวเองได้</span>
+                              ) : (
+                                <button
+                                  onClick={() => handleDeleteAdminUser(u.id, u.username)}
+                                  className="p-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 transition-colors shadow-sm inline-flex items-center gap-1 text-xs font-bold"
+                                  title={`ลบผู้ใช้ ${u.username}`}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                  <span>ลบผู้ใช้</span>
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       {/* MODAL 1: VIEW APPLICATION DETAILS */}
@@ -3152,6 +3422,100 @@ function AdminPortalContent() {
                 ยกเลิก
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 7: CREATE ADMIN USER */}
+      {isNewUserModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 sm:p-7 space-y-5 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-start justify-between border-b border-slate-200 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-red-50 text-[#D32F2F] border border-red-200 flex items-center justify-center">
+                  <UserPlus className="w-5 h-5 text-[#D32F2F]" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                    เพิ่มผู้ใช้งานใหม่ (Create User)
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    กำหนดบัญชีเพื่อเข้าใช้งานระบบ Admin
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsNewUserModalOpen(false)}
+                className="text-slate-400 hover:text-slate-700 hover:bg-slate-100 p-1.5 rounded-lg text-lg font-bold transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateAdminUser} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700">
+                  ชื่อผู้ใช้ (Username) *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  placeholder="เช่น admin2, officer1"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 text-xs sm:text-sm focus:bg-white focus:outline-none focus:border-[#D32F2F] font-medium"
+                />
+                <p className="text-[11px] text-slate-400">อย่างน้อย 3 ตัวอักษร (ภาษาอังกฤษหรือตัวเลข)</p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700">
+                  รหัสผ่าน (Password) *
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={newUserPassword}
+                  onChange={(e) => setNewUserPassword(e.target.value)}
+                  placeholder="กำหนดรหัสผ่าน (อย่างน้อย 6 ตัวอักษร)"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 text-xs sm:text-sm focus:bg-white focus:outline-none focus:border-[#D32F2F] font-medium"
+                />
+                <p className="text-[11px] text-slate-400">รหัสผ่านจะถูกเข้ารหัสความปลอดภัยสูงทันที</p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700">
+                  ระดับสิทธิ์การใช้งาน (Role) *
+                </label>
+                <select
+                  value={newUserRole}
+                  onChange={(e) => setNewUserRole(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 text-xs sm:text-sm focus:bg-white focus:outline-none focus:border-[#D32F2F] font-medium"
+                >
+                  <option value="ADMIN">ADMIN (ผู้ดูแลระบบ - จัดการข้อมูลและใบสมัคร)</option>
+                  <option value="SUPERADMIN">SUPERADMIN (ผู้ดูแลระบบระดับสูง - สิทธิ์เต็ม)</option>
+                  <option value="STAFF">STAFF (เจ้าหน้าที่ฝ่ายปฏิบัติการ)</option>
+                </select>
+              </div>
+
+              <div className="flex gap-2.5 pt-3">
+                <button
+                  type="submit"
+                  disabled={isCreatingUser || !newUsername.trim() || !newUserPassword.trim()}
+                  className="flex-1 py-2.5 rounded-xl bg-[#D32F2F] hover:bg-red-700 text-white font-bold text-xs sm:text-sm shadow-sm transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>{isCreatingUser ? "กำลังสร้างบัญชี..." : "ยืนยันสร้างผู้ใช้"}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsNewUserModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors"
+                >
+                  ยกเลิก
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

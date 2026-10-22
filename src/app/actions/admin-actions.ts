@@ -581,3 +581,126 @@ export async function changeAdminPasswordAction(currentPasswordInput: string, ne
     return { success: false, error: "เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน" };
   }
 }
+
+// ==========================================
+// USER MANAGEMENT ACTIONS
+// ==========================================
+
+export type AdminUserData = {
+  id: string;
+  username: string;
+  role: string;
+  createdAt: Date | string;
+};
+
+export async function getAdminUsersAction() {
+  const auth = await requireAdminAuth();
+  if (!auth.authorized) {
+    return { success: false, error: "Unauthorized", data: [] };
+  }
+
+  try {
+    const users = await prisma.adminUser.findMany({
+      select: {
+        id: true,
+        username: true,
+        role: true,
+        createdAt: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return { success: true, data: users };
+  } catch (error) {
+    console.error("Error fetching admin users:", error);
+    return { success: false, error: "ไม่สามารถดึงข้อมูลผู้ใช้ได้", data: [] };
+  }
+}
+
+export async function createAdminUserAction(usernameInput: string, passwordInput: string, roleInput: string = "ADMIN") {
+  const auth = await requireAdminAuth();
+  if (!auth.authorized) {
+    return { success: false, error: "Unauthorized: ไม่มีสิทธิ์ดำเนินการ" };
+  }
+
+  try {
+    const username = usernameInput.trim();
+    const password = passwordInput.trim();
+    const role = roleInput.trim().toUpperCase() || "ADMIN";
+
+    if (!username || username.length < 3) {
+      return { success: false, error: "ชื่อผู้ใช้ต้องมีความยาวอย่างน้อย 3 ตัวอักษร" };
+    }
+
+    if (!password || password.length < 6) {
+      return { success: false, error: "รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร" };
+    }
+
+    // Check if username already exists
+    const existing = await prisma.adminUser.findUnique({
+      where: { username },
+    });
+
+    if (existing) {
+      return { success: false, error: `ชื่อผู้ใช้ "${username}" มีอยู่ในระบบแล้ว` };
+    }
+
+    // Hash password with cryptographically secure Scrypt
+    const passwordHash = await hashPassword(password);
+
+    const newUser = await prisma.adminUser.create({
+      data: {
+        username,
+        passwordHash,
+        role,
+      },
+      select: {
+        id: true,
+        username: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+
+    revalidatePath("/admin");
+    return {
+      success: true,
+      data: newUser,
+      message: `สร้างผู้ใช้งาน "${newUser.username}" สำเร็จเรียบร้อยแล้ว`,
+    };
+  } catch (error) {
+    console.error("Error creating admin user:", error);
+    return { success: false, error: "เกิดข้อผิดพลาดในการสร้างผู้ใช้งาน" };
+  }
+}
+
+export async function deleteAdminUserAction(userId: string) {
+  const auth = await requireAdminAuth();
+  if (!auth.authorized || !auth.user) {
+    return { success: false, error: "Unauthorized: ไม่มีสิทธิ์ดำเนินการ" };
+  }
+
+  try {
+    if (auth.user.id === userId) {
+      return { success: false, error: "คุณไม่สามารถลบบัญชีผู้ใช้ของตัวเองที่กำลังล็อกอินอยู่ได้" };
+    }
+
+    const totalAdmins = await prisma.adminUser.count();
+    if (totalAdmins <= 1) {
+      return { success: false, error: "ไม่สามารถลบได้ เนื่องจากต้องมีผู้ดูแลระบบอย่างน้อย 1 บัญชี" };
+    }
+
+    await prisma.adminUser.delete({
+      where: { id: userId },
+    });
+
+    revalidatePath("/admin");
+    return { success: true, message: "ลบผู้ใช้งานสำเร็จแล้ว" };
+  } catch (error) {
+    console.error("Error deleting admin user:", error);
+    return { success: false, error: "เกิดข้อผิดพลาดในการลบผู้ใช้งาน" };
+  }
+}
+
