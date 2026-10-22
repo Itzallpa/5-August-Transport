@@ -80,6 +80,8 @@ export default function VisualSiteEditor({
   const [selectedKey, setSelectedKey] = useState<string | null>("hero");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const dragFromIndex = useRef<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   // Parse layout from SiteContent
   const layout = parseLayout(siteContent.layoutJson);
@@ -118,11 +120,23 @@ export default function VisualSiteEditor({
   };
 
   // Reordering helpers
+  const handleReorder = (fromIndex: number, toIndex: number) => {
+    if (
+      fromIndex === toIndex ||
+      fromIndex < 0 ||
+      toIndex < 0 ||
+      fromIndex >= layout.sections.length ||
+      toIndex >= layout.sections.length
+    )
+      return;
+    const nextSections = moveItem(layout.sections, fromIndex, toIndex);
+    commitLayout({ ...layout, sections: nextSections });
+  };
+
   const handleMoveSection = (index: number, direction: -1 | 1) => {
     const target = index + direction;
     if (target < 0 || target >= layout.sections.length) return;
-    const nextSections = moveItem(layout.sections, index, target);
-    commitLayout({ ...layout, sections: nextSections });
+    handleReorder(index, target);
   };
 
   const handleToggleVisible = (key: string) => {
@@ -521,12 +535,40 @@ export default function VisualSiteEditor({
                       setSelectedKey(s.key);
                       if (isCustom) setSidebarTab("properties");
                     }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = "move";
+                      if (dragOverIndex !== index) setDragOverIndex(index);
+                    }}
+                    onDragLeave={(e) => {
+                      if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+                      setDragOverIndex((cur) => (cur === index ? null : cur));
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      if (dragFromIndex.current !== null && dragFromIndex.current !== index) {
+                        handleReorder(dragFromIndex.current, index);
+                      }
+                      dragFromIndex.current = null;
+                      setDragOverIndex(null);
+                    }}
                     className={`relative group transition-all duration-150 ${
                       isSelected
                         ? "ring-4 ring-blue-500 ring-offset-2 z-20 shadow-lg"
                         : "hover:ring-2 hover:ring-blue-300 hover:ring-offset-1"
-                    } ${!s.visible ? "opacity-40 grayscale" : ""}`}
+                    } ${!s.visible ? "opacity-40 grayscale" : ""} ${
+                      dragOverIndex === index ? "ring-4 ring-blue-500 scale-[1.01]" : ""
+                    }`}
                   >
+                    {/* Visual Drop Indicator */}
+                    {dragOverIndex === index && (
+                      <div className="absolute inset-x-0 -top-3 h-6 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 rounded-full z-40 shadow-2xl shadow-blue-500/60 flex items-center justify-center animate-pulse pointer-events-none">
+                        <span className="px-4 py-0.5 bg-white text-blue-700 text-xs font-black rounded-full shadow-md flex items-center gap-1.5">
+                          <GripVertical className="w-3.5 h-3.5" /> วางที่นี่เพื่อย้ายตำแหน่ง (Drop Here)
+                        </span>
+                      </div>
+                    )}
+
                     {/* Corner Handles for selected Google Sites effect */}
                     {isSelected && (
                       <>
@@ -537,17 +579,61 @@ export default function VisualSiteEditor({
                       </>
                     )}
 
-                    {/* Left Reorder Handle & Section Label */}
+                    {/* Left Reorder Handle & Section Label (DRAGGABLE + QUICK MOVE) */}
                     <div
-                      className={`absolute left-3 top-3 z-30 flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-bold shadow-md transition-opacity ${
+                      className={`absolute left-3 top-3 z-30 flex items-center gap-1.5 p-1 rounded-xl shadow-xl transition-all select-none ${
                         isSelected
-                          ? "bg-blue-600 text-white opacity-100"
-                          : "bg-slate-900/80 text-white opacity-0 group-hover:opacity-100"
+                          ? "bg-blue-600 text-white opacity-100 ring-2 ring-white"
+                          : "bg-slate-900/90 text-white opacity-85 hover:opacity-100 hover:scale-105"
                       }`}
                     >
-                      <GripVertical className="w-3.5 h-3.5" />
-                      <span>{sectionLabel(s.key, layout.customBlocks)}</span>
-                      {!s.visible && <span className="text-[10px] text-amber-300">(ซ่อน)</span>}
+                      <div
+                        draggable
+                        onDragStart={(e) => {
+                          e.stopPropagation();
+                          dragFromIndex.current = index;
+                          e.dataTransfer.effectAllowed = "move";
+                          e.dataTransfer.setData("text/plain", s.key);
+                        }}
+                        onDragEnd={() => {
+                          dragFromIndex.current = null;
+                          setDragOverIndex(null);
+                        }}
+                        className="flex items-center gap-1.5 px-2 py-1 cursor-grab active:cursor-grabbing hover:bg-white/10 rounded-lg text-xs font-black"
+                        title="กดค้างแล้วลากเพื่อขยับตำแหน่ง (Drag to Reorder)"
+                      >
+                        <GripVertical className="w-4 h-4 text-amber-300 animate-pulse" />
+                        <span>{sectionLabel(s.key, layout.customBlocks)}</span>
+                        {!s.visible && <span className="text-[10px] text-amber-300 font-semibold">(ซ่อน)</span>}
+                      </div>
+
+                      <div className="w-px h-4 bg-white/20" />
+
+                      {/* Quick Move Up/Down right on the label badge */}
+                      <button
+                        type="button"
+                        disabled={index === 0}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleMoveSection(index, -1);
+                        }}
+                        className="p-1 rounded-md hover:bg-white/20 text-white/90 disabled:opacity-20 transition-colors"
+                        title="เลื่อนขึ้น 1 ระดับ"
+                      >
+                        <ArrowUp className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={index === layout.sections.length - 1}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleMoveSection(index, 1);
+                        }}
+                        className="p-1 rounded-md hover:bg-white/20 text-white/90 disabled:opacity-20 transition-colors"
+                        title="เลื่อนลง 1 ระดับ"
+                      >
+                        <ArrowDown className="w-3.5 h-3.5" />
+                      </button>
                     </div>
 
                     {/* Floating Toolbar on Hover / Selection (Google Sites Style) */}
@@ -558,6 +644,25 @@ export default function VisualSiteEditor({
                           : "opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100"
                       }`}
                     >
+                      {/* Drag Handle on Toolbar */}
+                      <div
+                        draggable
+                        onDragStart={(e) => {
+                          e.stopPropagation();
+                          dragFromIndex.current = index;
+                          e.dataTransfer.effectAllowed = "move";
+                          e.dataTransfer.setData("text/plain", s.key);
+                        }}
+                        onDragEnd={() => {
+                          dragFromIndex.current = null;
+                          setDragOverIndex(null);
+                        }}
+                        className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 cursor-grab active:cursor-grabbing transition-colors"
+                        title="คลิกค้างแล้วลากเพื่อสลับตำแหน่ง (Drag to Reorder)"
+                      >
+                        <GripVertical className="w-4 h-4" />
+                      </div>
+
                       {/* Move Up */}
                       <button
                         type="button"
@@ -844,23 +949,70 @@ export default function VisualSiteEditor({
             {/* ----------------- TAB 2: SECTIONS LIST ----------------- */}
             {sidebarTab === "sections" && (
               <div className="space-y-3">
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  คลิกที่ส่วนเพื่อไฮไลท์ หรือใช้ปุ่มลูกศรเพื่อปรับลำดับการแสดงผลบนหน้าแรก:
-                </p>
+                <div className="p-3 rounded-xl bg-blue-50 border border-blue-200">
+                  <p className="text-xs text-blue-900 font-medium leading-relaxed flex items-start gap-1.5">
+                    <GripVertical className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                    <span>
+                      <strong>ขยับสลับตำแหน่ง:</strong> กดค้างที่แถบแล้วลากสลับตำแหน่งได้ทันที หรือกดปุ่มลูกศรขึ้น-ลง
+                    </span>
+                  </p>
+                </div>
 
                 <div className="space-y-2">
                   {layout.sections.map((s, idx) => {
                     const isSelected = selectedKey === s.key;
+                    const isDragOver = dragOverIndex === idx;
+
                     return (
                       <div
                         key={s.key}
+                        draggable
+                        onDragStart={(e) => {
+                          dragFromIndex.current = idx;
+                          e.dataTransfer.effectAllowed = "move";
+                          e.dataTransfer.setData("text/plain", s.key);
+                        }}
+                        onDragEnd={() => {
+                          dragFromIndex.current = null;
+                          setDragOverIndex(null);
+                        }}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          e.dataTransfer.dropEffect = "move";
+                          if (dragOverIndex !== idx) setDragOverIndex(idx);
+                        }}
+                        onDragLeave={(e) => {
+                          if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+                          setDragOverIndex((cur) => (cur === idx ? null : cur));
+                        }}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          if (dragFromIndex.current !== null && dragFromIndex.current !== idx) {
+                            handleReorder(dragFromIndex.current, idx);
+                          }
+                          dragFromIndex.current = null;
+                          setDragOverIndex(null);
+                        }}
                         onClick={() => setSelectedKey(s.key)}
-                        className={`flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition-all ${
-                          isSelected
+                        className={`group relative flex items-center gap-2 p-2.5 rounded-xl border transition-all cursor-grab active:cursor-grabbing select-none ${
+                          isDragOver
+                            ? "bg-blue-100 border-2 border-blue-600 scale-[1.02] shadow-md ring-2 ring-blue-300"
+                            : isSelected
                             ? "bg-blue-50 border-blue-400 shadow-sm"
-                            : "bg-white border-slate-200 hover:bg-slate-50"
+                            : "bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-300"
                         }`}
                       >
+                        {isDragOver && (
+                          <div className="absolute -top-2 left-4 px-2 py-0.5 bg-blue-600 text-white text-[10px] font-black rounded-full shadow pointer-events-none">
+                            ย้ายมาตรงนี้
+                          </div>
+                        )}
+
+                        {/* Grip Handle */}
+                        <div className="text-slate-400 group-hover:text-blue-600 transition-colors">
+                          <GripVertical className="w-4 h-4" />
+                        </div>
+
                         <span className="w-6 h-6 rounded-md bg-slate-100 text-slate-600 text-xs font-bold flex items-center justify-center shrink-0">
                           {idx + 1}
                         </span>
