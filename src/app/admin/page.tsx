@@ -49,6 +49,7 @@ import {
   UserX,
   UserPlus,
   Loader2,
+  Layers,
 } from "lucide-react";
 import {
   getDashboardMetrics,
@@ -86,6 +87,7 @@ import {
 import { COMPANY_INFO } from "@/lib/constants";
 import SiteContentCMS from "@/components/admin/SiteContentCMS";
 import SiteLayoutBuilder from "@/components/admin/SiteLayoutBuilder";
+import VisualSiteEditor from "@/components/admin/VisualSiteEditor";
 
 type Application = {
   id: string;
@@ -248,6 +250,7 @@ function AdminPortalContent() {
   const [activeTab, setActiveTab] = useState<
     "applications" | "fleet" | "rejected" | "banned" | "overview" | "partners" | "milestones" | "siteContent" | "users"
   >("applications");
+  const [cmsMode, setCmsMode] = useState<"visual" | "forms" | "layout">("visual");
 
   // Admin User Management State
   const [adminUsers, setAdminUsers] = useState<AdminUserData[]>([]);
@@ -2589,23 +2592,102 @@ function AdminPortalContent() {
 
         {/* TAB 5: HOMEPAGE CONTENT MANAGEMENT SYSTEM (CMS) */}
         {activeTab === "siteContent" && (
-          <>
-            <SiteContentCMS
-              siteContent={siteContent}
-              onFieldChange={handleSiteContentFieldChange}
-              onSave={handleSaveSiteContent}
-              onReset={refreshData}
-              isPending={isPending}
-              showToast={showToast}
-              onGoToMilestonesTab={() => setActiveTab("milestones")}
-            />
-            <SiteLayoutBuilder
-              layoutJson={siteContent.layoutJson}
-              onChange={(json) => handleSiteContentFieldChange("layoutJson", json)}
-              onSave={handleSaveSiteContent}
-              isPending={isPending}
-            />
-          </>
+          <div className="space-y-6">
+            {/* Editor Mode Selector Bar */}
+            <div className="p-3 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-black text-slate-500 uppercase tracking-wider px-2">
+                  โหมดการแก้ไข:
+                </span>
+                <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => setCmsMode("visual")}
+                    className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                      cmsMode === "visual"
+                        ? "bg-[#D32F2F] text-white shadow-sm"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>โปรแกรมจัดหน้าเว็บสด (สไตล์ Google Sites)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setCmsMode("forms")}
+                    className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                      cmsMode === "forms"
+                        ? "bg-[#D32F2F] text-white shadow-sm"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    <Sliders className="w-3.5 h-3.5" />
+                    <span>แบบฟอร์มแก้ไขเนื้อหาเดิม (CMS Forms)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setCmsMode("layout")}
+                    className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                      cmsMode === "layout"
+                        ? "bg-[#D32F2F] text-white shadow-sm"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>ผังและอัตราค่าขนส่ง (Layout & Rates)</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <a
+                  href="/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200 transition-colors"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>ดูหน้าเว็บจริง</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Visual Editor Mode */}
+            {cmsMode === "visual" && (
+              <VisualSiteEditor
+                siteContent={siteContent}
+                onFieldChange={handleSiteContentFieldChange}
+                onSave={handleSaveSiteContent}
+                isPending={isPending}
+                milestones={milestones}
+              />
+            )}
+
+            {/* Traditional Form Mode */}
+            {cmsMode === "forms" && (
+              <SiteContentCMS
+                siteContent={siteContent}
+                onFieldChange={handleSiteContentFieldChange}
+                onSave={handleSaveSiteContent}
+                onReset={refreshData}
+                isPending={isPending}
+                showToast={showToast}
+                onGoToMilestonesTab={() => setActiveTab("milestones")}
+              />
+            )}
+
+            {/* Layout & Rates Mode */}
+            {cmsMode === "layout" && (
+              <SiteLayoutBuilder
+                layoutJson={siteContent.layoutJson}
+                onChange={(json) => handleSiteContentFieldChange("layoutJson", json)}
+                onSave={handleSaveSiteContent}
+                isPending={isPending}
+              />
+            )}
+          </div>
         )}
 
         {/* TAB 6: USER MANAGEMENT (ADMIN USERS) */}

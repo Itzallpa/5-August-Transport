@@ -41,7 +41,22 @@ export const VALUE_ICON_NAMES = [
   "Zap",
 ] as const;
 
-export type SectionConfig = { key: SectionKey; visible: boolean };
+export type SectionConfig = { key: string; visible: boolean };
+
+export type TextVariant = "h1" | "h2" | "p";
+export type Align = "left" | "center" | "right";
+export type CustomBlock =
+  | { id: string; type: "text"; text: string; variant: TextVariant; align: Align }
+  | { id: string; type: "image"; src: string; alt: string; width: "narrow" | "medium" | "wide" | "full" }
+  | { id: string; type: "button"; label: string; href: string; variant: "red" | "dark" | "outline"; align: Align }
+  | { id: string; type: "divider" }
+  | { id: string; type: "spacer"; height: number }
+  | { id: string; type: "callout"; title: string; text: string; badge?: string; buttonLabel?: string; buttonHref?: string; variant: "red" | "dark" | "blue" }
+  | { id: string; type: "features2"; leftTitle: string; leftText: string; leftImage?: string; rightTitle: string; rightText: string; rightImage?: string };
+export type CustomBlockType = CustomBlock["type"];
+
+export const BLOCK_KEY_PREFIX = "block:";
+export const blockKey = (id: string) => `${BLOCK_KEY_PREFIX}${id}`;
 export type ValueItem = { id: string; titleTh: string; description: string; icon: string };
 export type FleetGroup = "4W" | "6W" | "HEAVY";
 export type FleetItem = {
@@ -72,6 +87,7 @@ export type NavLink = { href: string; label: string };
 
 export type SiteLayout = {
   sections: SectionConfig[];
+  customBlocks: CustomBlock[];
   valueItems: ValueItem[];
   fleetItems: FleetItem[];
   galleryItems: GalleryItemData[];
@@ -154,7 +170,8 @@ function groupFromId(id: string): FleetGroup {
 
 export function getDefaultLayout(): SiteLayout {
   return {
-    sections: SECTION_KEYS.map((key) => ({ key, visible: true })),
+    sections: SECTION_KEYS.map((key) => ({ key: key as string, visible: true })),
+    customBlocks: [],
     valueItems: KEY_SELLING_POINTS.map((p) => ({
       id: p.id,
       titleTh: p.titleTh,
@@ -204,18 +221,99 @@ export function parseLayout(json?: string | null): SiteLayout {
     return defaults;
   }
 
+  // Custom (free-form) blocks first, so sections can reference them.
+  const customBlocks: CustomBlock[] = [];
+  const blockIds = new Set<string>();
+  for (const b of arr(raw.customBlocks) ?? []) {
+    const o = obj(b);
+    const id = str(o.id);
+    if (!id || blockIds.has(id)) continue;
+    const align: Align = o.align === "center" || o.align === "right" ? o.align : "left";
+    let block: CustomBlock | null = null;
+    switch (o.type) {
+      case "text":
+        block = {
+          id,
+          type: "text",
+          text: str(o.text),
+          variant: o.variant === "h1" || o.variant === "h2" ? o.variant : "p",
+          align,
+        };
+        break;
+      case "image":
+        block = {
+          id,
+          type: "image",
+          src: str(o.src),
+          alt: str(o.alt),
+          width: o.width === "narrow" || o.width === "wide" || o.width === "full" ? o.width : "medium",
+        };
+        break;
+      case "button":
+        block = {
+          id,
+          type: "button",
+          label: str(o.label, "Button"),
+          href: str(o.href, "#"),
+          variant: o.variant === "dark" || o.variant === "outline" ? o.variant : "red",
+          align,
+        };
+        break;
+      case "divider":
+        block = { id, type: "divider" };
+        break;
+      case "spacer":
+        block = { id, type: "spacer", height: Math.min(400, Math.max(8, num(o.height, 48))) };
+        break;
+      case "callout":
+        block = {
+          id,
+          type: "callout",
+          title: str(o.title, "ประกาศสำคัญ"),
+          text: str(o.text, "ข้อความประชาสัมพันธ์"),
+          badge: str(o.badge, "ข่าวสาร"),
+          buttonLabel: str(o.buttonLabel, "อ่านเพิ่มเติม"),
+          buttonHref: str(o.buttonHref, "#contact"),
+          variant: o.variant === "dark" || o.variant === "blue" ? o.variant : "red",
+        };
+        break;
+      case "features2":
+        block = {
+          id,
+          type: "features2",
+          leftTitle: str(o.leftTitle, "หัวข้อที่ 1"),
+          leftText: str(o.leftText, "รายละเอียดหัวข้อที่ 1"),
+          leftImage: str(o.leftImage),
+          rightTitle: str(o.rightTitle, "หัวข้อที่ 2"),
+          rightText: str(o.rightText, "รายละเอียดหัวข้อที่ 2"),
+          rightImage: str(o.rightImage),
+        };
+        break;
+    }
+    if (block) {
+      blockIds.add(id);
+      customBlocks.push(block);
+    }
+  }
+
   // Sections: keep admin order, drop unknown/duplicate, append anything missing.
-  const seen = new Set<SectionKey>();
+  const seen = new Set<string>();
   const sections: SectionConfig[] = [];
   for (const s of arr(raw.sections) ?? []) {
     const o = obj(s);
-    const key = o.key as SectionKey;
-    if ((SECTION_KEYS as readonly string[]).includes(key) && !seen.has(key)) {
+    const key = str(o.key);
+    const isBuiltin = (SECTION_KEYS as readonly string[]).includes(key);
+    const isBlock = key.startsWith(BLOCK_KEY_PREFIX) && blockIds.has(key.slice(BLOCK_KEY_PREFIX.length));
+    if ((isBuiltin || isBlock) && !seen.has(key)) {
       seen.add(key);
       sections.push({ key, visible: o.visible !== false });
     }
   }
   for (const key of SECTION_KEYS) if (!seen.has(key)) sections.push({ key, visible: true });
+  for (const b of customBlocks) {
+    const k = blockKey(b.id);
+    if (!seen.has(k)) sections.push({ key: k, visible: true });
+  }
 
   const valueRaw = arr(raw.valueItems);
   const fleetRaw = arr(raw.fleetItems);
@@ -293,7 +391,77 @@ export function parseLayout(json?: string | null): SiteLayout {
       })
     : defaults.navLinks;
 
-  return { sections, valueItems, fleetItems, galleryItems, quoteRates, navLinks };
+  return { sections, customBlocks, valueItems, fleetItems, galleryItems, quoteRates, navLinks };
+}
+
+export function createBlock(type: CustomBlockType, variant?: TextVariant): CustomBlock {
+  const id = newId("blk");
+  switch (type) {
+    case "text":
+      return {
+        id,
+        type,
+        variant: variant ?? "p",
+        align: "left",
+        text:
+          variant === "h1"
+            ? "หัวข้อใหม่"
+            : variant === "h2"
+              ? "หัวข้อรอง"
+              : "คลิกที่นี่เพื่อพิมพ์ข้อความของคุณ",
+      };
+    case "image":
+      return { id, type, src: "", alt: "", width: "medium" };
+    case "button":
+      return { id, type, label: "ปุ่มใหม่", href: "#recruitment", variant: "red", align: "center" };
+    case "divider":
+      return { id, type };
+    case "spacer":
+      return { id, type, height: 48 };
+    case "callout":
+      return {
+        id,
+        type,
+        title: "ประกาศสำคัญจาก 5 สิงหา ทรานสปอร์ต",
+        text: "พร้อมให้บริการขนส่งทั่วไทยด้วยมาตรฐานความปลอดภัยสูงสุด ติดต่อสอบถามได้ตลอด 24 ชั่วโมง",
+        badge: "ประกาศ",
+        buttonLabel: "ติดต่อเราเลย",
+        buttonHref: "#contact",
+        variant: "red",
+      };
+    case "features2":
+      return {
+        id,
+        type,
+        leftTitle: "บริการขนส่งด่วนตรงเวลา",
+        leftText: "จัดส่งสินค้าถึงปลายทางตรงตามเวลาที่นัดหมาย พร้อมระบบติดตามสถานะ GPS ตลอด 24 ชม.",
+        leftImage: "/images/thai_transport_loading.jpg",
+        rightTitle: "กองยานพาหนะครอบคลุม",
+        rightText: "มีรถบรรทุกทุกขนาด ตอบโจทย์ทุกประเภทสินค้าธุรกิจคุณ ทั้ง 4 ล้อ, 6 ล้อ และ 10 ล้อ",
+        rightImage: "/images/thai_transport_fleet_yard.jpg",
+      };
+  }
+}
+
+export const BLOCK_TYPE_LABELS: Record<CustomBlockType, string> = {
+  text: "กล่องข้อความ",
+  image: "รูปภาพ",
+  button: "ปุ่มกด CTA",
+  divider: "เส้นคั่น",
+  spacer: "ช่องว่าง",
+  callout: "แบนเนอร์ข้อความเด่น (Callout)",
+  features2: "เนื้อหา 2 คอลัมน์ (Content Block)",
+};
+
+export function sectionLabel(key: string, blocks: CustomBlock[]): string {
+  if (key.startsWith(BLOCK_KEY_PREFIX)) {
+    const b = blocks.find((x) => x.id === key.slice(BLOCK_KEY_PREFIX.length));
+    if (!b) return "บล็อก";
+    if (b.type === "text") return `ข้อความ: ${b.text.slice(0, 28) || "(ว่าง)"}`;
+    if (b.type === "button") return `ปุ่ม: ${b.label}`;
+    return BLOCK_TYPE_LABELS[b.type];
+  }
+  return SECTION_LABELS[key as SectionKey] ?? key;
 }
 
 export function moveItem<T>(list: T[], from: number, to: number): T[] {

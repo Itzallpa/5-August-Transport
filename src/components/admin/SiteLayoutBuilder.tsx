@@ -26,6 +26,7 @@ import {
   moveItem,
   newId,
   SECTION_LABELS,
+  sectionLabel,
   VALUE_ICON_NAMES,
   type SiteLayout,
   type FleetItem,
@@ -352,7 +353,7 @@ export default function SiteLayoutBuilder({ layoutJson, onChange, onSave, isPend
                     {i + 1}
                   </span>
                   <span className={`flex-1 font-bold text-sm ${s.visible ? "text-slate-900" : "text-slate-400 line-through"}`}>
-                    {SECTION_LABELS[s.key]}
+                    {sectionLabel(s.key, layout.customBlocks)}
                   </span>
                   <button
                     type="button"
