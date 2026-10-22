@@ -214,9 +214,9 @@ export default function AdminPage() {
 }
 
 function AdminPortalContent() {
-  // Authentication State - Bypassed for direct inspection without password/DB
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
-  const [authChecking, setAuthChecking] = useState<boolean>(false);
+  // Authentication State
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [authChecking, setAuthChecking] = useState<boolean>(true);
   const [usernameInput, setUsernameInput] = useState<string>("admin");
   const [passwordInput, setPasswordInput] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -364,9 +364,12 @@ function AdminPortalContent() {
     isActive: true,
   });
 
-  // Authentication is active by default for preview
+  // Check Authentication from localStorage / Session on mount
   useEffect(() => {
-    setIsAuthenticated(true);
+    const isLocalAuth = localStorage.getItem("admin_auth") === "true";
+    if (isLocalAuth) {
+      setIsAuthenticated(true);
+    }
     setAuthChecking(false);
   }, []);
 
@@ -402,21 +405,20 @@ function AdminPortalContent() {
         });
       }
 
-      if (appsRes?.success && appsRes.data && appsRes.data.length > 0) {
+      if (appsRes?.success && appsRes.data) {
         setApplications(appsRes.data as Application[]);
       } else {
-        setApplications(MOCK_APPLICATIONS);
+        setApplications([]);
       }
 
-      if (partnersRes?.success && partnersRes.data && partnersRes.data.length > 0) {
+      if (partnersRes?.success && partnersRes.data) {
         setPartners(partnersRes.data as Partner[]);
         if (!selectedPartnerId && partnersRes.data.length > 0) {
           const kex = partnersRes.data.find((p: { name: string; id: string }) => p.name.includes("KEX"));
           setSelectedPartnerId(kex ? kex.id : partnersRes.data[0].id);
         }
       } else {
-        setPartners(MOCK_PARTNERS);
-        setSelectedPartnerId(MOCK_PARTNERS[0].id);
+        setPartners([]);
       }
 
       if (milestonesRes?.success && milestonesRes.data) {
@@ -426,21 +428,7 @@ function AdminPortalContent() {
         setSiteContent(siteContentRes.data as SiteContentData);
       }
     } catch (e) {
-      console.warn("DB offline, using mock preview data:", e);
-      setMetrics({
-        total: 4,
-        pending: 2,
-        fleet: 2,
-        approved: 1,
-        assignedKex: 1,
-        assignedTotal: 2,
-        rejected: 0,
-        banned: 0,
-        partnersCount: 2,
-      });
-      setApplications(MOCK_APPLICATIONS);
-      setPartners(MOCK_PARTNERS);
-      setSelectedPartnerId(MOCK_PARTNERS[0].id);
+      console.warn("Database query notice:", e);
     } finally {
       setIsLoading(false);
     }
@@ -1112,9 +1100,9 @@ function AdminPortalContent() {
 
             <span className="hidden sm:inline-block w-px h-5 bg-slate-200" />
 
-            <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
-              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-              <span>โหมดพรีวิว (Preview Mode)</span>
+            <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-slate-600">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>ระบบออนไลน์ (SQLite Database)</span>
             </div>
           </div>
 
@@ -1171,12 +1159,6 @@ function AdminPortalContent() {
           </div>
         </div>
       </header>
-
-      {/* Offline Preview Notice Banner */}
-      <div className="bg-amber-50 border-b border-amber-200 text-amber-900 px-4 py-2 text-center text-xs font-semibold flex items-center justify-center gap-2">
-        <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
-        <span>โหมดตรวจสอบระบบ (Password Bypassed) — แสดงผลในโหมดพรีวิวพร้อมข้อมูลตัวอย่าง สามารถตรวจสอบฟังก์ชันทั้งหมดได้ทันที</span>
-      </div>
 
       {/* Main Admin Workspace */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
