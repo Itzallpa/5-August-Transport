@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { requireAdminAuth } from "@/lib/security";
+import { parseLayout } from "@/lib/site-layout";
 
 export type SiteContentData = {
   // 1. Company & Contact Info
@@ -88,6 +89,9 @@ export type SiteContentData = {
   footerContactSubtitle: string;
   footerCopyright: string;
   facebookUrl: string;
+
+  // 9. Layout JSON (section order/visibility + repeatable items)
+  layoutJson?: string;
 };
 
 export async function getSiteContent() {
@@ -122,6 +126,10 @@ export async function updateSiteContent(data: Partial<SiteContentData>) {
       if (typeof value === "string") {
         sanitizedData[key] = value.trim();
       }
+    }
+
+    if (typeof data.layoutJson === "string") {
+      sanitizedData.layoutJson = JSON.stringify(parseLayout(data.layoutJson));
     }
 
     const updated = await prisma.siteContent.upsert({

@@ -5,6 +5,7 @@ import { Calculator, Phone, MessageSquare, ShieldCheck, CheckCircle2, ArrowRight
 import { COMPANY_INFO } from "@/lib/constants";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
 import Swal from "sweetalert2";
+import { DEFAULT_QUOTE_RATES, type QuoteRate } from "@/lib/site-layout";
 
 const REGIONS = [
   { id: "bkk", name: "กรุงเทพฯ และปริมณฑล" },
@@ -15,17 +16,9 @@ const REGIONS = [
   { id: "south", name: "ภาคใต้ (สุราษฎร์ธานี, สงขลา, ภูเก็ต)" },
 ];
 
-const TRUCK_RATES: Record<string, { base: number; multiplier: number; label: string }> = {
-  "4w-van": { base: 1200, multiplier: 1.0, label: "4 ล้อ ตู้ทึบ" },
-  "4w-jumbo": { base: 1500, multiplier: 1.15, label: "4 ล้อ จัมโบ้" },
-  "6w-standard": { base: 2800, multiplier: 1.8, label: "6 ล้อ มาตรฐาน" },
-  "6w-jumbo": { base: 3400, multiplier: 2.1, label: "6 ล้อ จัมโบ้" },
-  "10w-heavy": { base: 5500, multiplier: 3.2, label: "10 ล้อ" },
-  "trailer-heavy": { base: 8500, multiplier: 4.5, label: "รถเทรลเลอร์" },
-  "container-prime": { base: 9000, multiplier: 4.8, label: "หัวลาก Container 20/40 FT" },
-};
-
-export default function QuoteCalculator({ content }: { content?: Partial<SiteContentData> }) {
+export default function QuoteCalculator({ content, rates }: { content?: Partial<SiteContentData>; rates?: QuoteRate[] }) {
+  const rateList = rates && rates.length > 0 ? rates : DEFAULT_QUOTE_RATES;
+  const TRUCK_RATES: Record<string, QuoteRate> = Object.fromEntries(rateList.map((r) => [r.id, r]));
   const quoteTitle = content?.quoteTitle || "ประเมินค่าบริการขนส่ง รวดเร็ว โปร่งใส ยุติธรรม";
   const quoteSubtitle = content?.quoteSubtitle || "เลือกต้นทาง ปลายทาง และประเภทรถเพื่อดูราคาประมาณการเบื้องต้น สำหรับงานประจำ งานเหมาเที่ยว หรือสัญญารายเดือน สามารถติดต่อเจ้าหน้าที่เพื่อรับอัตราพิเศษได้ทันที";
   const quoteNotice = content?.quoteNotice || "* ราคาที่แสดงเป็นการประมาณการคร่าวๆ ยังไม่รวมภาษีมูลค่าเพิ่ม ค่าทางด่วนพิเศษ หรือแรงงานยกสินค้าเสริม";
@@ -35,7 +28,7 @@ export default function QuoteCalculator({ content }: { content?: Partial<SiteCon
 
   const [origin, setOrigin] = useState("bkk");
   const [destination, setDestination] = useState("east");
-  const [truckType, setTruckType] = useState("6w-standard");
+  const [truckType, setTruckType] = useState(TRUCK_RATES["6w-standard"] ? "6w-standard" : rateList[0].id);
   const [isUrgent, setIsUrgent] = useState(false);
 
   const getDistanceFactor = (from: string, to: string) => {
@@ -52,7 +45,7 @@ export default function QuoteCalculator({ content }: { content?: Partial<SiteCon
     return 2.2;
   };
 
-  const truckInfo = TRUCK_RATES[truckType] || TRUCK_RATES["6w-standard"];
+  const truckInfo = TRUCK_RATES[truckType] || rateList[0];
   const distanceFactor = getDistanceFactor(origin, destination);
   const baseEstimate = Math.round(truckInfo.base * truckInfo.multiplier * distanceFactor * (isUrgent ? 1.2 : 1.0) / 100) * 100;
 

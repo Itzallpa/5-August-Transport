@@ -1,5 +1,6 @@
-import { Clock, ShieldCheck, Coins, Truck, Users, MapPin, CheckCircle2 } from "lucide-react";
+import { Clock, ShieldCheck, Coins, Truck, Users, MapPin, CheckCircle2, Award, Star, Heart, Zap } from "lucide-react";
 import { KEY_SELLING_POINTS } from "@/lib/constants";
+import type { ValueItem } from "@/lib/site-layout";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
 
 const ICON_MAP = {
@@ -9,9 +10,14 @@ const ICON_MAP = {
   Truck: Truck,
   Users: Users,
   MapPin: MapPin,
+  Award: Award,
+  Star: Star,
+  Heart: Heart,
+  Zap: Zap,
 };
 
-export default function ValueProps({ content }: { content?: Partial<SiteContentData> }) {
+export default function ValueProps({ content, items }: { content?: Partial<SiteContentData>; items?: ValueItem[] }) {
+  const valueItems = items ?? KEY_SELLING_POINTS;
   const valueBadge = content?.valueBadge || "จุดเด่นและมาตรฐานการบริการ";
   const valueTitle = content?.valueTitle || "ทำไมธุรกิจชั้นนำจึงไว้วางใจ";
   const valueTitleHighlight = content?.valueTitleHighlight || "5 August Transport";
@@ -38,7 +44,7 @@ export default function ValueProps({ content }: { content?: Partial<SiteContentD
 
         {/* 6 Key Selling Points - Organic, Human-Designed & Friendly Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {KEY_SELLING_POINTS.map((item) => {
+          {valueItems.map((item) => {
             const IconComponent = ICON_MAP[item.icon as keyof typeof ICON_MAP] || Truck;
             return (
               <div

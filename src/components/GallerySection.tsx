@@ -4,65 +4,14 @@ import { useState } from "react";
 import Image from "next/image";
 import { Camera, CheckCircle2, MapPin, Sparkles, ExternalLink, ShieldCheck } from "lucide-react";
 
-type GalleryItem = {
-  id: string;
-  title: string;
-  category: "all" | "loading" | "route" | "fleet";
-  categoryLabel: string;
-  location: string;
-  image: string;
-  description: string;
-  highlight: string;
-};
+import { DEFAULT_GALLERY_ITEMS, type GalleryItemData } from "@/lib/site-layout";
 
-const GALLERY_ITEMS: GalleryItem[] = [
-  {
-    id: "g1",
-    title: "ทีมงานยกสินค้าและจัดของขึ้นตู้ขนส่ง ณ คลังกระจายสินค้า",
-    category: "loading",
-    categoryLabel: "งานยกและโหลดสินค้า",
-    location: "ศูนย์กระจายสินค้า บางพลี สมุทรปราการ",
-    image: "/images/thai_transport_loading.jpg",
-    description: "ทีมงานมืออาชีพมีคนช่วยยกสินค้าและตรวจนับจำนวนอย่างรอบคอบ พร้อมอุปกรณ์โฟล์กลิฟต์และสายรัดกันกระแทกมาตรฐานสากล",
-    highlight: "มีคนช่วยยกของ ลูกค้าไม่ต้องออกแรงเอง",
-  },
-  {
-    id: "g2",
-    title: "กองรถ 5 สิงหา ทรานสปอร์ต วิ่งงานขนส่งสายเหนือและต่างจังหวัด",
-    category: "route",
-    categoryLabel: "การขนส่งบนเส้นทางจริง",
-    location: "เส้นทางทางหลวงแผ่นดิน สู่ภาคเหนือและภาคอีสาน",
-    image: "/images/thai_transport_highway.jpg",
-    description: "รถขนส่งควบคุมความเร็วด้วย GPS ตลอด 24 ชม. คนขับชำนาญเส้นทาง ส่งตรงเวลา สินค้าถึงปลายทางอย่างปลอดภัย 100%",
-    highlight: "วิ่งงานได้ตลอด 24 ชั่วโมง ปลอดภัยทุกเส้นทาง",
-  },
-  {
-    id: "g3",
-    title: "ลานจอดและศูนย์ปฏิบัติการกองยานพาหนะ (Fleet Yard) กว่า 200+ คัน",
-    category: "fleet",
-    categoryLabel: "กองยานพาหนะของบริษัท",
-    location: "ศูนย์ปฏิบัติการใหญ่ 5 August Transport",
-    image: "/images/thai_transport_fleet_yard.jpg",
-    description: "มีรถรองรับงานทุกวัน ทั้งกระบะ 4 ล้อ, รถ 6 ล้อ, 10 ล้อ และหัวลาก ตรวจสภาพรถสม่ำเสมอพร้อมออกวิ่งได้ทันที",
-    highlight: "กองรถพร้อมให้บริการมากกว่า 200+ คัน",
-  },
-  {
-    id: "g4",
-    title: "ภาพรวมกองรถขนส่ง 4 ล้อ, 6 ล้อ และ 10 ล้อ พร้อมทีมงานประจำ",
-    category: "fleet",
-    categoryLabel: "มาตรฐานกองรถ",
-    location: "ศูนย์ประสานงานขนส่งสินค้าทั่วไทย",
-    image: "/images/thai_transport_hero.jpg",
-    description: "ตัวถังตู้ทึบสะอาด กันน้ำ กันฝน 100% พร้อมบริการงานเหมาคัน รายเที่ยว และสัญญารายเดือนจากพันธมิตรชั้นนำ",
-    highlight: "ตู้ทึบสะอาด กันฝน 100% มีประกันสินค้า",
-  },
-];
-
-export default function GallerySection() {
+export default function GallerySection({ items }: { items?: GalleryItemData[] }) {
+  const galleryItems = items ?? DEFAULT_GALLERY_ITEMS;
   const [activeCategory, setActiveCategory] = useState<string>("all");
-  const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null);
+  const [selectedImage, setSelectedImage] = useState<GalleryItemData | null>(null);
 
-  const filteredItems = GALLERY_ITEMS.filter((item) => {
+  const filteredItems = galleryItems.filter((item) => {
     if (activeCategory === "all") return true;
     return item.category === activeCategory;
   });
@@ -118,7 +67,7 @@ export default function GallerySection() {
             >
               <div className="relative w-full h-64 sm:h-72 overflow-hidden bg-slate-100">
                 <Image
-                  src={item.image}
+                  src={item.image || "/images/hero.jpg"}
                   alt={item.title}
                   fill
                   sizes="(max-width: 768px) 100vw, 600px"
@@ -191,7 +140,7 @@ export default function GallerySection() {
           >
             <div className="relative w-full h-80 sm:h-96 bg-slate-900">
               <Image
-                src={selectedImage.image}
+                src={selectedImage.image || "/images/hero.jpg"}
                 alt={selectedImage.title}
                 fill
                 className="object-contain"

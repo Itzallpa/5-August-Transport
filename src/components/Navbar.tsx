@@ -6,8 +6,9 @@ import Image from "next/image";
 import { Phone, Menu, X, Truck, MessageSquare } from "lucide-react";
 import { COMPANY_INFO } from "@/lib/constants";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
+import { DEFAULT_NAV_LINKS, type NavLink } from "@/lib/site-layout";
 
-export default function Navbar({ content }: { content?: Partial<SiteContentData> }) {
+export default function Navbar({ content, navLinks: navLinksProp }: { content?: Partial<SiteContentData>; navLinks?: NavLink[] }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const phone = content?.phone || COMPANY_INFO.phone;
@@ -15,15 +16,7 @@ export default function Navbar({ content }: { content?: Partial<SiteContentData>
   const nameTh = content?.nameTh || COMPANY_INFO.nameTh;
   const lineId = content?.lineId || COMPANY_INFO.lineId;
 
-  const navLinks = [
-    { href: "#home", label: "หน้าแรก" },
-    { href: "#about", label: "เกี่ยวกับเรา" },
-    { href: "#fleet", label: "บริการและประเภทรถ" },
-    { href: "#strengths", label: "จุดเด่นบริการ" },
-    { href: "#calculator", label: "คำนวณราคา" },
-    { href: "#recruitment", label: "ร่วมงานกับเรา" },
-    { href: "#contact", label: "ติดต่อเรา" },
-  ];
+  const navLinks = (navLinksProp ?? DEFAULT_NAV_LINKS).filter((l) => l.label.trim());
 
   return (
     <header className="sticky top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm transition-all">

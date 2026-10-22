@@ -153,6 +153,9 @@ model SiteContent {
   footerCopyright       String   @default("© 2026 บริษัท 5 สิงหา ทรานสปอร์ต จำกัด. สงวนลิขสิทธิ์ทั้งหมด.")
   facebookUrl           String   @default("https://facebook.com")
 
+  // 9. Layout & repeatable items (section order/visibility, value props, fleet, gallery, quote rates, nav) as JSON
+  layoutJson            String   @default("")
+
   updatedAt             DateTime @updatedAt
   createdAt             DateTime @default(now())
 }

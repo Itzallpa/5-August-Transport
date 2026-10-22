@@ -2,13 +2,18 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { FLEET_CATEGORIES, COMPANY_INFO } from "@/lib/constants";
+import { COMPANY_INFO } from "@/lib/constants";
 import { Truck, CheckCircle2, Ruler, Weight, Box, Sparkles, ArrowRight } from "lucide-react";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
+import { getDefaultLayout, type FleetItem } from "@/lib/site-layout";
 
-export default function FleetSection({ content }: { content?: Partial<SiteContentData> }) {
+export default function FleetSection({ content, items }: { content?: Partial<SiteContentData>; items?: FleetItem[] }) {
   const [activeFilter, setActiveFilter] = useState<string>("ALL");
-  const [selectedVehicle, setSelectedVehicle] = useState<typeof FLEET_CATEGORIES[0] | null>(null);
+  const [selectedVehicle, setSelectedVehicle] = useState<FleetItem | null>(null);
+
+  const fleetItems: FleetItem[] = items ?? getDefaultLayout().fleetItems;
+  const phone = content?.phone || COMPANY_INFO.phone;
+  const phoneRaw = content?.phoneRaw || COMPANY_INFO.phoneRaw;
 
   const fleetBadge = content?.fleetBadge || "ประเภทรถที่ให้บริการ • ตอบโจทย์ทุกประเภทงานขนส่ง";
   const fleetTitle = content?.fleetTitle || "กองยานพาหนะมาตรฐานระดับสากล";
@@ -18,12 +23,9 @@ export default function FleetSection({ content }: { content?: Partial<SiteConten
   const fleetBannerTitle = content?.fleetBannerTitle || "มีรถพร้อมวิ่งมากกว่า 200 คัน ตรวจสภาพและบำรุงรักษาตามรอบสม่ำเสมอ";
   const fleetBannerSubtitle = content?.fleetBannerSubtitle || "ทุกคันติดตั้ง GPS Tracking ควบคุมความเร็วตามกฎหมายกรมการขนส่งทางบก";
 
-  const filteredFleet = FLEET_CATEGORIES.filter((item) => {
+  const filteredFleet = fleetItems.filter((item) => {
     if (activeFilter === "ALL") return true;
-    if (activeFilter === "4W") return item.id.startsWith("4w");
-    if (activeFilter === "6W") return item.id.startsWith("6w");
-    if (activeFilter === "HEAVY") return item.id.startsWith("10w") || item.id.startsWith("trailer") || item.id.startsWith("container");
-    return true;
+    return item.group === activeFilter;
   });
 
   return (
@@ -72,7 +74,7 @@ export default function FleetSection({ content }: { content?: Partial<SiteConten
         {/* Filter Tabs */}
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-10">
           {[
-            { id: "ALL", label: "ทั้งหมด (7 ประเภท)" },
+            { id: "ALL", label: `ทั้งหมด (${fleetItems.length} ประเภท)` },
             { id: "4W", label: "รถ 4 ล้อ (ตู้ทึบ / จัมโบ้)" },
             { id: "6W", label: "รถ 6 ล้อ (มาตรฐาน / จัมโบ้)" },
             { id: "HEAVY", label: "รถ 10 ล้อ / เทรลเลอร์ / คอนเทนเนอร์" },
@@ -141,7 +143,7 @@ export default function FleetSection({ content }: { content?: Partial<SiteConten
 
                 {/* Highlights List */}
                 <ul className="space-y-1.5 mb-6 text-xs text-slate-600">
-                  {truck.features.map((feat, idx) => (
+                  {truck.features.filter(Boolean).map((feat, idx) => (
                     <li key={idx} className="flex items-center gap-2">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                       <span>{feat}</span>
@@ -153,7 +155,7 @@ export default function FleetSection({ content }: { content?: Partial<SiteConten
               {/* Action Buttons */}
               <div className="pt-4 border-t border-slate-100 flex items-center gap-3">
                 <a
-                  href={`tel:${COMPANY_INFO.phoneRaw}`}
+                  href={`tel:${phoneRaw}`}
                   className="flex-1 text-center py-2.5 px-3 rounded-full bg-slate-900 hover:bg-[#D32F2F] text-white font-bold text-xs sm:text-sm transition-all shadow-sm"
                 >
                   สอบถามคิวรถ / ขอราคา
@@ -207,7 +209,7 @@ export default function FleetSection({ content }: { content?: Partial<SiteConten
                 <div>
                   <h4 className="font-bold text-slate-900 mb-2">จุดเด่นของรุ่นนี้:</h4>
                   <ul className="space-y-1.5">
-                    {selectedVehicle.features.map((f, i) => (
+                    {selectedVehicle.features.filter(Boolean).map((f, i) => (
                       <li key={i} className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                         <span>{f}</span>
@@ -219,10 +221,10 @@ export default function FleetSection({ content }: { content?: Partial<SiteConten
 
               <div className="flex gap-3 pt-2">
                 <a
-                  href={`tel:${COMPANY_INFO.phoneRaw}`}
+                  href={`tel:${phoneRaw}`}
                   className="flex-1 py-3 text-center rounded-xl bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-bold text-sm shadow-md"
                 >
-                  โทรจองคิวรถ: {COMPANY_INFO.phone}
+                  โทรจองคิวรถ: {phone}
                 </a>
                 <button
                   onClick={() => setSelectedVehicle(null)}

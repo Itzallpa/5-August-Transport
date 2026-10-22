@@ -85,6 +85,7 @@ import {
 } from "@/app/actions/site-content-actions";
 import { COMPANY_INFO } from "@/lib/constants";
 import SiteContentCMS from "@/components/admin/SiteContentCMS";
+import SiteLayoutBuilder from "@/components/admin/SiteLayoutBuilder";
 
 type Application = {
   id: string;
@@ -2588,15 +2589,23 @@ function AdminPortalContent() {
 
         {/* TAB 5: HOMEPAGE CONTENT MANAGEMENT SYSTEM (CMS) */}
         {activeTab === "siteContent" && (
-          <SiteContentCMS
-            siteContent={siteContent}
-            onFieldChange={handleSiteContentFieldChange}
-            onSave={handleSaveSiteContent}
-            onReset={refreshData}
-            isPending={isPending}
-            showToast={showToast}
-            onGoToMilestonesTab={() => setActiveTab("milestones")}
-          />
+          <>
+            <SiteContentCMS
+              siteContent={siteContent}
+              onFieldChange={handleSiteContentFieldChange}
+              onSave={handleSaveSiteContent}
+              onReset={refreshData}
+              isPending={isPending}
+              showToast={showToast}
+              onGoToMilestonesTab={() => setActiveTab("milestones")}
+            />
+            <SiteLayoutBuilder
+              layoutJson={siteContent.layoutJson}
+              onChange={(json) => handleSiteContentFieldChange("layoutJson", json)}
+              onSave={handleSaveSiteContent}
+              isPending={isPending}
+            />
+          </>
         )}
 
         {/* TAB 6: USER MANAGEMENT (ADMIN USERS) */}

@@ -10,6 +10,8 @@ import DriverRecruitmentForm from "@/components/DriverRecruitmentForm";
 import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
+import { parseLayout, type SectionKey } from "@/lib/site-layout";
+import { Fragment, type ReactNode } from "react";
 
 type Milestone = {
   id: string;
@@ -44,39 +46,36 @@ export default async function HomePage() {
     console.error("Failed to load content for homepage:", error);
   }
 
+  const layout = parseLayout(content?.layoutJson);
+  const c = content ?? undefined;
+
+  // Each homepage block, keyed so the admin can reorder / hide them.
+  const renderers: Record<SectionKey, () => ReactNode> = {
+    hero: () => <Hero content={c} />,
+    about: () => <AboutSection content={c} />,
+    fleet: () => <FleetSection content={c} items={layout.fleetItems} />,
+    gallery: () => <GallerySection items={layout.galleryItems} />,
+    values: () => <ValueProps content={c} items={layout.valueItems} />,
+    quote: () => <QuoteCalculator content={c} rates={layout.quoteRates} />,
+    milestones: () => <Milestones milestones={milestones} />,
+    recruitment: () => <DriverRecruitmentForm content={c} />,
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 selection:bg-[#D32F2F] selection:text-white">
-      {/* 1. Global Navigation Bar */}
-      <Navbar content={content ?? undefined} />
+      {/* Global Navigation Bar */}
+      <Navbar content={c} navLinks={layout.navLinks} />
 
       <main className="flex-1">
-        {/* 2. Hero Section - Authentic Thai Transport Banner */}
-        <Hero content={content ?? undefined} />
-
-        {/* 3. About Us & Company Background */}
-        <AboutSection content={content ?? undefined} />
-
-        {/* 4. Fleet & Vehicle Catalog (7 Vehicle Categories) */}
-        <FleetSection content={content ?? undefined} />
-
-        {/* 5. Real Transport Operations Gallery */}
-        <GallerySection />
-
-        {/* 6. Key Value Propositions (Friendly & Human-Crafted) */}
-        <ValueProps content={content ?? undefined} />
-
-        {/* 7. Freight Cost Estimator / Quick Quote Tool */}
-        <QuoteCalculator content={content ?? undefined} />
-
-        {/* 8. Milestones & Timeline */}
-        <Milestones milestones={milestones} />
-
-        {/* 9. Driver Recruitment Application Form */}
-        <DriverRecruitmentForm content={content ?? undefined} />
+        {layout.sections
+          .filter((s) => s.visible)
+          .map((s) => (
+            <Fragment key={s.key}>{renderers[s.key]()}</Fragment>
+          ))}
       </main>
 
-      {/* 10. Corporate Footer */}
-      <Footer content={content ?? undefined} />
+      {/* Corporate Footer */}
+      <Footer content={c} />
     </div>
   );
 }
