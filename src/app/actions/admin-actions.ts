@@ -545,8 +545,8 @@ export async function changeAdminPasswordAction(currentPasswordInput: string, ne
       return { success: false, error: "กรุณากรอกรหัสผ่านปัจจุบันและรหัสผ่านใหม่" };
     }
 
-    if (newPassword.length < 6) {
-      return { success: false, error: "รหัสผ่านใหม่ต้องมีความยาวอย่างน้อย 6 ตัวอักษรเพื่อความปลอดภัย" };
+    if (newPassword.length < 4) {
+      return { success: false, error: "รหัสผ่านใหม่ต้องมีความยาวอย่างน้อย 4 ตัวอักษร" };
     }
 
     const auth = await requireAdminAuth();
@@ -575,7 +575,7 @@ export async function changeAdminPasswordAction(currentPasswordInput: string, ne
       data: { passwordHash: hashedNew },
     });
 
-    return { success: true, message: "เปลี่ยนรหัสผ่านผู้ดูแลระบบสำเร็จแล้ว" };
+    return { success: true, message: `เปลี่ยนรหัสผ่านของบัญชี "${user.username}" สำเร็จเรียบร้อยแล้ว` };
   } catch (error) {
     console.error("Change password error:", error);
     return { success: false, error: "เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน" };
@@ -583,7 +583,7 @@ export async function changeAdminPasswordAction(currentPasswordInput: string, ne
 }
 
 // ==========================================
-// USER MANAGEMENT ACTIONS
+// USER MANAGEMENT ACTIONS (ADMIN ONLY)
 // ==========================================
 
 export type AdminUserData = {
@@ -616,58 +616,6 @@ export async function getAdminUsersAction() {
   } catch (error) {
     console.error("Error fetching admin users:", error);
     return { success: false, error: "ไม่สามารถดึงข้อมูลผู้ใช้ได้", data: [] };
-  }
-}
-
-export async function registerUserAction(usernameInput: string, passwordInput: string, roleInput: string = "ADMIN") {
-  try {
-    const username = usernameInput.trim();
-    const password = passwordInput.trim();
-    const role = roleInput.trim().toUpperCase() || "ADMIN";
-
-    if (!username || username.length < 3) {
-      return { success: false, error: "ชื่อผู้ใช้ต้องมีความยาวอย่างน้อย 3 ตัวอักษร" };
-    }
-
-    if (!password || password.length < 6) {
-      return { success: false, error: "รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร" };
-    }
-
-    // Check if username already exists
-    const existing = await prisma.adminUser.findUnique({
-      where: { username },
-    });
-
-    if (existing) {
-      return { success: false, error: `ชื่อผู้ใช้ "${username}" มีอยู่ในระบบแล้ว กรุณาเลือกชื่ออื่น` };
-    }
-
-    // Hash password with cryptographically secure Scrypt
-    const passwordHash = await hashPassword(password);
-
-    const newUser = await prisma.adminUser.create({
-      data: {
-        username,
-        passwordHash,
-        role,
-      },
-      select: {
-        id: true,
-        username: true,
-        role: true,
-        createdAt: true,
-      },
-    });
-
-    revalidatePath("/admin");
-    return {
-      success: true,
-      data: newUser,
-      message: `สร้างบัญชีผู้ใช้งาน "${newUser.username}" สำเร็จเรียบร้อยแล้ว! สามารถเข้าสู่ระบบได้ทันที`,
-    };
-  } catch (error) {
-    console.error("Error registering user:", error);
-    return { success: false, error: "เกิดข้อผิดพลาดในการสร้างบัญชีผู้ใช้" };
   }
 }
 

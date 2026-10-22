@@ -66,7 +66,6 @@ import {
   getAdminUsersAction,
   createAdminUserAction,
   deleteAdminUserAction,
-  registerUserAction,
   type AdminUserData,
 } from "@/app/actions/admin-actions";
 import {
@@ -229,20 +228,13 @@ function AdminPortalContent() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [currentAdminUser, setCurrentAdminUser] = useState<string>("admin");
 
-  // Auth Screen Mode: 'login' | 'register'
-  const [authMode, setAuthMode] = useState<"login" | "register">("login");
-  const [registerUsername, setRegisterUsername] = useState<string>("");
-  const [registerPassword, setRegisterPassword] = useState<string>("");
-  const [registerConfirmPassword, setRegisterConfirmPassword] = useState<string>("");
-  const [registerRole, setRegisterRole] = useState<string>("ADMIN");
-  const [registerError, setRegisterError] = useState<string | null>(null);
-  const [isRegistering, setIsRegistering] = useState<boolean>(false);
-
   // Change Password Modal State
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState<boolean>(false);
   const [currentPasswordInput, setCurrentPasswordInput] = useState<string>("");
   const [newPasswordInput, setNewPasswordInput] = useState<string>("");
   const [confirmPasswordInput, setConfirmPasswordInput] = useState<string>("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState<boolean>(false);
+  const [showNewPassword, setShowNewPassword] = useState<boolean>(false);
   const [changePasswordError, setChangePasswordError] = useState<string | null>(null);
   const [changePasswordSuccess, setChangePasswordSuccess] = useState<string | null>(null);
   const [isChangingPassword, setIsChangingPassword] = useState<boolean>(false);
@@ -387,13 +379,31 @@ function AdminPortalContent() {
     isActive: true,
   });
 
-  // Check Authentication from localStorage / Session on mount
+  // Check Authentication from Session / Server on mount
   useEffect(() => {
-    const isLocalAuth = localStorage.getItem("admin_auth") === "true";
-    if (isLocalAuth) {
-      setIsAuthenticated(true);
-    }
-    setAuthChecking(false);
+    const checkAuth = async () => {
+      try {
+        const res = await checkAdminAuthAction();
+        if (res.isAuthenticated && res.user) {
+          setIsAuthenticated(true);
+          setCurrentAdminUser(res.user.username);
+          localStorage.setItem("admin_auth", "true");
+          localStorage.setItem("admin_username", res.user.username);
+        } else {
+          const isLocalAuth = localStorage.getItem("admin_auth") === "true";
+          const savedUser = localStorage.getItem("admin_username");
+          if (isLocalAuth) {
+            setIsAuthenticated(true);
+            if (savedUser) setCurrentAdminUser(savedUser);
+          }
+        }
+      } catch (e) {
+        console.warn("Auth check error:", e);
+      } finally {
+        setAuthChecking(false);
+      }
+    };
+    checkAuth();
   }, []);
 
   // Fetch Data
@@ -514,60 +524,6 @@ function AdminPortalContent() {
     });
   };
 
-  // Register User Directly on Web
-  const handleRegisterOnWeb = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setRegisterError(null);
-
-    const u = registerUsername.trim();
-    if (!u) {
-      setRegisterError("กรุณากรอกชื่อผู้ใช้ (Username)");
-      return;
-    }
-    if (u.length < 3) {
-      setRegisterError("ชื่อผู้ใช้ต้องมีความยาวอย่างน้อย 3 ตัวอักษร");
-      return;
-    }
-    if (!registerPassword) {
-      setRegisterError("กรุณากรอกรหัสผ่าน");
-      return;
-    }
-    if (registerPassword.length < 6) {
-      setRegisterError("รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร");
-      return;
-    }
-    if (registerPassword !== registerConfirmPassword) {
-      setRegisterError("รหัสผ่านยืนยันไม่ตรงกับรหัสผ่านที่ตั้งไว้");
-      return;
-    }
-
-    setIsRegistering(true);
-    try {
-      const res = await registerUserAction(u, registerPassword, registerRole);
-      if (res.success) {
-        Swal.fire({
-          icon: "success",
-          title: "สร้างบัญชีผู้ใช้สำเร็จ!",
-          text: `สร้างบัญชี "${u}" เรียบร้อยแล้ว สามารถเข้าสู่ระบบได้ทันที`,
-          confirmButtonColor: "#D32F2F",
-        });
-        setUsernameInput(u);
-        setPasswordInput(registerPassword);
-        setAuthMode("login");
-        setRegisterUsername("");
-        setRegisterPassword("");
-        setRegisterConfirmPassword("");
-        setAuthError(null);
-      } else {
-        setRegisterError(res.error || "เกิดข้อผิดพลาดในการสร้างบัญชี");
-      }
-    } catch {
-      setRegisterError("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
-    } finally {
-      setIsRegistering(false);
-    }
-  };
-
   const handleLogout = async () => {
     Swal.fire({
       title: "ยืนยันการออกจากระบบ?",
@@ -582,8 +538,10 @@ function AdminPortalContent() {
       if (result.isConfirmed) {
         await adminLogoutAction();
         localStorage.removeItem("admin_auth");
+        localStorage.removeItem("admin_username");
         setIsAuthenticated(false);
         setPasswordInput("");
+        setCurrentAdminUser("admin");
         Swal.fire({
           icon: "info",
           title: "ออกจากระบบเรียบร้อยแล้ว",
@@ -1146,7 +1104,7 @@ function AdminPortalContent() {
                 Admin Portal
               </span>
               <h1 className="text-2xl font-bold text-slate-900">
-                {authMode === "login" ? "เข้าสู่ระบบผู้ดูแลระบบ" : "สร้างบัญชีผู้ใช้งานใหม่"}
+                เข้าสู่ระบบผู้ดูแลระบบ
               </h1>
               <p className="text-xs text-slate-500 mt-0.5">
                 {COMPANY_INFO.nameTh}
@@ -1154,217 +1112,83 @@ function AdminPortalContent() {
             </div>
           </div>
 
-          {/* Toggle between Login and Register directly on Web */}
-          <div className="grid grid-cols-2 p-1 bg-slate-100 rounded-xl text-xs font-bold border border-slate-200">
-            <button
-              type="button"
-              onClick={() => {
-                setAuthMode("login");
-                setAuthError(null);
-                setRegisterError(null);
-              }}
-              className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                authMode === "login"
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-500 hover:text-slate-800"
-              }`}
-            >
-              <Lock className="w-3.5 h-3.5" />
-              <span>เข้าสู่ระบบ</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setAuthMode("register");
-                setAuthError(null);
-                setRegisterError(null);
-              }}
-              className={`py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                authMode === "register"
-                  ? "bg-white text-[#D32F2F] shadow-sm"
-                  : "text-slate-500 hover:text-slate-800"
-              }`}
-            >
-              <UserPlus className="w-3.5 h-3.5" />
-              <span>สร้างผู้ใช้ใหม่ (Web)</span>
-            </button>
-          </div>
+          <form onSubmit={handleLogin} className="space-y-4">
+            {/* Username Input */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                ชื่อผู้ใช้ (Username)
+              </label>
+              <input
+                type="text"
+                value={usernameInput}
+                onChange={(e) => setUsernameInput(e.target.value)}
+                placeholder="เช่น admin"
+                autoComplete="username"
+                className="w-full px-3.5 py-2.5 rounded-md border border-slate-300 text-slate-900 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:border-[#D32F2F] focus:ring-1 focus:ring-[#D32F2F]"
+              />
+            </div>
 
-          {authMode === "login" ? (
-            <form onSubmit={handleLogin} className="space-y-4">
-              {/* Username Input */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  ชื่อผู้ใช้ (Username)
-                </label>
+            {/* Password Input with Show/Hide Toggle */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                รหัสผ่าน (Password)
+              </label>
+              <div className="relative">
                 <input
-                  type="text"
-                  value={usernameInput}
-                  onChange={(e) => setUsernameInput(e.target.value)}
-                  placeholder="เช่น admin"
-                  autoComplete="username"
-                  className="w-full px-3.5 py-2.5 rounded-md border border-slate-300 text-slate-900 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:border-[#D32F2F] focus:ring-1 focus:ring-[#D32F2F]"
+                  type={showPassword ? "text" : "password"}
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  placeholder="กรอกรหัสผ่าน"
+                  autoComplete="current-password"
+                  className="w-full px-3.5 py-2.5 pr-10 rounded-md border border-slate-300 text-slate-900 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:border-[#D32F2F] focus:ring-1 focus:ring-[#D32F2F]"
                 />
-              </div>
-
-              {/* Password Input with Show/Hide Toggle */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  รหัสผ่าน (Password)
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={passwordInput}
-                    onChange={(e) => setPasswordInput(e.target.value)}
-                    placeholder="กรอกรหัสผ่าน"
-                    autoComplete="current-password"
-                    className="w-full px-3.5 py-2.5 pr-10 rounded-md border border-slate-300 text-slate-900 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:border-[#D32F2F] focus:ring-1 focus:ring-[#D32F2F]"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
-                    tabIndex={-1}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* Error Message */}
-              {authError && (
-                <div className="p-3 rounded-md bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 shrink-0 text-red-600" />
-                  <span>{authError}</span>
-                </div>
-              )}
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={isPending}
-                className="w-full py-2.5 rounded-md bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                <Lock className="w-4 h-4" />
-                <span>{isPending ? "กำลังตรวจสอบ..." : "เข้าสู่ระบบหลังบ้าน"}</span>
-              </button>
-
-              <div className="text-center pt-1">
                 <button
                   type="button"
-                  onClick={() => setAuthMode("register")}
-                  className="text-xs text-[#D32F2F] hover:underline font-semibold"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                  tabIndex={-1}
                 >
-                  + ยังไม่มีบัญชี? คลิกที่นี่เพื่อสร้างผู้ใช้งานใหม่ในเว็บ
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
                 </button>
               </div>
+            </div>
 
-              {/* Notice & Hint */}
-              <div className="p-3 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1">
-                <div className="flex items-center gap-1.5 font-bold text-slate-800">
-                  <KeyRound className="w-3.5 h-3.5 text-amber-600" />
-                  <span>ข้อมูลเริ่มต้นของระบบ:</span>
-                </div>
-                <p>
-                  ชื่อผู้ใช้: <strong className="text-slate-900">admin</strong> / รหัสผ่าน: <strong className="text-slate-900">admin123</strong>
-                </p>
-                <p className="text-[11px] text-slate-500">
-                  * สามารถเปลี่ยนรหัสผ่านได้ตลอดเวลาหลังจากเข้าสู่ระบบ
-                </p>
+            {/* Error Message */}
+            {authError && (
+              <div className="p-3 rounded-md bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0 text-red-600" />
+                <span>{authError}</span>
               </div>
-            </form>
-          ) : (
-            <form onSubmit={handleRegisterOnWeb} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  ชื่อผู้ใช้ใหม่ (Username) *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={registerUsername}
-                  onChange={(e) => setRegisterUsername(e.target.value)}
-                  placeholder="เช่น admin2, staff1"
-                  className="w-full px-3.5 py-2.5 rounded-md border border-slate-300 text-slate-900 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:border-[#D32F2F] focus:ring-1 focus:ring-[#D32F2F]"
-                />
-                <p className="text-[11px] text-slate-400 mt-0.5">ความยาวอย่างน้อย 3 ตัวอักษร (ภาษาอังกฤษหรือตัวเลข)</p>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isPending}
+              className="w-full py-2.5 rounded-md bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              <Lock className="w-4 h-4" />
+              <span>{isPending ? "กำลังตรวจสอบ..." : "เข้าสู่ระบบหลังบ้าน"}</span>
+            </button>
+
+            {/* Notice & Hint */}
+            <div className="p-3 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1">
+              <div className="flex items-center gap-1.5 font-bold text-slate-800">
+                <KeyRound className="w-3.5 h-3.5 text-amber-600" />
+                <span>ข้อมูลเริ่มต้นของระบบ:</span>
               </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  รหัสผ่าน (Password) *
-                </label>
-                <input
-                  type="password"
-                  required
-                  value={registerPassword}
-                  onChange={(e) => setRegisterPassword(e.target.value)}
-                  placeholder="กำหนดรหัสผ่าน (อย่างน้อย 6 ตัวอักษร)"
-                  className="w-full px-3.5 py-2.5 rounded-md border border-slate-300 text-slate-900 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:border-[#D32F2F] focus:ring-1 focus:ring-[#D32F2F]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  ยืนยันรหัสผ่าน (Confirm Password) *
-                </label>
-                <input
-                  type="password"
-                  required
-                  value={registerConfirmPassword}
-                  onChange={(e) => setRegisterConfirmPassword(e.target.value)}
-                  placeholder="กรอกรหัสผ่านอีกครั้ง"
-                  className="w-full px-3.5 py-2.5 rounded-md border border-slate-300 text-slate-900 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:border-[#D32F2F] focus:ring-1 focus:ring-[#D32F2F]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  ระดับสิทธิ์ (Role)
-                </label>
-                <select
-                  value={registerRole}
-                  onChange={(e) => setRegisterRole(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-md border border-slate-300 text-slate-900 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:border-[#D32F2F] focus:ring-1 focus:ring-[#D32F2F]"
-                >
-                  <option value="ADMIN">ADMIN (ผู้ดูแลระบบ - จัดการใบสมัครและข้อมูล)</option>
-                  <option value="SUPERADMIN">SUPERADMIN (ผู้ดูแลระบบระดับสูง)</option>
-                  <option value="STAFF">STAFF (เจ้าหน้าที่ฝ่ายปฏิบัติการ)</option>
-                </select>
-              </div>
-
-              {registerError && (
-                <div className="p-3 rounded-md bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 shrink-0 text-red-600" />
-                  <span>{registerError}</span>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={isRegistering}
-                className="w-full py-2.5 rounded-md bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                <UserPlus className="w-4 h-4" />
-                <span>{isRegistering ? "กำลังสร้างบัญชี..." : "สร้างบัญชีผู้ใช้งานทันที"}</span>
-              </button>
-
-              <div className="text-center pt-1">
-                <button
-                  type="button"
-                  onClick={() => setAuthMode("login")}
-                  className="text-xs text-slate-600 hover:text-slate-900 font-semibold"
-                >
-                  มีบัญชีอยู่แล้ว? คลิกที่นี่เพื่อเข้าสู่ระบบ
-                </button>
-              </div>
-            </form>
-          )}
+              <p>
+                ชื่อผู้ใช้: <strong className="text-slate-900">admin</strong> / รหัสผ่าน: <strong className="text-slate-900">admin123</strong>
+              </p>
+              <p className="text-[11px] text-slate-500">
+                * ผู้ใช้งานสามารถเปลี่ยนรหัสผ่านของตนเองได้เมื่อเข้าสู่ระบบแล้ว
+              </p>
+            </div>
+          </form>
 
           <div className="text-center">
             <Link
@@ -2800,7 +2624,21 @@ function AdminPortalContent() {
                             </td>
                             <td className="px-6 py-4 text-right">
                               {isSelf ? (
-                                <span className="text-xs text-slate-400 italic">ไม่สามารถลบตัวเองได้</span>
+                                <button
+                                  onClick={() => {
+                                    setChangePasswordError(null);
+                                    setChangePasswordSuccess(null);
+                                    setCurrentPasswordInput("");
+                                    setNewPasswordInput("");
+                                    setConfirmPasswordInput("");
+                                    setIsChangePasswordModalOpen(true);
+                                  }}
+                                  className="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold inline-flex items-center gap-1.5 transition-colors shadow-sm"
+                                  title="เปลี่ยนรหัสผ่านสำหรับบัญชีของคุณ"
+                                >
+                                  <KeyRound className="w-3.5 h-3.5 text-amber-600" />
+                                  <span>เปลี่ยนรหัสผ่านของฉัน</span>
+                                </button>
                               ) : (
                                 <button
                                   onClick={() => handleDeleteAdminUser(u.id, u.username)}
@@ -3405,12 +3243,17 @@ function AdminPortalContent() {
           <div className="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 sm:p-7 space-y-5 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center">
-                  <KeyRound className="w-5 h-5" />
+                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center">
+                  <KeyRound className="w-5 h-5 text-amber-600" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900">เปลี่ยนรหัสผ่านผู้ดูแลระบบ</h3>
-                  <p className="text-xs text-slate-500">สำหรับบัญชี: {currentAdminUser}</p>
+                  <h3 className="text-base font-bold text-slate-900">เปลี่ยนรหัสผ่านของฉัน (Change Password)</h3>
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-0.5">
+                    <span>บัญชีของคุณ:</span>
+                    <span className="font-bold text-slate-900 px-2 py-0.5 rounded bg-slate-100 border border-slate-200">
+                      {currentAdminUser}
+                    </span>
+                  </div>
                 </div>
               </div>
               <button
@@ -3425,39 +3268,62 @@ function AdminPortalContent() {
             <form onSubmit={handleChangePassword} className="space-y-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-700">
-                  รหัสผ่านปัจจุบัน *
+                  รหัสผ่านปัจจุบัน (Current Password) *
                 </label>
-                <input
-                  type="password"
-                  value={currentPasswordInput}
-                  onChange={(e) => setCurrentPasswordInput(e.target.value)}
-                  placeholder="กรอกรหัสผ่านเดิม"
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 text-sm focus:bg-white focus:outline-none focus:border-[#D32F2F]"
-                />
+                <div className="relative">
+                  <input
+                    type={showCurrentPassword ? "text" : "password"}
+                    required
+                    value={currentPasswordInput}
+                    onChange={(e) => setCurrentPasswordInput(e.target.value)}
+                    placeholder="กรอกรหัสผ่านเดิมของคุณ"
+                    className="w-full px-3.5 py-2.5 pr-10 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 text-sm focus:bg-white focus:outline-none focus:border-[#D32F2F]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                    tabIndex={-1}
+                  >
+                    {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-700">
-                  รหัสผ่านใหม่ *
+                  รหัสผ่านใหม่ (New Password) *
                 </label>
-                <input
-                  type="password"
-                  value={newPasswordInput}
-                  onChange={(e) => setNewPasswordInput(e.target.value)}
-                  placeholder="กรอกรหัสผ่านใหม่ (อย่างน้อย 4 ตัวอักษร)"
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 text-sm focus:bg-white focus:outline-none focus:border-[#D32F2F]"
-                />
+                <div className="relative">
+                  <input
+                    type={showNewPassword ? "text" : "password"}
+                    required
+                    value={newPasswordInput}
+                    onChange={(e) => setNewPasswordInput(e.target.value)}
+                    placeholder="กรอกรหัสผ่านใหม่ (อย่างน้อย 4 ตัวอักษร)"
+                    className="w-full px-3.5 py-2.5 pr-10 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 text-sm focus:bg-white focus:outline-none focus:border-[#D32F2F]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                    tabIndex={-1}
+                  >
+                    {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-700">
-                  ยืนยันรหัสผ่านใหม่ *
+                  ยืนยันรหัสผ่านใหม่ (Confirm New Password) *
                 </label>
                 <input
-                  type="password"
+                  type={showNewPassword ? "text" : "password"}
+                  required
                   value={confirmPasswordInput}
                   onChange={(e) => setConfirmPasswordInput(e.target.value)}
-                  placeholder="กรอกรหัสผ่านใหม่อีกครั้ง"
+                  placeholder="กรอกรหัสผ่านใหม่อีกครั้งเพื่อยืนยัน"
                   className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 text-sm focus:bg-white focus:outline-none focus:border-[#D32F2F]"
                 />
               </div>
