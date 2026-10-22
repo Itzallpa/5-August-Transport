@@ -12,6 +12,7 @@
     "lint": "eslint",
     "db:seed": "tsx prisma/seed.ts",
     "create-user": "tsx scripts/create-user.ts",
+    "reset-password": "tsx scripts/reset-password.ts",
     "host": "run_host.bat",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
