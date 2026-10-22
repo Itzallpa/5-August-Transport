@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "prisma generate && next build",
+    "build": "node build.cjs",
+    "build:vps": "prisma generate && next build",
     "build:cf": "node build.cjs",
     "postinstall": "prisma generate",
     "dev": "next dev",
