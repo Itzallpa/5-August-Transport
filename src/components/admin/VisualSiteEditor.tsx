@@ -55,6 +55,7 @@ import {
 import { buildBuiltinSections, type MilestoneRow } from "@/components/home/builtinSections";
 import CustomBlockView from "@/components/home/CustomBlockView";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
+import { EditorProvider, type EditorApi } from "@/components/editor/EditorContext";
 
 interface Props {
   siteContent: SiteContentData;
@@ -268,6 +269,38 @@ export default function VisualSiteEditor({
     };
     input.click();
   };
+  // Inline editing API for elements on canvas
+  const editorApi: EditorApi = {
+    setField: (field: string, value: string) => {
+      onFieldChange(field as keyof SiteContentData, value);
+    },
+    uploadAndSaveImage: async (field: string, file: File) => {
+      setUploading(true);
+      try {
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          headers: { "X-Requested-With": "5-August-Transport-App" },
+          body: fd,
+        });
+        const data = await res.json();
+        if (data.success && data.url) {
+          onFieldChange(field as keyof SiteContentData, data.url);
+          Swal.fire({
+            icon: "success",
+            title: "อัปโหลดและเปลี่ยนรูปสำเร็จ",
+            timer: 1400,
+            showConfirmButton: false,
+          });
+        }
+      } catch {
+        Swal.fire({ icon: "error", title: "การเชื่อมต่อขัดข้อง", confirmButtonColor: "#D32F2F" });
+      } finally {
+        setUploading(false);
+      }
+    },
+  };
 
   // Build public sections
   const builtin = buildBuiltinSections(siteContent, layout, milestones);
@@ -430,7 +463,8 @@ export default function VisualSiteEditor({
             </div>
 
             {/* SECTIONS RENDERING */}
-            <div className="flex-1 divide-y divide-transparent">
+            <EditorProvider value={editorApi}>
+              <div className="flex-1 divide-y divide-transparent">
               {layout.sections.map((s, index) => {
                 const isSelected = selectedKey === s.key;
                 const isCustom = s.key.startsWith(BLOCK_KEY_PREFIX);
@@ -593,6 +627,7 @@ export default function VisualSiteEditor({
                 );
               })}
             </div>
+            </EditorProvider>
           </div>
         </main>
 

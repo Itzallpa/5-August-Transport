@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Truck, ArrowRight, ShieldCheck, MapPin, Clock, Award, PhoneCall, MessageSquare } from "lucide-react";
 import { COMPANY_INFO } from "@/lib/constants";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
+import { Editable, ImageEditButton } from "@/components/editor/EditorContext";
 
 export default function Hero({ content }: { content?: Partial<SiteContentData> }) {
   const heroBadge = content?.heroBadge || "ครอบคลุมทั่วประเทศ • รวดเร็ว • ปลอดภัย • ตรงเวลา • คุ้มค่า";
@@ -42,6 +43,7 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
         />
         {/* Soft natural gradient on the left side only for text legibility, preserving true image colors */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-transparent pointer-events-none" />
+        <ImageEditButton field="heroImageUrl" label="เปลี่ยนรูปภาพพื้นหลัง Hero" className="absolute top-6 right-6 z-30" />
       </div>
 
       <div className="relative z-10 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
@@ -51,26 +53,26 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
             {/* Top Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 border border-white/20 text-red-400 text-xs sm:text-sm font-bold tracking-wide shadow-md backdrop-blur-md">
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span>{heroBadge}</span>
+              <Editable field="heroBadge" value={heroBadge} />
             </div>
 
             {/* Slogan & Headline */}
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight drop-shadow-md">
-              {heroHeading} <br />
+              <Editable field="heroHeading" value={heroHeading} /> <br />
               <span className="text-[#D32F2F]">
-                {heroHeadingHighlight}
+                <Editable field="heroHeadingHighlight" value={heroHeadingHighlight} />
               </span>
             </h1>
 
             {/* Sub-slogan */}
             <p className="text-base sm:text-lg text-zinc-100 font-normal max-w-xl leading-relaxed drop-shadow-sm">
-              {heroSubheading}
+              <Editable field="heroSubheading" value={heroSubheading} as="span" multiline />
             </p>
 
             <div className="flex items-center justify-center lg:justify-start gap-2.5 text-xs sm:text-sm text-zinc-300 font-semibold">
               <span className="w-6 h-[2px] bg-[#D32F2F] inline-block" />
               <span className="text-zinc-100 font-bold tracking-widest uppercase text-xs">
-                {trustedTagline}
+                <Editable field="trustedTagline" value={trustedTagline} />
               </span>
               <span className="w-6 h-[2px] bg-[#D32F2F] inline-block" />
             </div>
@@ -82,7 +84,9 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-bold text-sm sm:text-base shadow-xl shadow-black/60 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <Truck className="w-5 h-5" />
-                <span>{heroCtaDriverText} (Apply Now)</span>
+                <span>
+                  <Editable field="heroCtaDriverText" value={heroCtaDriverText} /> (Apply Now)
+                </span>
                 <ArrowRight className="w-4 h-4 ml-1" />
               </a>
 
@@ -90,7 +94,7 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
                 href="#fleet"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-black/60 hover:bg-black/80 text-white font-bold text-sm sm:text-base border border-white/25 backdrop-blur-md transition-all shadow-md"
               >
-                <span>{heroCtaFleetText}</span>
+                <Editable field="heroCtaFleetText" value={heroCtaFleetText} />
               </a>
 
               <a
@@ -98,7 +102,7 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-black/60 hover:bg-black/80 text-zinc-100 font-bold text-sm border border-white/20 backdrop-blur-md transition-colors shadow-md"
               >
                 <PhoneCall className="w-4 h-4 text-red-500" />
-                <span>{phone}</span>
+                <Editable field="phone" value={phone} />
               </a>
 
               <a
@@ -108,7 +112,7 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-[#06C755] hover:bg-[#05b34c] text-white font-bold text-sm shadow-md transition-colors"
               >
                 <MessageSquare className="w-4 h-4" />
-                <span>LINE: @{lineId}</span>
+                <span>LINE: @<Editable field="lineId" value={lineId} /></span>
               </a>
             </div>
 
@@ -143,23 +147,39 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
 
               <div className="grid grid-cols-2 gap-3.5">
                 <div className="p-3.5 rounded-xl bg-black/40 border border-white/10 backdrop-blur-md">
-                  <span className="text-[11px] text-zinc-300 font-medium block">{stat1Label}</span>
-                  <div className="text-xl sm:text-2xl font-black text-red-500 mt-0.5">{stat1Val}</div>
+                  <span className="text-[11px] text-zinc-300 font-medium block">
+                    <Editable field="heroStat1Label" value={stat1Label} />
+                  </span>
+                  <div className="text-xl sm:text-2xl font-black text-red-500 mt-0.5">
+                    <Editable field="heroStat1Value" value={stat1Val} />
+                  </div>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-black/40 border border-white/10 backdrop-blur-md">
-                  <span className="text-[11px] text-zinc-300 font-medium block">{stat2Label}</span>
-                  <div className="text-xl sm:text-2xl font-black text-white mt-0.5">{stat2Val}</div>
+                  <span className="text-[11px] text-zinc-300 font-medium block">
+                    <Editable field="heroStat2Label" value={stat2Label} />
+                  </span>
+                  <div className="text-xl sm:text-2xl font-black text-white mt-0.5">
+                    <Editable field="heroStat2Value" value={stat2Val} />
+                  </div>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-black/40 border border-white/10 backdrop-blur-md">
-                  <span className="text-[11px] text-zinc-300 font-medium block">{stat3Label}</span>
-                  <div className="text-xl sm:text-2xl font-black text-white mt-0.5">{stat3Val}</div>
+                  <span className="text-[11px] text-zinc-300 font-medium block">
+                    <Editable field="heroStat3Label" value={stat3Label} />
+                  </span>
+                  <div className="text-xl sm:text-2xl font-black text-white mt-0.5">
+                    <Editable field="heroStat3Value" value={stat3Val} />
+                  </div>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-black/40 border border-white/10 backdrop-blur-md">
-                  <span className="text-[11px] text-zinc-300 font-medium block">{stat4Label}</span>
-                  <div className="text-xl sm:text-2xl font-black text-emerald-400 mt-0.5">{stat4Val}</div>
+                  <span className="text-[11px] text-zinc-300 font-medium block">
+                    <Editable field="heroStat4Label" value={stat4Label} />
+                  </span>
+                  <div className="text-xl sm:text-2xl font-black text-emerald-400 mt-0.5">
+                    <Editable field="heroStat4Value" value={stat4Val} />
+                  </div>
                 </div>
               </div>
 

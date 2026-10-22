@@ -184,3 +184,20 @@ div:where(.swal2-container) button.swal2-cancel {
 ::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
 }
+
+/* Inline Editable Styling in Visual Editor */
+.editor-editable {
+  outline: 1.5px dashed rgba(59, 130, 246, 0.4);
+  outline-offset: 3px;
+  border-radius: 4px;
+  cursor: text;
+  transition: all 0.15s ease;
+}
+.editor-editable:hover {
+  outline: 2px dashed #3B82F6 !important;
+  background-color: rgba(59, 130, 246, 0.08) !important;
+}
+.editor-editable:focus {
+  outline: 2px solid #2563EB !important;
+  background-color: rgba(59, 130, 246, 0.15) !important;
+}
