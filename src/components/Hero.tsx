@@ -17,7 +17,7 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
   const lineId = content?.lineId || COMPANY_INFO.lineId;
 
   // Background Image (from CMS upload or fallback hero image)
-  const heroBackgroundImage = content?.heroImageUrl || "/images/hero.jpg";
+  const heroBackgroundImage = content?.heroImageUrl || "/images/hero-cover.jpg";
 
   // Stats
   const stat1Label = content?.heroStat1Label || "ตรงต่อเวลาเฉลี่ย";
@@ -85,13 +85,13 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
               </div>
             </Movable>
 
-            {/* CTA Buttons */}
+            {/* CTA Buttons - Simplified: Only Apply Now & Contact Us */}
             <Movable field="heroCtaGroup" className="block">
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-3.5 pt-2">
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-2">
                 <Movable field="heroCtaDriverBtn" className="inline-block">
                   <a
                     href="#recruitment"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-bold text-sm sm:text-base shadow-xl shadow-black/60 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-bold text-sm sm:text-base shadow-xl shadow-red-950/40 transition-all hover:scale-[1.03] active:scale-[0.98]"
                   >
                     <Truck className="w-5 h-5" />
                     <span>
@@ -101,34 +101,13 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
                   </a>
                 </Movable>
 
-                <Movable field="heroCtaFleetBtn" className="inline-block">
+                <Movable field="heroContactBtn" className="inline-block">
                   <a
-                    href="#fleet"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-black/60 hover:bg-black/80 text-white font-bold text-sm sm:text-base border border-white/25 backdrop-blur-md transition-all shadow-md"
-                  >
-                    <Editable field="heroCtaFleetText" value={heroCtaFleetText} noTransform />
-                  </a>
-                </Movable>
-
-                <Movable field="heroPhoneBtn" className="inline-block">
-                  <a
-                    href={`tel:${phoneRaw}`}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-black/60 hover:bg-black/80 text-zinc-100 font-bold text-sm border border-white/20 backdrop-blur-md transition-colors shadow-md"
+                    href="#contact"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-black/60 hover:bg-black/80 text-white font-bold text-sm sm:text-base border border-white/25 backdrop-blur-md transition-all shadow-md hover:border-white/40"
                   >
                     <PhoneCall className="w-4 h-4 text-red-500" />
-                    <Editable field="phone" value={phone} noTransform />
-                  </a>
-                </Movable>
-
-                <Movable field="heroLineBtn" className="inline-block">
-                  <a
-                    href={`https://line.me/ti/p/~${lineId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-[#06C755] hover:bg-[#05b34c] text-white font-bold text-sm shadow-md transition-colors"
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                    <span>LINE: @<Editable field="lineId" value={lineId} noTransform /></span>
+                    <span>ติดต่อเรา (Contact Us)</span>
                   </a>
                 </Movable>
               </div>
