@@ -85,6 +85,12 @@ export type GalleryItemData = {
 export type QuoteRate = { id: string; label: string; base: number; multiplier: number };
 export type NavLink = { href: string; label: string };
 
+export type TextPosition = {
+  x: number;
+  y: number;
+  align?: "left" | "center" | "right";
+};
+
 export type SiteLayout = {
   sections: SectionConfig[];
   customBlocks: CustomBlock[];
@@ -93,6 +99,7 @@ export type SiteLayout = {
   galleryItems: GalleryItemData[];
   quoteRates: QuoteRate[];
   navLinks: NavLink[];
+  textPositions?: Record<string, TextPosition>;
 };
 
 export const DEFAULT_NAV_LINKS: NavLink[] = [
@@ -391,7 +398,12 @@ export function parseLayout(json?: string | null): SiteLayout {
       })
     : defaults.navLinks;
 
-  return { sections, customBlocks, valueItems, fleetItems, galleryItems, quoteRates, navLinks };
+  const textPositions: Record<string, TextPosition> =
+    raw?.textPositions && typeof raw.textPositions === "object"
+      ? (raw.textPositions as Record<string, TextPosition>)
+      : {};
+
+  return { sections, customBlocks, valueItems, fleetItems, galleryItems, quoteRates, navLinks, textPositions };
 }
 
 export function createBlock(type: CustomBlockType, variant?: TextVariant): CustomBlock {

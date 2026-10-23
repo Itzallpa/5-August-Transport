@@ -1,3 +1,7 @@
+"use client";
+
+import { useRef } from "react";
+import { ImagePlus } from "lucide-react";
 import type { CustomBlock } from "@/lib/site-layout";
 
 const alignCls = { left: "text-left", center: "text-center", right: "text-right" } as const;
@@ -22,12 +26,15 @@ const buttonCls = {
 export default function CustomBlockView({
   block,
   onTextChange,
+  onImageUpload,
 }: {
   block: CustomBlock;
   onTextChange?: (text: string) => void;
+  onImageUpload?: (file: File) => Promise<void>;
 }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const handleText = onTextChange;
-  const editable = typeof handleText === "function";
+  const editable = typeof handleText === "function" || typeof onImageUpload === "function";
   const editProps = handleText
     ? {
         contentEditable: true,
@@ -67,16 +74,54 @@ export default function CustomBlockView({
       return (
         <section className="py-4 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {block.src ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={block.src}
-                alt={block.alt}
-                className={`${imageWidthCls[block.width]} w-full mx-auto rounded-2xl shadow-md`}
+            {onImageUpload && (
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={async (e) => {
+                  const f = e.target.files?.[0];
+                  e.target.value = "";
+                  if (f && onImageUpload) {
+                    await onImageUpload(f);
+                  }
+                }}
               />
+            )}
+            {block.src ? (
+              <div className="relative group/canvasimg inline-block w-full">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={block.src}
+                  alt={block.alt}
+                  className={`${imageWidthCls[block.width]} w-full mx-auto rounded-2xl shadow-md`}
+                />
+                {onImageUpload && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      fileInputRef.current?.click();
+                    }}
+                    className="absolute bottom-4 right-4 z-20 px-3.5 py-2 rounded-xl bg-slate-900/90 hover:bg-[#D32F2F] text-white text-xs font-bold shadow-xl border border-white/20 transition-all flex items-center gap-1.5"
+                  >
+                    <ImagePlus className="w-4 h-4" />
+                    <span>อัปโหลด / เปลี่ยนรูปภาพ</span>
+                  </button>
+                )}
+              </div>
             ) : editable ? (
-              <div className="max-w-2xl mx-auto h-48 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center text-sm text-slate-400">
-                ยังไม่มีรูป — คลิกเลือกบล็อกนี้ แล้วอัปโหลดรูปที่แถบด้านขวา
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
+                }}
+                className="max-w-2xl mx-auto h-48 rounded-2xl border-2 border-dashed border-blue-400 bg-blue-50/60 hover:bg-blue-100/60 cursor-pointer flex flex-col items-center justify-center gap-2 text-sm text-blue-700 transition-all shadow-sm"
+              >
+                <ImagePlus className="w-7 h-7 text-blue-600 animate-bounce" />
+                <span className="font-bold">คลิกที่นี่เพื่ออัปโหลดรูปภาพจากคอมพิวเตอร์ของคุณ</span>
+                <span className="text-xs text-slate-500">รองรับไฟล์ JPG, PNG, WEBP</span>
               </div>
             ) : null}
           </div>

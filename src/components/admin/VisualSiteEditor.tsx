@@ -33,8 +33,9 @@ import {
   Columns,
   Undo2,
   Redo2,
-  Pencil,
   X,
+  ImagePlus,
+  Pencil,
 } from "lucide-react";
 import {
   parseLayout,
@@ -51,6 +52,7 @@ import {
   type CustomBlock,
   type CustomBlockType,
   type TextVariant,
+  type TextPosition,
 } from "@/lib/site-layout";
 import { buildBuiltinSections, type MilestoneRow } from "@/components/home/builtinSections";
 import CustomBlockView from "@/components/home/CustomBlockView";
@@ -300,10 +302,71 @@ export default function VisualSiteEditor({
     };
     input.click();
   };
+
+  // Direct file upload handler (for drag & drop / component callback)
+  const handleUploadImageDirect = async (file: File, onDone: (url: string) => void) => {
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "X-Requested-With": "5-August-Transport-App" },
+        body: fd,
+      });
+
+      let data: any = null;
+      try {
+        data = await res.json();
+      } catch {}
+
+      if (res.ok && data?.success && data?.url) {
+        onDone(data.url);
+        Swal.fire({
+          icon: "success",
+          title: "อัปโหลดสำเร็จ",
+          timer: 1400,
+          showConfirmButton: false,
+        });
+      } else {
+        const errMsg =
+          data?.error ||
+          (res.status === 413
+            ? "ไฟล์มีขนาดใหญ่เกินไป (เกินขีดจำกัดของเซิร์ฟเวอร์)"
+            : `เกิดข้อผิดพลาดในการอัปโหลด (รหัส ${res.status})`);
+        Swal.fire({
+          icon: "error",
+          title: "อัปโหลดไม่สำเร็จ",
+          text: errMsg,
+          confirmButtonColor: "#D32F2F",
+        });
+      }
+    } catch (err: any) {
+      Swal.fire({
+        icon: "error",
+        title: "การเชื่อมต่อขัดข้อง",
+        text: err?.message || "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์อัปโหลดได้",
+        confirmButtonColor: "#D32F2F",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   // Inline editing API for elements on canvas
   const editorApi: EditorApi = {
     setField: (field: string, value: string) => {
       onFieldChange(field as keyof SiteContentData, value);
+    },
+    getTextPosition: (field: string) => {
+      return layout.textPositions?.[field] ?? { x: 0, y: 0 };
+    },
+    setTextPosition: (field: string, pos: TextPosition) => {
+      const nextPositions = {
+        ...(layout.textPositions ?? {}),
+        [field]: pos,
+      };
+      commitLayout({ ...layout, textPositions: nextPositions });
     },
     uploadAndSaveImage: async (field: string, file: File) => {
       setUploading(true);
@@ -384,12 +447,9 @@ export default function VisualSiteEditor({
               <h2 className="font-black text-slate-900 text-sm sm:text-base truncate">
                 โปรแกรมจัดหน้าเว็บสด (Live Visual Builder)
               </h2>
-              <span className="hidden md:inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                สไตล์ Google Sites
-              </span>
             </div>
             <p className="text-[11px] text-slate-500 truncate">
-              คลิกหรือลากบล็อกเพื่อแก้ไข จัดเรียง และปรับแต่งหน้าแรกได้ตามใจชอบ
+              คลิกหรือลากบล็อกเพื่อแก้ไข จัดเรียง ขยับข้อความ และปรับแต่งหน้าแรกได้ตามใจชอบ
             </p>
           </div>
         </div>
@@ -458,6 +518,36 @@ export default function VisualSiteEditor({
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2 shrink-0">
+          {/* Quick Top Bar Upload Button */}
+          <button
+            type="button"
+            disabled={uploading}
+            onClick={() => {
+              handleUploadImage((url) => {
+                if (selectedKey && selectedKey.startsWith(BLOCK_KEY_PREFIX)) {
+                  const blockId = selectedKey.slice(BLOCK_KEY_PREFIX.length);
+                  updateBlockField(blockId, { src: url });
+                } else {
+                  const block = createBlock("image");
+                  (block as any).src = url;
+                  const key = blockKey(block.id);
+                  commitLayout({
+                    ...layout,
+                    customBlocks: [...layout.customBlocks, block],
+                    sections: [...layout.sections, { key, visible: true }],
+                  });
+                  setSelectedKey(key);
+                  setSidebarTab("properties");
+                }
+              });
+            }}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold border border-blue-200 transition-colors shadow-xs"
+            title="อัปโหลดรูปภาพใหม่จากคอมพิวเตอร์"
+          >
+            <Upload className="w-3.5 h-3.5" />
+            <span>{uploading ? "กำลังอัปโหลด..." : "อัปโหลดรูปภาพ"}</span>
+          </button>
+
           <a
             href="/"
             target="_blank"
@@ -663,6 +753,38 @@ export default function VisualSiteEditor({
                         <GripVertical className="w-4 h-4" />
                       </div>
 
+                      {/* Quick Upload Button on Floating Toolbar */}
+                      {s.key === "hero" && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleUploadImage((url) => {
+                              onFieldChange("heroImageUrl", url);
+                            });
+                          }}
+                          className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50"
+                          title="อัปโหลด / เปลี่ยนรูปภาพพื้นหลัง Hero"
+                        >
+                          <ImagePlus className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                      {isCustom && customBlock?.type === "image" && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleUploadImage((url) => {
+                              if (blockId) updateBlockField(blockId, { src: url });
+                            });
+                          }}
+                          className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50"
+                          title="อัปโหลดรูปภาพใหม่"
+                        >
+                          <ImagePlus className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+
                       {/* Move Up */}
                       <button
                         type="button"
@@ -739,7 +861,17 @@ export default function VisualSiteEditor({
                     <div className="pointer-events-auto">
                       {isCustom ? (
                         customBlock ? (
-                          <CustomBlockView block={customBlock} />
+                          <CustomBlockView
+                            block={customBlock}
+                            onTextChange={(text) =>
+                              updateBlockField(customBlock.id, { text })
+                            }
+                            onImageUpload={async (file) => {
+                              await handleUploadImageDirect(file, (url) => {
+                                updateBlockField(customBlock.id, { src: url });
+                              });
+                            }}
+                          />
                         ) : (
                           <div className="p-8 text-center text-slate-400 bg-slate-50">
                             บล็อกเนื้อหาว่าง
@@ -862,12 +994,25 @@ export default function VisualSiteEditor({
 
                     <button
                       type="button"
-                      onClick={() => handleAddBlock("image")}
+                      onClick={() => {
+                        handleUploadImage((url) => {
+                          const block = createBlock("image");
+                          (block as any).src = url;
+                          const key = blockKey(block.id);
+                          commitLayout({
+                            ...layout,
+                            customBlocks: [...layout.customBlocks, block],
+                            sections: [...layout.sections, { key, visible: true }],
+                          });
+                          setSelectedKey(key);
+                          setSidebarTab("properties");
+                        });
+                      }}
                       className="p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-red-50 hover:border-red-300 text-left transition-all group flex flex-col gap-1.5"
                     >
                       <ImageIcon className="w-5 h-5 text-slate-600 group-hover:text-[#D32F2F]" />
                       <span className="text-xs font-bold text-slate-800">รูปภาพ (Image)</span>
-                      <span className="text-[10px] text-slate-500">อัปโหลดภาพ</span>
+                      <span className="text-[10px] text-blue-600 font-semibold">+ อัปโหลดภาพจากเครื่อง</span>
                     </button>
 
                     <button

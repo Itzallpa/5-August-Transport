@@ -2610,7 +2610,7 @@ function AdminPortalContent() {
                     }`}
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>โปรแกรมจัดหน้าเว็บสด (สไตล์ Google Sites)</span>
+                    <span>โปรแกรมจัดหน้าเว็บสด (Live Visual Builder)</span>
                   </button>
 
                   <button

@@ -43,7 +43,7 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
         />
         {/* Soft natural gradient on the left side only for text legibility, preserving true image colors */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-transparent pointer-events-none" />
-        <ImageEditButton field="heroImageUrl" label="เปลี่ยนรูปภาพพื้นหลัง Hero" className="absolute top-6 right-6 z-30" />
+        <ImageEditButton field="heroImageUrl" label="📷 อัปโหลดรูปภาพพื้นหลัง Hero" className="absolute bottom-6 right-6 z-30" />
       </div>
 
       <div className="relative z-10 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
