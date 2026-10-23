@@ -43,18 +43,283 @@ export const useEditor = () => useContext(EditorContext);
 
 type Tag = "span" | "p" | "div" | "h1" | "h2" | "h3";
 
+/**
+ * Movable container that allows dragging ANY element/box/container as a whole
+ * (e.g. badge pill, button, card, header, etc.)
+ */
+export function Movable({
+  field,
+  children,
+  className = "",
+  as = "div",
+}: {
+  field: string;
+  children: ReactNode;
+  className?: string;
+  as?: "div" | "span";
+}) {
+  const editor = useEditor();
+  const Tag = as as any;
+
+  const [active, setActive] = useState(false);
+  const containerRef = useRef<HTMLElement>(null);
+
+  const initialPos = editor?.getTextPosition?.(field) ?? { x: 0, y: 0 };
+  const [pos, setPos] = useState<TextPosition>(initialPos);
+
+  useEffect(() => {
+    if (editor?.getTextPosition) {
+      const p = editor.getTextPosition(field);
+      setPos(p);
+    }
+  }, [editor, field]);
+
+  useEffect(() => {
+    if (!active) return;
+    const handleOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setActive(false);
+      }
+    };
+    window.addEventListener("mousedown", handleOutside);
+    return () => window.removeEventListener("mousedown", handleOutside);
+  }, [active]);
+
+  if (!editor) {
+    const hasOffset = pos.x !== 0 || pos.y !== 0;
+    return (
+      <Tag
+        className={className}
+        style={hasOffset ? { transform: `translate(${pos.x}px, ${pos.y}px)` } : undefined}
+      >
+        {children}
+      </Tag>
+    );
+  }
+
+  const updatePos = (newPos: TextPosition) => {
+    setPos(newPos);
+    editor.setTextPosition?.(field, newPos);
+  };
+
+  const handleNudge = (dx: number, dy: number, e: ReactMouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    updatePos({
+      ...pos,
+      x: pos.x + dx,
+      y: pos.y + dy,
+    });
+  };
+
+  const handleReset = (e: ReactMouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    updatePos({ x: 0, y: 0, align: undefined });
+  };
+
+  const handleDragStart = (e: ReactMouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const origX = pos.x;
+    const origY = pos.y;
+
+    const onMouseMove = (ev: MouseEvent) => {
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+      const newPos: TextPosition = {
+        ...pos,
+        x: Math.round(origX + dx),
+        y: Math.round(origY + dy),
+      };
+      setPos(newPos);
+      editor.setTextPosition?.(field, newPos);
+    };
+
+    const onMouseUp = () => {
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+  };
+
+  const isRoundedFull = className.includes("rounded-full");
+  const roundedClass = isRoundedFull ? "rounded-full" : "rounded-xl";
+
+  return (
+    <Tag
+      ref={containerRef}
+      className={`relative group/movable ${className} ${
+        active
+          ? `ring-2 ring-blue-500 ${roundedClass}`
+          : `hover:ring-1 hover:ring-blue-300 ${roundedClass}`
+      }`}
+      style={{
+        transform: `translate(${pos.x}px, ${pos.y}px)`,
+        transition: "transform 0.05s ease-out",
+      }}
+      onClick={(e: ReactMouseEvent) => {
+        e.stopPropagation();
+        setActive(true);
+      }}
+    >
+      {/* QUICK HOVER DRAG HANDLE (Appears on hover before clicking) */}
+      {!active && (
+        <span
+          onMouseDown={(e) => {
+            setActive(true);
+            handleDragStart(e);
+          }}
+          className="absolute -top-3.5 -left-2 z-40 opacity-0 group-hover/movable:opacity-100 transition-opacity flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold cursor-grab active:cursor-grabbing shadow-lg border border-white/40 pointer-events-auto select-none"
+          title="คลิกค้างแล้วลากเพื่อขยับกรอบนี้ทันที"
+          onClick={(e) => {
+            e.stopPropagation();
+            setActive(true);
+          }}
+        >
+          <Move className="w-3 h-3" />
+          <span>ลากกรอบ</span>
+        </span>
+      )}
+
+      {/* FLOATING TOOLBAR */}
+      {active && (
+        <span
+          className="absolute -top-11 left-0 z-50 flex items-center gap-1 px-2 py-1 rounded-xl bg-slate-900/95 backdrop-blur-md text-white shadow-2xl border border-slate-700 select-none animate-in fade-in zoom-in-95 duration-150 pointer-events-auto"
+          onClick={(e: ReactMouseEvent) => e.stopPropagation()}
+        >
+          <span
+            onMouseDown={handleDragStart}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold cursor-grab active:cursor-grabbing transition-colors"
+            title="คลิกค้างแล้วลากเพื่อขยับกรอบนี้ (Click & Drag)"
+          >
+            <Move className="w-3.5 h-3.5" />
+            <span>ลากกรอบ</span>
+          </span>
+
+          <span className="flex items-center gap-0.5 bg-slate-800 p-0.5 rounded-lg border border-slate-700">
+            <button
+              type="button"
+              onClick={(e) => handleNudge(-10, 0, e)}
+              className="p-1 rounded hover:bg-slate-700 text-slate-300 hover:text-white"
+              title="ขยับซ้าย 10px"
+            >
+              <ArrowLeft className="w-3 h-3" />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => handleNudge(0, -10, e)}
+              className="p-1 rounded hover:bg-slate-700 text-slate-300 hover:text-white"
+              title="ขยับขึ้น 10px"
+            >
+              <ArrowUp className="w-3 h-3" />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => handleNudge(0, 10, e)}
+              className="p-1 rounded hover:bg-slate-700 text-slate-300 hover:text-white"
+              title="ขยับลง 10px"
+            >
+              <ArrowDown className="w-3 h-3" />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => handleNudge(10, 0, e)}
+              className="p-1 rounded hover:bg-slate-700 text-slate-300 hover:text-white"
+              title="ขยับขวา 10px"
+            >
+              <ArrowRight className="w-3 h-3" />
+            </button>
+          </span>
+
+          {(pos.x !== 0 || pos.y !== 0) && (
+            <span className="flex items-center gap-1 pl-1">
+              <span className="text-[10px] text-slate-400 font-mono">
+                {pos.x > 0 ? `+${pos.x}` : pos.x},{pos.y > 0 ? `+${pos.y}` : pos.y}
+              </span>
+              <button
+                type="button"
+                onClick={handleReset}
+                className="p-1 rounded hover:bg-red-900/60 text-red-400 hover:text-red-200"
+                title="รีเซ็ตกลับที่เดิม"
+              >
+                <RotateCcw className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+        </span>
+      )}
+
+      {/* DRAGGABLE EDGES & CORNERS ON THE ENTIRE BOX */}
+      {active && (
+        <span className="pointer-events-auto">
+          <span
+            onMouseDown={handleDragStart}
+            className="absolute -top-1.5 left-0 right-0 h-3 cursor-move z-30 hover:bg-blue-500/20"
+            title="คลิกค้างที่กรอบเพื่อลากย้าย (Drag frame)"
+          />
+          <span
+            onMouseDown={handleDragStart}
+            className="absolute -bottom-1.5 left-0 right-0 h-3 cursor-move z-30 hover:bg-blue-500/20"
+            title="คลิกค้างที่กรอบเพื่อลากย้าย (Drag frame)"
+          />
+          <span
+            onMouseDown={handleDragStart}
+            className="absolute top-0 -left-1.5 bottom-0 w-3 cursor-move z-30 hover:bg-blue-500/20"
+            title="คลิกค้างที่กรอบเพื่อลากย้าย (Drag frame)"
+          />
+          <span
+            onMouseDown={handleDragStart}
+            className="absolute top-0 -right-1.5 bottom-0 w-3 cursor-move z-30 hover:bg-blue-500/20"
+            title="คลิกค้างที่กรอบเพื่อลากย้าย (Drag frame)"
+          />
+
+          <span
+            onMouseDown={handleDragStart}
+            className="absolute -top-2 -left-2 w-4 h-4 bg-blue-600 hover:bg-blue-700 border-2 border-white rounded-full z-40 cursor-move shadow-md hover:scale-125 transition-transform"
+            title="คลิกลากมุมกรอบเพื่อย้ายทั้งชิ้น"
+          />
+          <span
+            onMouseDown={handleDragStart}
+            className="absolute -top-2 -right-2 w-4 h-4 bg-blue-600 hover:bg-blue-700 border-2 border-white rounded-full z-40 cursor-move shadow-md hover:scale-125 transition-transform"
+            title="คลิกลากมุมกรอบเพื่อย้ายทั้งชิ้น"
+          />
+          <span
+            onMouseDown={handleDragStart}
+            className="absolute -bottom-2 -left-2 w-4 h-4 bg-blue-600 hover:bg-blue-700 border-2 border-white rounded-full z-40 cursor-move shadow-md hover:scale-125 transition-transform"
+            title="คลิกลากมุมกรอบเพื่อย้ายทั้งชิ้น"
+          />
+          <span
+            onMouseDown={handleDragStart}
+            className="absolute -bottom-2 -right-2 w-4 h-4 bg-blue-600 hover:bg-blue-700 border-2 border-white rounded-full z-40 cursor-move shadow-md hover:scale-125 transition-transform"
+            title="คลิกลากมุมกรอบเพื่อย้ายทั้งชิ้น"
+          />
+        </span>
+      )}
+
+      {children}
+    </Tag>
+  );
+}
+
 export function Editable({
   field,
   value,
   as = "span",
   className,
   multiline = false,
+  noTransform = false,
 }: {
   field: string;
   value: ReactNode;
   as?: Tag;
   className?: string;
   multiline?: boolean;
+  noTransform?: boolean;
 }) {
   const editor = useEditor();
   const Tag = as;
@@ -62,17 +327,17 @@ export function Editable({
   const [active, setActive] = useState(false);
   const containerRef = useRef<HTMLSpanElement>(null);
 
-  // Position offset (x, y) & alignment
+  // Position offset (x, y) & alignment (only used if noTransform is false)
   const initialPos = editor?.getTextPosition?.(field) ?? { x: 0, y: 0 };
   const [pos, setPos] = useState<TextPosition>(initialPos);
 
   // Sync when editor position changes
   useEffect(() => {
-    if (editor?.getTextPosition) {
+    if (!noTransform && editor?.getTextPosition) {
       const p = editor.getTextPosition(field);
       setPos(p);
     }
-  }, [editor, field]);
+  }, [editor, field, noTransform]);
 
   // Click outside listener to hide micro-toolbar
   useEffect(() => {
@@ -87,8 +352,49 @@ export function Editable({
   }, [active]);
 
   if (!editor) {
-    // If text position offset exists on public site, apply it smoothly
+    if (!noTransform && (pos.x !== 0 || pos.y !== 0)) {
+      return (
+        <Tag className={className} style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}>
+          {value}
+        </Tag>
+      );
+    }
     return <Tag className={className}>{value}</Tag>;
+  }
+
+  // If wrapped in <Movable>, simply render editable text without its own duplicate transform/toolbar
+  if (noTransform) {
+    return (
+      <Tag
+        className={`${className ?? ""} editor-editable`}
+        contentEditable
+        suppressContentEditableWarning
+        spellCheck={false}
+        data-editable-field={field}
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => {
+          if (!multiline && e.key === "Enter") {
+            e.preventDefault();
+            (e.currentTarget as HTMLElement).blur();
+          }
+        }}
+        onPaste={(e) => {
+          e.preventDefault();
+          const text = e.clipboardData.getData("text/plain");
+          document.execCommand(
+            "insertText",
+            false,
+            multiline ? text : text.replace(/\s*\n\s*/g, " ")
+          );
+        }}
+        onBlur={(e) => {
+          const el = e.currentTarget as HTMLElement;
+          editor.setField(field, (el.innerText ?? "").replace(/\u00a0/g, " ").trim());
+        }}
+      >
+        {value}
+      </Tag>
+    );
   }
 
   // Update position & notify editor
@@ -273,35 +579,30 @@ export function Editable({
         </span>
       )}
 
-      {/* DRAGGABLE BOUNDING FRAME & CORNER HANDLES (ลากที่กรอบได้โดยตรง) */}
+      {/* DRAGGABLE BOUNDING FRAME & CORNER HANDLES */}
       {active && (
         <span className="pointer-events-auto">
-          {/* Top Edge Bar */}
           <span
             onMouseDown={handleDragStart}
             className="absolute -top-1.5 left-0 right-0 h-3 cursor-move z-30 hover:bg-blue-500/20"
             title="คลิกค้างที่กรอบเพื่อลากย้ายตำแหน่ง (Drag frame to move)"
           />
-          {/* Bottom Edge Bar */}
           <span
             onMouseDown={handleDragStart}
             className="absolute -bottom-1.5 left-0 right-0 h-3 cursor-move z-30 hover:bg-blue-500/20"
             title="คลิกค้างที่กรอบเพื่อลากย้ายตำแหน่ง (Drag frame to move)"
           />
-          {/* Left Edge Bar */}
           <span
             onMouseDown={handleDragStart}
             className="absolute top-0 -left-1.5 bottom-0 w-3 cursor-move z-30 hover:bg-blue-500/20"
             title="คลิกค้างที่กรอบเพื่อลากย้ายตำแหน่ง (Drag frame to move)"
           />
-          {/* Right Edge Bar */}
           <span
             onMouseDown={handleDragStart}
             className="absolute top-0 -right-1.5 bottom-0 w-3 cursor-move z-30 hover:bg-blue-500/20"
             title="คลิกค้างที่กรอบเพื่อลากย้ายตำแหน่ง (Drag frame to move)"
           />
 
-          {/* 4 Corner Handles (จุดจับ 4 มุมสำหรับลากขยับกรอบ) */}
           <span
             onMouseDown={handleDragStart}
             className="absolute -top-2 -left-2 w-4 h-4 bg-blue-600 hover:bg-blue-700 border-2 border-white rounded-full z-40 cursor-move shadow-md hover:scale-125 transition-transform"

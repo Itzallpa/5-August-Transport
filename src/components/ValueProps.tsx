@@ -2,6 +2,7 @@ import { Clock, ShieldCheck, Coins, Truck, Users, MapPin, CheckCircle2, Award, S
 import { KEY_SELLING_POINTS } from "@/lib/constants";
 import type { ValueItem } from "@/lib/site-layout";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
+import { Editable, Movable } from "@/components/editor/EditorContext";
 
 const ICON_MAP = {
   Clock: Clock,
@@ -28,18 +29,27 @@ export default function ValueProps({ content, items }: { content?: Partial<SiteC
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-[#D32F2F] border border-red-200 text-xs font-bold tracking-wider uppercase">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>{valueBadge}</span>
-          </div>
+          <Movable field="valueBadgeBox" className="inline-block rounded-full">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-[#D32F2F] border border-red-200 text-xs font-bold tracking-wider uppercase">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <Editable field="valueBadge" value={valueBadge} noTransform />
+            </div>
+          </Movable>
 
-          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            {valueTitle} <span className="text-[#D32F2F]">{valueTitleHighlight}</span>
-          </h2>
+          <Movable field="valueTitleBox" className="block">
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+              <Editable field="valueTitle" value={valueTitle} noTransform />{" "}
+              <span className="text-[#D32F2F]">
+                <Editable field="valueTitleHighlight" value={valueTitleHighlight} noTransform />
+              </span>
+            </h2>
+          </Movable>
 
-          <p className="text-slate-600 text-base font-normal leading-relaxed">
-            {valueSubtitle}
-          </p>
+          <Movable field="valueSubtitleBox" className="block">
+            <p className="text-slate-600 text-base font-normal leading-relaxed">
+              <Editable field="valueSubtitle" value={valueSubtitle} multiline noTransform />
+            </p>
+          </Movable>
         </div>
 
         {/* 6 Key Selling Points - Organic, Human-Designed & Friendly Cards */}

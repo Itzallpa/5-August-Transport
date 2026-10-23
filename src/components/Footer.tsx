@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Phone, Mail, MessageSquare, MapPin, Clock, ShieldCheck, ArrowUpRight } from "lucide-react";
 import { COMPANY_INFO, FLEET_CATEGORIES } from "@/lib/constants";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
+import { Editable, Movable } from "@/components/editor/EditorContext";
 
 export default function Footer({ content }: { content?: Partial<SiteContentData> }) {
   const nameTh = content?.nameTh || COMPANY_INFO.nameTh;
@@ -24,17 +25,17 @@ export default function Footer({ content }: { content?: Partial<SiteContentData>
     <footer id="contact" className="bg-[#121212] text-white border-t border-[#27272A] relative pt-16 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Direct Contact Banner */}
-        <div className="rounded-2xl bg-[#18181B] border border-[#27272A] p-8 sm:p-10 mb-16 shadow-lg">
+        <Movable field="footerBannerBox" className="rounded-2xl bg-[#18181B] border border-[#27272A] p-8 sm:p-10 mb-16 shadow-lg block">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
             <div className="md:col-span-8 space-y-2">
-              <span className="px-3 py-1 rounded-full bg-red-600/20 text-red-400 border border-red-500/30 text-xs font-bold uppercase tracking-wider">
-                {footerContactBadge}
+              <span className="px-3 py-1 rounded-full bg-red-600/20 text-red-400 border border-red-500/30 text-xs font-bold uppercase tracking-wider inline-block">
+                <Editable field="footerContactBadge" value={footerContactBadge} noTransform />
               </span>
               <h3 className="text-2xl sm:text-3xl font-black text-white">
-                {footerContactTitle}
+                <Editable field="footerContactTitle" value={footerContactTitle} noTransform />
               </h3>
               <p className="text-sm text-slate-300 font-light">
-                {footerContactSubtitle}
+                <Editable field="footerContactSubtitle" value={footerContactSubtitle} multiline noTransform />
               </p>
             </div>
 
@@ -58,7 +59,7 @@ export default function Footer({ content }: { content?: Partial<SiteContentData>
               </a>
             </div>
           </div>
-        </div>
+        </Movable>
 
         {/* 4 Columns Footer Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-[#27272A]">

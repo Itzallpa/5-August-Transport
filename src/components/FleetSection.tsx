@@ -6,6 +6,7 @@ import { COMPANY_INFO } from "@/lib/constants";
 import { Truck, CheckCircle2, Ruler, Weight, Box, Sparkles, ArrowRight } from "lucide-react";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
 import { getDefaultLayout, type FleetItem } from "@/lib/site-layout";
+import { Editable, Movable, ImageEditButton } from "@/components/editor/EditorContext";
 
 export default function FleetSection({ content, items }: { content?: Partial<SiteContentData>; items?: FleetItem[] }) {
   const [activeFilter, setActiveFilter] = useState<string>("ALL");
@@ -33,22 +34,28 @@ export default function FleetSection({ content, items }: { content?: Partial<Sit
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-12">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-100 text-red-700 border border-red-200 text-xs font-bold tracking-wider uppercase">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>{fleetBadge}</span>
-          </div>
+          <Movable field="fleetBadgeBox" className="inline-block rounded-full">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-100 text-red-700 border border-red-200 text-xs font-bold tracking-wider uppercase">
+              <Sparkles className="w-3.5 h-3.5" />
+              <Editable field="fleetBadge" value={fleetBadge} noTransform />
+            </div>
+          </Movable>
 
-          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900">
-            {fleetTitle}
-          </h2>
+          <Movable field="fleetTitleBox" className="block">
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900">
+              <Editable field="fleetTitle" value={fleetTitle} noTransform />
+            </h2>
+          </Movable>
 
-          <p className="text-slate-600 text-base sm:text-lg font-light leading-relaxed">
-            {fleetSubtitle}
-          </p>
+          <Movable field="fleetSubtitleBox" className="block">
+            <p className="text-slate-600 text-base sm:text-lg font-light leading-relaxed">
+              <Editable field="fleetSubtitle" value={fleetSubtitle} multiline noTransform />
+            </p>
+          </Movable>
         </div>
 
         {/* Fleet Lineup Banner */}
-        <div className="relative w-full h-64 sm:h-80 md:h-96 rounded-3xl overflow-hidden mb-12 shadow-2xl border border-slate-200">
+        <Movable field="fleetBannerBox" className="relative w-full h-64 sm:h-80 md:h-96 rounded-3xl overflow-hidden mb-12 shadow-2xl border border-slate-200 block">
           <Image
             src={fleetImageUrl}
             alt="5 August Transport Vehicle Fleet Lineup"
@@ -56,20 +63,21 @@ export default function FleetSection({ content, items }: { content?: Partial<Sit
             sizes="(max-width: 1280px) 100vw, 1280px"
             className="object-cover object-center"
           />
+          <ImageEditButton field="fleetImageUrl" label="📷 เปลี่ยนรูปกองยานพาหนะ" className="absolute top-4 right-4 z-30" />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/30 to-transparent flex items-end p-6 sm:p-10">
             <div className="space-y-2 text-white max-w-xl">
-              <span className="px-3 py-1 rounded-md bg-[#D32F2F] text-xs font-bold uppercase tracking-wider">
-                {fleetBannerTag}
+              <span className="px-3 py-1 rounded-md bg-[#D32F2F] text-xs font-bold uppercase tracking-wider inline-block">
+                <Editable field="fleetBannerTag" value={fleetBannerTag} noTransform />
               </span>
               <h3 className="text-xl sm:text-2xl font-bold">
-                {fleetBannerTitle}
+                <Editable field="fleetBannerTitle" value={fleetBannerTitle} noTransform />
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 font-light">
-                {fleetBannerSubtitle}
+                <Editable field="fleetBannerSubtitle" value={fleetBannerSubtitle} multiline noTransform />
               </p>
             </div>
           </div>
-        </div>
+        </Movable>
 
         {/* Filter Tabs */}
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-10">

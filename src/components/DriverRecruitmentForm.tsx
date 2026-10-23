@@ -12,6 +12,7 @@ import {
 import { LICENSE_TYPES, VEHICLE_OPTIONS, COMPANY_INFO } from "@/lib/constants";
 import { submitDriverApplication } from "@/app/actions/driver-actions";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
+import { Editable, Movable } from "@/components/editor/EditorContext";
 import {
   Truck,
   User,
@@ -204,30 +205,38 @@ export default function DriverRecruitmentForm({ content }: { content?: Partial<S
           {/* Left Column: Why Join Us */}
           <div className="lg:col-span-5 space-y-6">
             <div className="space-y-3">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-[#D32F2F] border border-red-200 text-xs font-bold uppercase tracking-wider">
-                <Briefcase className="w-3.5 h-3.5" />
-                <span>{recruitBadge}</span>
-              </div>
+              <Movable field="recruitBadgeBox" className="inline-block rounded-full">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-[#D32F2F] border border-red-200 text-xs font-bold uppercase tracking-wider">
+                  <Briefcase className="w-3.5 h-3.5" />
+                  <Editable field="recruitBadge" value={recruitBadge} noTransform />
+                </div>
+              </Movable>
 
-              <h2 className="text-2xl sm:text-4xl font-black text-slate-900 leading-tight">
-                {recruitTitle}
-              </h2>
+              <Movable field="recruitTitleBox" className="block">
+                <h2 className="text-2xl sm:text-4xl font-black text-slate-900 leading-tight">
+                  <Editable field="recruitTitle" value={recruitTitle} noTransform />
+                </h2>
+              </Movable>
 
-              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-                {recruitSubtitle}
-              </p>
+              <Movable field="recruitSubtitleBox" className="block">
+                <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+                  <Editable field="recruitSubtitle" value={recruitSubtitle} multiline noTransform />
+                </p>
+              </Movable>
             </div>
 
             {/* Income Highlight Card */}
-            <div className="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-md flex items-center justify-between">
+            <Movable field="recruitIncomeBox" className="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-md flex items-center justify-between block">
               <div>
                 <span className="text-xs text-slate-500 font-semibold uppercase block">ประมาณการรายได้คนขับร่วม:</span>
-                <span className="text-xl sm:text-2xl font-black text-[#D32F2F] mt-0.5 block">{recruitIncome}</span>
+                <span className="text-xl sm:text-2xl font-black text-[#D32F2F] mt-0.5 block">
+                  <Editable field="recruitIncomeHighlight" value={recruitIncome} noTransform />
+                </span>
               </div>
               <span className="px-3 py-1 text-xs font-bold bg-emerald-100 text-emerald-800 rounded-full border border-emerald-200">
                 จ่ายตรงงวด
               </span>
-            </div>
+            </Movable>
 
             {/* Benefit Highlights - Organic Human List Cards */}
             <div className="space-y-3">

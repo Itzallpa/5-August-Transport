@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Truck, ArrowRight, ShieldCheck, MapPin, Clock, Award, PhoneCall, MessageSquare } from "lucide-react";
 import { COMPANY_INFO } from "@/lib/constants";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
-import { Editable, ImageEditButton } from "@/components/editor/EditorContext";
+import { Editable, ImageEditButton, Movable } from "@/components/editor/EditorContext";
 
 export default function Hero({ content }: { content?: Partial<SiteContentData> }) {
   const heroBadge = content?.heroBadge || "ครอบคลุมทั่วประเทศ • รวดเร็ว • ปลอดภัย • ตรงเวลา • คุ้มค่า";
@@ -50,91 +50,111 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           {/* Main Hero Copy (7 cols on lg) */}
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
-            {/* Top Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 border border-white/20 text-red-400 text-xs sm:text-sm font-bold tracking-wide shadow-md backdrop-blur-md">
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <Editable field="heroBadge" value={heroBadge} />
-            </div>
+            {/* Top Badge (Whole pill moves together) */}
+            <Movable field="heroBadge" className="inline-block rounded-full">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 border border-white/20 text-red-400 text-xs sm:text-sm font-bold tracking-wide shadow-md backdrop-blur-md">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                <Editable field="heroBadge" value={heroBadge} noTransform />
+              </div>
+            </Movable>
 
             {/* Slogan & Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight drop-shadow-md">
-              <Editable field="heroHeading" value={heroHeading} /> <br />
-              <span className="text-[#D32F2F]">
-                <Editable field="heroHeadingHighlight" value={heroHeadingHighlight} />
-              </span>
-            </h1>
+            <Movable field="heroHeadingBox" className="block">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight drop-shadow-md">
+                <Editable field="heroHeading" value={heroHeading} /> <br />
+                <span className="text-[#D32F2F]">
+                  <Editable field="heroHeadingHighlight" value={heroHeadingHighlight} />
+                </span>
+              </h1>
+            </Movable>
 
             {/* Sub-slogan */}
-            <p className="text-base sm:text-lg text-zinc-100 font-normal max-w-xl leading-relaxed drop-shadow-sm">
-              <Editable field="heroSubheading" value={heroSubheading} as="span" multiline />
-            </p>
+            <Movable field="heroSubheadingBox" className="block">
+              <p className="text-base sm:text-lg text-zinc-100 font-normal max-w-xl leading-relaxed drop-shadow-sm">
+                <Editable field="heroSubheading" value={heroSubheading} as="span" multiline />
+              </p>
+            </Movable>
 
-            <div className="flex items-center justify-center lg:justify-start gap-2.5 text-xs sm:text-sm text-zinc-300 font-semibold">
-              <span className="w-6 h-[2px] bg-[#D32F2F] inline-block" />
-              <span className="text-zinc-100 font-bold tracking-widest uppercase text-xs">
-                <Editable field="trustedTagline" value={trustedTagline} />
-              </span>
-              <span className="w-6 h-[2px] bg-[#D32F2F] inline-block" />
-            </div>
+            <Movable field="trustedTaglineBox" className="inline-block">
+              <div className="flex items-center justify-center lg:justify-start gap-2.5 text-xs sm:text-sm text-zinc-300 font-semibold">
+                <span className="w-6 h-[2px] bg-[#D32F2F] inline-block" />
+                <span className="text-zinc-100 font-bold tracking-widest uppercase text-xs">
+                  <Editable field="trustedTagline" value={trustedTagline} />
+                </span>
+                <span className="w-6 h-[2px] bg-[#D32F2F] inline-block" />
+              </div>
+            </Movable>
 
             {/* CTA Buttons */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-3.5 pt-2">
-              <a
-                href="#recruitment"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-bold text-sm sm:text-base shadow-xl shadow-black/60 transition-all hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <Truck className="w-5 h-5" />
-                <span>
-                  <Editable field="heroCtaDriverText" value={heroCtaDriverText} /> (Apply Now)
-                </span>
-                <ArrowRight className="w-4 h-4 ml-1" />
-              </a>
+            <Movable field="heroCtaGroup" className="block">
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-3.5 pt-2">
+                <Movable field="heroCtaDriverBtn" className="inline-block">
+                  <a
+                    href="#recruitment"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-bold text-sm sm:text-base shadow-xl shadow-black/60 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    <Truck className="w-5 h-5" />
+                    <span>
+                      <Editable field="heroCtaDriverText" value={heroCtaDriverText} noTransform /> (Apply Now)
+                    </span>
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </a>
+                </Movable>
 
-              <a
-                href="#fleet"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-black/60 hover:bg-black/80 text-white font-bold text-sm sm:text-base border border-white/25 backdrop-blur-md transition-all shadow-md"
-              >
-                <Editable field="heroCtaFleetText" value={heroCtaFleetText} />
-              </a>
+                <Movable field="heroCtaFleetBtn" className="inline-block">
+                  <a
+                    href="#fleet"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-black/60 hover:bg-black/80 text-white font-bold text-sm sm:text-base border border-white/25 backdrop-blur-md transition-all shadow-md"
+                  >
+                    <Editable field="heroCtaFleetText" value={heroCtaFleetText} noTransform />
+                  </a>
+                </Movable>
 
-              <a
-                href={`tel:${phoneRaw}`}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-black/60 hover:bg-black/80 text-zinc-100 font-bold text-sm border border-white/20 backdrop-blur-md transition-colors shadow-md"
-              >
-                <PhoneCall className="w-4 h-4 text-red-500" />
-                <Editable field="phone" value={phone} />
-              </a>
+                <Movable field="heroPhoneBtn" className="inline-block">
+                  <a
+                    href={`tel:${phoneRaw}`}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-black/60 hover:bg-black/80 text-zinc-100 font-bold text-sm border border-white/20 backdrop-blur-md transition-colors shadow-md"
+                  >
+                    <PhoneCall className="w-4 h-4 text-red-500" />
+                    <Editable field="phone" value={phone} noTransform />
+                  </a>
+                </Movable>
 
-              <a
-                href={`https://line.me/ti/p/~${lineId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-[#06C755] hover:bg-[#05b34c] text-white font-bold text-sm shadow-md transition-colors"
-              >
-                <MessageSquare className="w-4 h-4" />
-                <span>LINE: @<Editable field="lineId" value={lineId} /></span>
-              </a>
-            </div>
+                <Movable field="heroLineBtn" className="inline-block">
+                  <a
+                    href={`https://line.me/ti/p/~${lineId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-[#06C755] hover:bg-[#05b34c] text-white font-bold text-sm shadow-md transition-colors"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    <span>LINE: @<Editable field="lineId" value={lineId} noTransform /></span>
+                  </a>
+                </Movable>
+              </div>
+            </Movable>
 
             {/* Mini trust checklist */}
-            <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-5 text-xs sm:text-sm text-zinc-100">
-              <div className="flex items-center gap-1.5 font-medium">
-                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>ประกันภัยสินค้าทุกเที่ยว 100%</span>
+            <Movable field="heroTrustChecklist" className="block">
+              <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-5 text-xs sm:text-sm text-zinc-100">
+                <div className="flex items-center gap-1.5 font-medium">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>ประกันภัยสินค้าทุกเที่ยว 100%</span>
+                </div>
+                <div className="flex items-center gap-1.5 font-medium">
+                  <Clock className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>รายงานสถานะ GPS ตลอด 24 ชม.</span>
+                </div>
+                <div className="flex items-center gap-1.5 font-medium">
+                  <Award className="w-4 h-4 text-red-500 shrink-0" />
+                  <span>พันธมิตรเครือข่ายชั้นนำ (KEX)</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5 font-medium">
-                <Clock className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>รายงานสถานะ GPS ตลอด 24 ชม.</span>
-              </div>
-              <div className="flex items-center gap-1.5 font-medium">
-                <Award className="w-4 h-4 text-red-500 shrink-0" />
-                <span>พันธมิตรเครือข่ายชั้นนำ (KEX)</span>
-              </div>
-            </div>
+            </Movable>
           </div>
 
           {/* Right Floating Showcase Panel (5 cols on lg) - Clean Stats Card without side image */}
-          <div className="lg:col-span-5 space-y-4">
+          <Movable field="heroStatsCard" className="lg:col-span-5 space-y-4">
             {/* 4 Stats Grid in Frosted Glassmorphism Card */}
             <div className="bg-black/60 backdrop-blur-xl rounded-2xl p-6 border border-white/15 shadow-2xl space-y-5">
               <div className="flex items-center justify-between border-b border-white/10 pb-3">
@@ -146,41 +166,41 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
               </div>
 
               <div className="grid grid-cols-2 gap-3.5">
-                <div className="p-3.5 rounded-xl bg-black/40 border border-white/10 backdrop-blur-md">
+                <Movable field="heroStatBox1" className="p-3.5 rounded-xl bg-black/40 border border-white/10 backdrop-blur-md">
                   <span className="text-[11px] text-zinc-300 font-medium block">
-                    <Editable field="heroStat1Label" value={stat1Label} />
+                    <Editable field="heroStat1Label" value={stat1Label} noTransform />
                   </span>
                   <div className="text-xl sm:text-2xl font-black text-red-500 mt-0.5">
-                    <Editable field="heroStat1Value" value={stat1Val} />
+                    <Editable field="heroStat1Value" value={stat1Val} noTransform />
                   </div>
-                </div>
+                </Movable>
 
-                <div className="p-3.5 rounded-xl bg-black/40 border border-white/10 backdrop-blur-md">
+                <Movable field="heroStatBox2" className="p-3.5 rounded-xl bg-black/40 border border-white/10 backdrop-blur-md">
                   <span className="text-[11px] text-zinc-300 font-medium block">
-                    <Editable field="heroStat2Label" value={stat2Label} />
+                    <Editable field="heroStat2Label" value={stat2Label} noTransform />
                   </span>
                   <div className="text-xl sm:text-2xl font-black text-white mt-0.5">
-                    <Editable field="heroStat2Value" value={stat2Val} />
+                    <Editable field="heroStat2Value" value={stat2Val} noTransform />
                   </div>
-                </div>
+                </Movable>
 
-                <div className="p-3.5 rounded-xl bg-black/40 border border-white/10 backdrop-blur-md">
+                <Movable field="heroStatBox3" className="p-3.5 rounded-xl bg-black/40 border border-white/10 backdrop-blur-md">
                   <span className="text-[11px] text-zinc-300 font-medium block">
-                    <Editable field="heroStat3Label" value={stat3Label} />
+                    <Editable field="heroStat3Label" value={stat3Label} noTransform />
                   </span>
                   <div className="text-xl sm:text-2xl font-black text-white mt-0.5">
-                    <Editable field="heroStat3Value" value={stat3Val} />
+                    <Editable field="heroStat3Value" value={stat3Val} noTransform />
                   </div>
-                </div>
+                </Movable>
 
-                <div className="p-3.5 rounded-xl bg-black/40 border border-white/10 backdrop-blur-md">
+                <Movable field="heroStatBox4" className="p-3.5 rounded-xl bg-black/40 border border-white/10 backdrop-blur-md">
                   <span className="text-[11px] text-zinc-300 font-medium block">
-                    <Editable field="heroStat4Label" value={stat4Label} />
+                    <Editable field="heroStat4Label" value={stat4Label} noTransform />
                   </span>
                   <div className="text-xl sm:text-2xl font-black text-emerald-400 mt-0.5">
-                    <Editable field="heroStat4Value" value={stat4Val} />
+                    <Editable field="heroStat4Value" value={stat4Val} noTransform />
                   </div>
-                </div>
+                </Movable>
               </div>
 
               <div className="p-3 rounded-xl bg-red-600/20 border border-red-500/30 text-xs text-zinc-200 flex items-center justify-between">
@@ -194,11 +214,12 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
                 </a>
               </div>
             </div>
-          </div>
+          </Movable>
         </div>
 
         {/* Bottom Ticker Bar */}
-        <div className="mt-12 sm:mt-16 pt-8 border-t border-white/10 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <Movable field="heroTickerBar" className="block">
+          <div className="mt-12 sm:mt-16 pt-8 border-t border-white/10 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           <div className="space-y-0.5">
             <div className="text-2xl sm:text-3xl font-black text-red-500">{stat1Val}</div>
             <p className="text-xs text-zinc-300 font-medium">{stat1Label}</p>
@@ -216,6 +237,7 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
             <p className="text-xs text-zinc-300 font-medium">GPS ติดตามเรียลไทม์</p>
           </div>
         </div>
+      </Movable>
       </div>
     </section>
   );
