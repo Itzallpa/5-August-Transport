@@ -24,10 +24,10 @@ export default function Navbar({ content, navLinks: navLinksProp }: { content?: 
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="#home" className="flex items-center gap-3.5 group py-1 shrink-0">
-            <div className="relative h-12 sm:h-14 w-36 sm:w-44 shrink-0 transition-transform group-hover:scale-105">
+            <div className="relative h-12 sm:h-14 w-44 sm:w-56 shrink-0 transition-transform group-hover:scale-105">
               <Image
-                src={content?.logoUrl || "/images/logo.png"}
-                alt="5 August Transport Logo"
+                src={content?.logoUrl || "/images/partner-logo.png"}
+                alt="5 August Transport X KEX Express Logo"
                 fill
                 priority
                 className="object-contain object-left"
@@ -35,7 +35,7 @@ export default function Navbar({ content, navLinks: navLinksProp }: { content?: 
             </div>
             <div className="hidden 2xl:flex flex-col border-l border-slate-200 pl-3">
               <span className="text-slate-900 font-extrabold tracking-wider text-sm uppercase leading-tight">
-                August Transport
+                5 August x KEX
               </span>
               <span className="text-[11px] text-slate-500 tracking-wide font-normal">
                 {nameTh}

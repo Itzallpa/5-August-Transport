@@ -66,10 +66,10 @@ export default function Footer({ content }: { content?: Partial<SiteContentData>
           {/* Col 1: Brand & Bio */}
           <div className="space-y-4">
             <div className="space-y-2.5">
-              <div className="relative bg-white rounded-2xl px-4 py-2 shadow-xl h-18 sm:h-20 w-48 sm:w-52 shrink-0 flex items-center justify-center border border-white/20">
+              <div className="relative bg-white rounded-2xl px-4 py-2 shadow-xl h-18 sm:h-20 w-52 sm:w-60 shrink-0 flex items-center justify-center border border-white/20">
                 <Image
-                  src="/images/logo.png"
-                  alt="5 August Transport Logo"
+                  src="/images/partner-logo.png"
+                  alt="5 August Transport X KEX Express"
                   fill
                   className="object-contain p-1"
                 />

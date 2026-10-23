@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import confetti from "canvas-confetti";
@@ -236,6 +237,53 @@ export default function DriverRecruitmentForm({ content }: { content?: Partial<S
               <span className="px-3 py-1 text-xs font-bold bg-emerald-100 text-emerald-800 rounded-full border border-emerald-200">
                 จ่ายตรงงวด
               </span>
+            </Movable>
+
+            {/* Official KEX Partner Recruitment Poster Preview */}
+            <Movable field="recruitPosterBox" className="block">
+              <div className="p-4 rounded-3xl bg-white border border-slate-200 shadow-md space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                  <div className="relative h-6 w-36">
+                    <Image
+                      src="/images/partner-logo.png"
+                      alt="5 August x KEX"
+                      fill
+                      className="object-contain object-left"
+                    />
+                  </div>
+                  <span className="text-[11px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full border border-red-200">
+                    เปิดรับ 4W • 4WJ • 6W
+                  </span>
+                </div>
+
+                <div
+                  className="relative h-64 sm:h-72 w-full rounded-2xl overflow-hidden cursor-pointer group/poster bg-slate-50 border border-slate-100"
+                  onClick={() => {
+                    Swal.fire({
+                      imageUrl: "/images/kex-partner-poster.jpg",
+                      imageAlt: "รายละเอียดรับสมัครรถร่วม 5 August x KEX",
+                      width: "800px",
+                      showConfirmButton: true,
+                      confirmButtonText: "ปิดหน้าต่าง",
+                      confirmButtonColor: "#D32F2F",
+                    });
+                  }}
+                  title="คลิกเพื่อดูโปสเตอร์และสเปครถขนาดใหญ่"
+                >
+                  <Image
+                    src="/images/kex-partner-poster.jpg"
+                    alt="โปสเตอร์รับสมัครรถร่วม KEX Express x 5 August Transport"
+                    fill
+                    className="object-contain object-center group-hover/poster:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/poster:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="px-3.5 py-1.5 rounded-full bg-white text-slate-900 font-bold text-xs shadow-lg flex items-center gap-1.5">
+                      <Eye className="w-4 h-4 text-red-600" />
+                      <span>คลิกเพื่อดูสเปครถขนาดใหญ่</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
             </Movable>
 
             {/* Benefit Highlights - Organic Human List Cards */}
