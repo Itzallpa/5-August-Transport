@@ -14,7 +14,7 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
   const heroBackgroundImage = content?.heroImageUrl || "/images/hero-cover.jpg";
 
   return (
-    <section id="home" className="relative w-full bg-[#0a0b0e] py-6 sm:py-10 px-3 sm:px-6 lg:px-8 border-b border-zinc-900 overflow-hidden">
+    <section id="home" className="relative w-full bg-[#0a0b0e] py-4 sm:py-8 px-3 sm:px-6 lg:px-8 border-b border-zinc-900 overflow-hidden min-h-screen flex flex-col justify-center items-center">
       {/* Ambient background glow matching the banner colors */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <Image
@@ -22,22 +22,24 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
           alt="Ambient Background Glow"
           fill
           priority
-          className="object-cover blur-3xl opacity-25 scale-110"
+          unoptimized
+          className="object-cover blur-3xl opacity-20 scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a0b0e]/80 via-[#0a0b0e]/40 to-[#0a0b0e]" />
       </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto w-full flex flex-col items-center">
-        {/* 1. Fully Fitted Banner Container (100% visible, zero cropping, aspect-ratio locked) */}
-        <Movable field="heroBannerCard" className="w-full">
-          <div className="relative w-full aspect-[1024/687] rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_25px_70px_-15px_rgba(0,0,0,0.9)] border border-white/15 bg-black/80 ring-1 ring-white/10 group">
+      <div className="relative z-10 max-w-5xl mx-auto w-full flex flex-col items-center">
+        {/* 1. Fully Fitted Banner Container (100% crystal sharp, native resolution, zero cropping) */}
+        <Movable field="heroBannerCard" className="w-full flex justify-center">
+          <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_25px_70px_-15px_rgba(0,0,0,0.9)] border border-white/15 bg-black/80 ring-1 ring-white/10 group">
             <Image
               src={heroBackgroundImage}
               alt="5 August Transport x KEX Express Partner"
-              fill
+              width={1024}
+              height={687}
               priority
-              sizes="(max-width: 1280px) 100vw, 1200px"
-              className="object-contain object-center w-full h-full"
+              unoptimized
+              className="w-auto h-auto max-w-full max-h-[70vh] sm:max-h-[72vh] object-contain block mx-auto"
             />
             {/* Admin Image Edit Button */}
             <ImageEditButton
@@ -50,7 +52,7 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
 
         {/* 2. Clean CTA Action Bar: Only Apply Now & Contact Us */}
         <Movable field="heroCtaGroup" className="w-full">
-          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-4 w-full">
+          <div className="mt-4 sm:mt-6 flex flex-wrap items-center justify-center gap-3 sm:gap-4 w-full">
             {/* Primary Action: Apply Now */}
             <Movable field="heroCtaDriverBtn" className="w-full sm:w-auto inline-block">
               <a
