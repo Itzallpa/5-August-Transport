@@ -50,30 +50,13 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           {/* Main Hero Copy (7 cols on lg) */}
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
-            {/* Partner Logo & Top Badge */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
-              <Movable field="heroPartnerBadge" className="inline-block">
-                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-2xl bg-white/95 border border-white/50 shadow-xl backdrop-blur-md">
-                  <div className="relative h-7 w-44 sm:w-52">
-                    <Image
-                      src="/images/partner-logo.png"
-                      alt="5 August Transport X KEX Express"
-                      fill
-                      className="object-contain"
-                      priority
-                    />
-                  </div>
-                </div>
-              </Movable>
-
-              {/* Top Badge (Whole pill moves together) */}
-              <Movable field="heroBadge" className="inline-block rounded-full">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 border border-white/20 text-red-400 text-xs sm:text-sm font-bold tracking-wide shadow-md backdrop-blur-md">
-                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                  <Editable field="heroBadge" value={heroBadge} noTransform />
-                </div>
-              </Movable>
-            </div>
+            {/* Top Badge (Whole pill moves together) */}
+            <Movable field="heroBadge" className="inline-block rounded-full">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 border border-white/20 text-red-400 text-xs sm:text-sm font-bold tracking-wide shadow-md backdrop-blur-md">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                <Editable field="heroBadge" value={heroBadge} noTransform />
+              </div>
+            </Movable>
 
             {/* Slogan & Headline */}
             <Movable field="heroHeadingBox" className="block">
