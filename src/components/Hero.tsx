@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Truck, ArrowRight, ShieldCheck, Clock, Award, PhoneCall, MessageCircle } from "lucide-react";
+import { Truck, ArrowRight, PhoneCall, MessageCircle } from "lucide-react";
 import { COMPANY_INFO } from "@/lib/constants";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
 import { Editable, ImageEditButton, Movable } from "@/components/editor/EditorContext";
@@ -135,21 +135,7 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
           </div>
         </div>
 
-        {/* 4. Subtle Corporate Trust Badges */}
-        <div className="mt-2.5 sm:mt-3 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-[11px] sm:text-xs text-slate-500">
-          <div className="flex items-center gap-1.5 font-medium">
-            <ShieldCheck className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-emerald-600 shrink-0" />
-            <span>ประกันภัยสินค้าทุกเที่ยว 100%</span>
-          </div>
-          <div className="flex items-center gap-1.5 font-medium">
-            <Clock className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-amber-600 shrink-0" />
-            <span>GPS ติดตามสถานะเรียลไทม์ 24 ชม.</span>
-          </div>
-          <div className="flex items-center gap-1.5 font-medium">
-            <Award className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-[#D32F2F] shrink-0" />
-            <span>พันธมิตรเครือข่าย KEX Express</span>
-          </div>
-        </div>
+
       </div>
     </section>
   );
