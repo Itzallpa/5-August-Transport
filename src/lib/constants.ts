@@ -7,7 +7,7 @@ export const COMPANY_INFO = {
   trustedTagline: "Your Trusted Logistics Partner",
   phone: "084-326-3546",
   phoneRaw: "0843263546",
-  lineId: "0843263546",
+  lineId: "@486eyver",
   email: "5augusttransport@gmail.com",
   address: "เลขที่ 88/5 หมู่ที่ 3 ตำบลบางพลีใหญ่ อำเภอบางพลี จังหวัดสมุทรปราการ 10540 (ศูนย์กระจายสินค้าภาคกลาง)",
   operatingHours: "เปิดบริการตลอด 24 ชั่วโมง (24/7 Logistics Support)",
