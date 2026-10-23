@@ -14,11 +14,12 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
   const heroBackgroundImage = content?.heroImageUrl || "/images/hero-cover.jpg";
 
   return (
-    <section id="home" className="relative w-full bg-gradient-to-b from-slate-100 via-white to-slate-50 pt-4 pb-8 sm:py-8 px-3 sm:px-6 lg:px-8 border-b border-slate-200 overflow-hidden">
-      <div className="max-w-6xl mx-auto w-full flex flex-col items-center">
-        {/* 1. The Main Hero Banner Card - Clean, crisp, 100% uncropped, matching website theme */}
+    <section id="home" className="relative w-full bg-gradient-to-b from-slate-100 via-white to-slate-50 pt-3 pb-6 sm:pb-8 px-2 sm:px-4 md:px-6 lg:px-8 border-b border-slate-200 overflow-hidden">
+      {/* Container expanded to 1720px to match user's left/right width marks */}
+      <div className="max-w-[1720px] mx-auto w-full flex flex-col items-center">
+        {/* 1. Main Hero Banner Frame */}
         <Movable field="heroBannerCard" className="w-full">
-          <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl shadow-slate-300/60 border border-slate-200/90 bg-white ring-1 ring-slate-900/5 group">
+          <div className="relative w-full rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl shadow-slate-300/60 border border-slate-200/90 bg-white ring-1 ring-slate-900/5 group">
             <Image
               src={heroBackgroundImage}
               alt="5 August Transport x KEX Express Partner"
@@ -26,7 +27,7 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
               height={687}
               priority
               unoptimized
-              sizes="(max-width: 1280px) 100vw, 1200px"
+              sizes="(max-width: 1920px) 100vw, 1720px"
               className="w-full h-auto block select-none"
             />
 
@@ -36,61 +37,67 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
               label="📷 เปลี่ยนรูปภาพหน้าปก"
               className="absolute top-3 right-3 z-30 pointer-events-auto shadow-md"
             />
-          </div>
-        </Movable>
 
-        {/* 2. Dedicated Corporate Action Bar Below Banner - Clean, elegant, no ugly overlay on trucks */}
-        <Movable field="heroCtaGroup" className="w-full">
-          <div className="mt-5 sm:mt-6 flex flex-wrap items-center justify-center gap-3 sm:gap-4 w-full">
-            {/* Primary Action: Apply Now */}
-            <Movable field="heroCtaDriverBtn" className="inline-block">
-              <a
-                href="#recruitment"
-                className="inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-[#D32F2F] to-[#B71C1C] hover:from-[#B71C1C] hover:to-[#8E0000] text-white font-bold text-sm sm:text-base shadow-lg shadow-red-500/25 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <Truck className="w-5 h-5 text-white shrink-0" />
-                <span>
-                  <Editable field="heroCtaDriverText" value={heroCtaDriverText} noTransform /> (Apply Now)
-                </span>
-                <ArrowRight className="w-4 h-4 ml-0.5 shrink-0" />
-              </a>
+            {/* 2. Floating Action Buttons Docked EXACTLY in the Box Marked by User (in front of KEX 10W truck) */}
+            <Movable field="heroCtaGroup" className="absolute bottom-2.5 sm:bottom-4 md:bottom-6 lg:bottom-8 right-2 sm:right-4 md:right-6 lg:right-8 z-20 pointer-events-auto">
+              <div className="bg-black/55 backdrop-blur-md p-2 sm:p-3 md:p-3.5 rounded-xl sm:rounded-2xl border border-white/30 shadow-[0_15px_35px_rgba(0,0,0,0.7)] w-auto max-w-[320px] sm:max-w-[420px] md:max-w-[480px] flex flex-col gap-1.5 sm:gap-2.5">
+                {/* Top Row: Primary Actions */}
+                <div className="grid grid-cols-2 gap-1.5 sm:gap-2.5">
+                  {/* 🔴 Apply Now */}
+                  <Movable field="heroCtaDriverBtn" className="block">
+                    <a
+                      href="#recruitment"
+                      className="w-full flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl bg-gradient-to-r from-[#D32F2F] to-[#B71C1C] hover:from-[#B71C1C] hover:to-[#8E0000] text-white font-bold text-xs sm:text-sm shadow-md shadow-red-900/50 transition-all hover:scale-[1.02] active:scale-[0.98] border border-red-500/40 text-center"
+                    >
+                      <Truck className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-white shrink-0" />
+                      <span className="truncate">
+                        <Editable field="heroCtaDriverText" value={heroCtaDriverText} noTransform />
+                      </span>
+                      <ArrowRight className="w-3.5 h-3.5 ml-0.5 shrink-0 hidden sm:inline" />
+                    </a>
+                  </Movable>
+
+                  {/* ⚪ Contact Us */}
+                  <Movable field="heroContactBtn" className="block">
+                    <a
+                      href="#contact"
+                      className="w-full flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs sm:text-sm border border-white/60 shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] text-center"
+                    >
+                      <PhoneCall className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-[#D32F2F] shrink-0" />
+                      <span className="truncate">ติดต่อเรา</span>
+                    </a>
+                  </Movable>
+                </div>
+
+                {/* Bottom Row: Direct Phone & LINE Quick Contacts */}
+                <div className="grid grid-cols-2 gap-1.5 sm:gap-2.5">
+                  {/* 📞 Phone */}
+                  <a
+                    href={`tel:${phoneRaw}`}
+                    className="flex items-center justify-center gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-black/60 hover:bg-black/80 text-white font-semibold text-[11px] sm:text-xs border border-white/20 backdrop-blur-md transition-all"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                    <span className="truncate">โทร: {phone}</span>
+                  </a>
+
+                  {/* 💬 LINE */}
+                  <a
+                    href={`https://line.me/R/ti/p/${lineId.startsWith("@") ? lineId : `@${lineId}`}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-[#06C755]/25 hover:bg-[#06C755]/35 text-emerald-300 font-bold text-[11px] sm:text-xs border border-[#06C755]/40 backdrop-blur-md transition-all"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5 text-[#06C755] shrink-0" />
+                    <span className="truncate">LINE: {lineId}</span>
+                  </a>
+                </div>
+              </div>
             </Movable>
-
-            {/* Secondary Action: Contact Us */}
-            <Movable field="heroContactBtn" className="inline-block">
-              <a
-                href="#contact"
-                className="inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-sm sm:text-base border border-slate-300 shadow-sm transition-all duration-200 hover:border-slate-400 hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <PhoneCall className="w-4 h-4 text-[#D32F2F] shrink-0" />
-                <span>ติดต่อเรา (Contact Us)</span>
-              </a>
-            </Movable>
-
-            {/* Direct Phone Quick Link */}
-            <a
-              href={`tel:${phoneRaw}`}
-              className="inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-3 sm:py-3.5 rounded-xl bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 font-semibold text-xs sm:text-sm border border-slate-200 shadow-sm transition-all"
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>โทรด่วน: {phone}</span>
-            </a>
-
-            {/* LINE Quick Link */}
-            <a
-              href={`https://line.me/R/ti/p/${lineId.startsWith("@") ? lineId : `@${lineId}`}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-3 sm:py-3.5 rounded-xl bg-[#06C755]/10 hover:bg-[#06C755]/20 text-[#06C755] font-bold text-xs sm:text-sm border border-[#06C755]/30 shadow-sm transition-all"
-            >
-              <MessageCircle className="w-4 h-4 text-[#06C755]" />
-              <span>LINE: {lineId}</span>
-            </a>
           </div>
         </Movable>
 
         {/* 3. Subtle Corporate Trust Badges */}
-        <div className="mt-4 sm:mt-5 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm text-slate-500">
+        <div className="mt-3 sm:mt-4 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm text-slate-500">
           <div className="flex items-center gap-1.5 font-medium">
             <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>ประกันภัยสินค้าทุกเที่ยว 100%</span>
