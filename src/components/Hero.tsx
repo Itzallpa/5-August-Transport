@@ -14,20 +14,20 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
   const heroBackgroundImage = content?.heroImageUrl || "/images/hero-cover.jpg";
 
   return (
-    <section id="home" className="relative w-full bg-gradient-to-b from-slate-100 via-white to-slate-50 py-3 sm:py-5 px-2 sm:px-4 md:px-6 border-b border-slate-200 overflow-hidden">
-      {/* Container with vertical height fitted comfortably ("vertical เท่าเดิม") */}
-      <div className="max-w-[1720px] mx-auto w-full flex flex-col items-center">
-        {/* 1. Main Hero Banner Frame - Height capped to vertical เท่าเดิม (max-h-[75vh]) */}
-        <Movable field="heroBannerCard" className="relative inline-block max-w-full">
-          <div className="relative inline-block rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl shadow-slate-300/60 border border-slate-200/90 bg-white ring-1 ring-slate-900/5 group">
+    <section id="home" className="relative w-full bg-gradient-to-b from-slate-100 via-white to-slate-50 py-2 sm:py-4 px-2 sm:px-4 md:px-6 border-b border-slate-200 overflow-hidden">
+      {/* Container matching user's exact drawn rectangular frame (width + vertical height) */}
+      <div className="max-w-[1780px] mx-auto w-full flex flex-col items-center">
+        {/* 1. Main Hero Banner Frame - Fills the exact frame drawn by user ("ตามนี้ตามกรอบนี้") */}
+        <Movable field="heroBannerCard" className="w-full">
+          <div className="relative w-full h-[68vh] sm:h-[74vh] md:h-[78vh] rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl shadow-slate-300/60 border border-slate-200/90 bg-white ring-1 ring-slate-900/5 group">
             <Image
               src={heroBackgroundImage}
               alt="5 August Transport x KEX Express Partner"
-              width={1024}
-              height={687}
+              fill
               priority
               unoptimized
-              className="w-auto h-auto max-w-full max-h-[74vh] sm:max-h-[76vh] object-contain block mx-auto select-none"
+              sizes="(max-width: 1920px) 100vw, 1780px"
+              className="w-full h-full object-fill select-none"
             />
 
             {/* Admin Image Edit Button */}
@@ -38,8 +38,8 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
             />
 
             {/* 2. Floating Action Buttons Docked EXACTLY in the Box Marked by User (in front of KEX 10W truck) */}
-            <Movable field="heroCtaGroup" className="absolute bottom-2.5 sm:bottom-4 md:bottom-5 right-2 sm:right-4 md:right-5 z-20 pointer-events-auto">
-              <div className="bg-black/55 backdrop-blur-md p-1.5 sm:p-2.5 md:p-3 rounded-xl sm:rounded-2xl border border-white/30 shadow-[0_15px_35px_rgba(0,0,0,0.7)] w-auto max-w-[280px] sm:max-w-[380px] md:max-w-[440px] flex flex-col gap-1 sm:gap-2">
+            <Movable field="heroCtaGroup" className="absolute bottom-2.5 sm:bottom-4 md:bottom-5 right-2 sm:right-4 md:right-6 z-20 pointer-events-auto">
+              <div className="bg-black/60 backdrop-blur-md p-1.5 sm:p-2.5 md:p-3 rounded-xl sm:rounded-2xl border border-white/30 shadow-[0_15px_35px_rgba(0,0,0,0.7)] w-auto max-w-[280px] sm:max-w-[380px] md:max-w-[440px] flex flex-col gap-1 sm:gap-2">
                 {/* Top Row: Primary Actions */}
                 <div className="grid grid-cols-2 gap-1.5 sm:gap-2.5">
                   {/* 🔴 Apply Now */}
