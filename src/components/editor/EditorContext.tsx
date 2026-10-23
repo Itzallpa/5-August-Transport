@@ -273,6 +273,58 @@ export function Editable({
         </span>
       )}
 
+      {/* DRAGGABLE BOUNDING FRAME & CORNER HANDLES (ลากที่กรอบได้โดยตรง) */}
+      {active && (
+        <span className="pointer-events-auto">
+          {/* Top Edge Bar */}
+          <span
+            onMouseDown={handleDragStart}
+            className="absolute -top-1.5 left-0 right-0 h-3 cursor-move z-30 hover:bg-blue-500/20"
+            title="คลิกค้างที่กรอบเพื่อลากย้ายตำแหน่ง (Drag frame to move)"
+          />
+          {/* Bottom Edge Bar */}
+          <span
+            onMouseDown={handleDragStart}
+            className="absolute -bottom-1.5 left-0 right-0 h-3 cursor-move z-30 hover:bg-blue-500/20"
+            title="คลิกค้างที่กรอบเพื่อลากย้ายตำแหน่ง (Drag frame to move)"
+          />
+          {/* Left Edge Bar */}
+          <span
+            onMouseDown={handleDragStart}
+            className="absolute top-0 -left-1.5 bottom-0 w-3 cursor-move z-30 hover:bg-blue-500/20"
+            title="คลิกค้างที่กรอบเพื่อลากย้ายตำแหน่ง (Drag frame to move)"
+          />
+          {/* Right Edge Bar */}
+          <span
+            onMouseDown={handleDragStart}
+            className="absolute top-0 -right-1.5 bottom-0 w-3 cursor-move z-30 hover:bg-blue-500/20"
+            title="คลิกค้างที่กรอบเพื่อลากย้ายตำแหน่ง (Drag frame to move)"
+          />
+
+          {/* 4 Corner Handles (จุดจับ 4 มุมสำหรับลากขยับกรอบ) */}
+          <span
+            onMouseDown={handleDragStart}
+            className="absolute -top-2 -left-2 w-4 h-4 bg-blue-600 hover:bg-blue-700 border-2 border-white rounded-full z-40 cursor-move shadow-md hover:scale-125 transition-transform"
+            title="คลิกลากที่มุมเพื่อขยับกรอบ (Drag handle)"
+          />
+          <span
+            onMouseDown={handleDragStart}
+            className="absolute -top-2 -right-2 w-4 h-4 bg-blue-600 hover:bg-blue-700 border-2 border-white rounded-full z-40 cursor-move shadow-md hover:scale-125 transition-transform"
+            title="คลิกลากที่มุมเพื่อขยับกรอบ (Drag handle)"
+          />
+          <span
+            onMouseDown={handleDragStart}
+            className="absolute -bottom-2 -left-2 w-4 h-4 bg-blue-600 hover:bg-blue-700 border-2 border-white rounded-full z-40 cursor-move shadow-md hover:scale-125 transition-transform"
+            title="คลิกลากที่มุมเพื่อขยับกรอบ (Drag handle)"
+          />
+          <span
+            onMouseDown={handleDragStart}
+            className="absolute -bottom-2 -right-2 w-4 h-4 bg-blue-600 hover:bg-blue-700 border-2 border-white rounded-full z-40 cursor-move shadow-md hover:scale-125 transition-transform"
+            title="คลิกลากที่มุมเพื่อขยับกรอบ (Drag handle)"
+          />
+        </span>
+      )}
+
       {/* Actual Editable HTML Tag */}
       <Tag
         className={`${className ?? ""} ${alignClass} editor-editable`}

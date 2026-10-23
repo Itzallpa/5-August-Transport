@@ -659,13 +659,69 @@ export default function VisualSiteEditor({
                       </div>
                     )}
 
-                    {/* Corner Handles for selected Google Sites effect */}
+                    {/* Corner Handles for selected section - draggable */}
                     {isSelected && (
                       <>
-                        <span className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-blue-600 border-2 border-white rounded-xs z-30 pointer-events-none" />
-                        <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-blue-600 border-2 border-white rounded-xs z-30 pointer-events-none" />
-                        <span className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-blue-600 border-2 border-white rounded-xs z-30 pointer-events-none" />
-                        <span className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-blue-600 border-2 border-white rounded-xs z-30 pointer-events-none" />
+                        <span
+                          draggable
+                          onDragStart={(e) => {
+                            e.stopPropagation();
+                            dragFromIndex.current = index;
+                            e.dataTransfer.effectAllowed = "move";
+                            e.dataTransfer.setData("text/plain", s.key);
+                          }}
+                          onDragEnd={() => {
+                            dragFromIndex.current = null;
+                            setDragOverIndex(null);
+                          }}
+                          className="absolute -top-2 -left-2 w-4 h-4 bg-blue-600 hover:bg-blue-700 border-2 border-white rounded-full z-30 cursor-grab active:cursor-grabbing shadow-md hover:scale-125 transition-transform"
+                          title="คลิกลากมุมกรอบเพื่อสลับตำแหน่งส่วนนี้"
+                        />
+                        <span
+                          draggable
+                          onDragStart={(e) => {
+                            e.stopPropagation();
+                            dragFromIndex.current = index;
+                            e.dataTransfer.effectAllowed = "move";
+                            e.dataTransfer.setData("text/plain", s.key);
+                          }}
+                          onDragEnd={() => {
+                            dragFromIndex.current = null;
+                            setDragOverIndex(null);
+                          }}
+                          className="absolute -top-2 -right-2 w-4 h-4 bg-blue-600 hover:bg-blue-700 border-2 border-white rounded-full z-30 cursor-grab active:cursor-grabbing shadow-md hover:scale-125 transition-transform"
+                          title="คลิกลากมุมกรอบเพื่อสลับตำแหน่งส่วนนี้"
+                        />
+                        <span
+                          draggable
+                          onDragStart={(e) => {
+                            e.stopPropagation();
+                            dragFromIndex.current = index;
+                            e.dataTransfer.effectAllowed = "move";
+                            e.dataTransfer.setData("text/plain", s.key);
+                          }}
+                          onDragEnd={() => {
+                            dragFromIndex.current = null;
+                            setDragOverIndex(null);
+                          }}
+                          className="absolute -bottom-2 -left-2 w-4 h-4 bg-blue-600 hover:bg-blue-700 border-2 border-white rounded-full z-30 cursor-grab active:cursor-grabbing shadow-md hover:scale-125 transition-transform"
+                          title="คลิกลากมุมกรอบเพื่อสลับตำแหน่งส่วนนี้"
+                        />
+                        <span
+                          draggable
+                          onDragStart={(e) => {
+                            e.stopPropagation();
+                            dragFromIndex.current = index;
+                            e.dataTransfer.effectAllowed = "move";
+                            e.dataTransfer.setData("text/plain", s.key);
+                          }}
+                          onDragEnd={() => {
+                            dragFromIndex.current = null;
+                            setDragOverIndex(null);
+                          }}
+                          className="absolute -bottom-2 -right-2 w-4 h-4 bg-blue-600 hover:bg-blue-700 border-2 border-white rounded-full z-30 cursor-grab active:cursor-grabbing shadow-md hover:scale-125 transition-transform"
+                          title="คลิกลากมุมกรอบเพื่อสลับตำแหน่งส่วนนี้"
+                        />
                       </>
                     )}
 
