@@ -39,22 +39,22 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
               className="absolute top-3 right-3 z-30 pointer-events-auto shadow-md"
             />
 
-            {/* 2. Floating Action Buttons Console (Desktop only - Docked in the circle marked by user in front of KEX 10W truck) */}
-            <Movable field="heroCtaGroup" className="hidden sm:block absolute bottom-2 sm:bottom-3 md:bottom-4 right-2 sm:right-3 md:right-4 z-20 pointer-events-auto">
-              <div className="bg-black/70 backdrop-blur-md p-1.5 sm:p-2 md:p-2.5 rounded-xl border border-white/30 shadow-[0_12px_30px_rgba(0,0,0,0.7)] w-auto max-w-[320px] sm:max-w-[360px] md:max-w-[400px] flex flex-col gap-1 sm:gap-1.5">
+            {/* 2. Floating Action Buttons Console (Desktop only - Moved higher and enlarged as marked by user) */}
+            <Movable field="heroCtaGroup" className="hidden sm:block absolute bottom-6 sm:bottom-10 md:bottom-14 lg:bottom-16 right-3 sm:right-5 md:right-8 lg:right-10 z-20 pointer-events-auto">
+              <div className="bg-black/75 backdrop-blur-md p-2 sm:p-3 md:p-3.5 rounded-xl sm:rounded-2xl border border-white/30 shadow-[0_15px_35px_rgba(0,0,0,0.75)] w-auto max-w-[360px] sm:max-w-[420px] md:max-w-[470px] flex flex-col gap-1.5 sm:gap-2">
                 {/* Top Row: Primary Actions */}
-                <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+                <div className="grid grid-cols-2 gap-1.5 sm:gap-2.5">
                   {/* 🔴 Apply Now */}
                   <Movable field="heroCtaDriverBtn" className="block">
                     <a
                       href="#recruitment"
-                      className="w-full flex items-center justify-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg bg-gradient-to-r from-[#D32F2F] to-[#B71C1C] hover:from-[#B71C1C] hover:to-[#8E0000] text-white font-bold text-xs shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] border border-red-500/40 text-center"
+                      className="w-full flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-[#D32F2F] to-[#B71C1C] hover:from-[#B71C1C] hover:to-[#8E0000] text-white font-extrabold text-xs sm:text-sm md:text-base shadow-md shadow-red-900/40 transition-all hover:scale-[1.03] active:scale-[0.98] border border-red-500/40 text-center"
                     >
-                      <Truck className="w-3.5 h-3.5 text-white shrink-0" />
+                      <Truck className="w-4 h-4 sm:w-4.5 sm:h-4.5 md:w-5 md:h-5 text-white shrink-0" />
                       <span className="truncate">
                         <Editable field="heroCtaDriverText" value={heroCtaDriverText} noTransform />
                       </span>
-                      <ArrowRight className="w-3 h-3 shrink-0 hidden sm:inline" />
+                      <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 hidden sm:inline" />
                     </a>
                   </Movable>
 
@@ -62,22 +62,22 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
                   <Movable field="heroContactBtn" className="block">
                     <a
                       href="#contact"
-                      className="w-full flex items-center justify-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs border border-white/60 shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] text-center"
+                      className="w-full flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-extrabold text-xs sm:text-sm md:text-base border border-white/60 shadow-md transition-all hover:scale-[1.03] active:scale-[0.98] text-center"
                     >
-                      <PhoneCall className="w-3.5 h-3.5 text-[#D32F2F] shrink-0" />
+                      <PhoneCall className="w-4 h-4 sm:w-4.5 sm:h-4.5 md:w-5 md:h-5 text-[#D32F2F] shrink-0" />
                       <span className="truncate">ติดต่อเรา</span>
                     </a>
                   </Movable>
                 </div>
 
                 {/* Bottom Row: Direct Phone & LINE Quick Contacts */}
-                <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+                <div className="grid grid-cols-2 gap-1.5 sm:gap-2.5">
                   {/* 📞 Phone */}
                   <a
                     href={`tel:${phoneRaw}`}
-                    className="flex items-center justify-center gap-1 px-2 py-1 sm:py-1.5 rounded-md bg-black/60 hover:bg-black/80 text-white font-semibold text-[11px] sm:text-xs border border-white/20 backdrop-blur-md transition-all"
+                    className="flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-black/60 hover:bg-black/80 text-white font-bold text-xs sm:text-xs md:text-sm border border-white/20 backdrop-blur-md transition-all hover:scale-[1.02]"
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
                     <span className="truncate">โทร: {phone}</span>
                   </a>
 
@@ -86,9 +86,9 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
                     href={`https://line.me/R/ti/p/${lineId.startsWith("@") ? lineId : `@${lineId}`}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-1 px-2 py-1 sm:py-1.5 rounded-md bg-[#06C755]/25 hover:bg-[#06C755]/35 text-emerald-300 font-bold text-[11px] sm:text-xs border border-[#06C755]/40 backdrop-blur-md transition-all"
+                    className="flex items-center justify-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-[#06C755]/30 hover:bg-[#06C755]/45 text-emerald-300 font-bold text-xs sm:text-xs md:text-sm border border-[#06C755]/40 backdrop-blur-md transition-all hover:scale-[1.02]"
                   >
-                    <MessageCircle className="w-3 h-3 text-[#06C755] shrink-0" />
+                    <MessageCircle className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#06C755] shrink-0" />
                     <span className="truncate">LINE: {lineId}</span>
                   </a>
                 </div>
