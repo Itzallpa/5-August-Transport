@@ -14,13 +14,14 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
   const heroBackgroundImage = content?.heroImageUrl || "/images/hero-cover-v2.jpg";
 
   return (
-    <section id="home" className="relative w-full h-[calc(100dvh-64px)] sm:h-auto sm:min-h-[calc(100vh-72px)] bg-gradient-to-b from-slate-100 via-white to-slate-50 py-2 sm:py-3 px-2 sm:px-4 md:px-6 border-b border-slate-200 flex flex-col justify-between sm:justify-center items-center overflow-hidden">
-      {/* Container calibrated to fit 100% within the viewport height without vertical scrolling */}
-      <div className="max-w-[1720px] mx-auto w-full h-full sm:h-auto flex flex-col justify-between sm:justify-center items-center">
+    <section id="home" className="relative w-full bg-gradient-to-b from-slate-100 via-white to-slate-50 py-2 sm:py-3 px-2 sm:px-4 md:px-6 border-b border-slate-200 overflow-hidden">
+      {/* Container calibrated to fit comfortably on all screens */}
+      <div className="max-w-[1720px] mx-auto w-full flex flex-col items-center">
         {/* 1. Main Hero Banner Frame */}
-        <Movable field="heroBannerCard" className="relative w-full sm:w-auto inline-block max-w-full flex-shrink-0">
+        <Movable field="heroBannerCard" className="relative w-full sm:w-auto inline-block max-w-full">
           <div className="relative w-full sm:w-auto inline-block rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl shadow-slate-300/60 border border-slate-200/90 bg-white ring-1 ring-slate-900/5 group">
             <a href="#recruitment" className="block cursor-pointer">
+              {/* Desktop Widescreen Banner (3200x1312) */}
               <Image
                 src={heroBackgroundImage}
                 alt="5 August Transport x KEX Express Partner"
@@ -28,7 +29,17 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
                 height={1312}
                 priority
                 unoptimized
-                className="w-full sm:w-auto h-auto sm:max-h-[calc(100vh-165px)] md:max-h-[660px] max-w-full block select-none"
+                className="hidden sm:block w-auto h-auto sm:max-h-[calc(100vh-165px)] md:max-h-[660px] max-w-full select-none"
+              />
+              {/* Mobile Portrait Banner (1600x2624 - Fills phone screen with crisp large text & trucks) */}
+              <Image
+                src="/images/hero-cover-mobile.jpg"
+                alt="5 August Transport x KEX Express Partner"
+                width={1600}
+                height={2624}
+                priority
+                unoptimized
+                className="sm:hidden w-full h-auto block select-none"
               />
             </a>
 
@@ -97,28 +108,12 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
           </div>
         </Movable>
 
-        {/* 3. Mobile Middle Highlights Card (Fills mobile viewport elegantly so it doesn't look empty or cut off) */}
-        <div className="sm:hidden w-full my-auto px-2 py-2.5 bg-white/90 backdrop-blur-sm rounded-xl border border-slate-200/90 shadow-sm flex flex-col gap-1.5 text-center">
-          <div className="flex items-center justify-center gap-1.5 text-[#D32F2F] font-bold text-xs">
-            <span className="w-2 h-2 rounded-full bg-[#D32F2F] animate-ping shrink-0" />
-            <span>เปิดรับสมัคร Partner รถร่วมขนส่ง (Linehaul)</span>
-          </div>
-          <p className="text-[11px] text-slate-600 font-medium leading-relaxed">
-            ร่วมให้บริการ KEX Express สายงานวิ่งประจำและเสริมทั่วประเทศ
-          </p>
-          <div className="flex items-center justify-center gap-1.5 pt-0.5">
-            <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-800 text-[10px] font-bold border border-slate-200">4W ตู้ทึบ</span>
-            <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-800 text-[10px] font-bold border border-slate-200">4WJ จัมโบ้</span>
-            <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-800 text-[10px] font-bold border border-slate-200">6W ตู้ทึบ</span>
-          </div>
-        </div>
-
-        {/* 4. Mobile Bottom Action Buttons Console (Fits mobile screen base without peeking next section) */}
-        <div className="sm:hidden w-full flex-shrink-0 flex flex-col gap-1.5 pb-2">
+        {/* 3. Mobile Bottom Action Buttons Console */}
+        <div className="sm:hidden w-full flex-shrink-0 flex flex-col gap-2 pt-3 pb-2">
           {/* 🔴 Primary Apply Button */}
           <a
             href="#recruitment"
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-[#D32F2F] to-[#B71C1C] text-white font-extrabold text-sm shadow-md shadow-red-900/30 active:scale-95 text-center"
+            className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#D32F2F] to-[#B71C1C] text-white font-extrabold text-sm shadow-lg shadow-red-900/30 active:scale-95 text-center"
           >
             <Truck className="w-4 h-4 text-white" />
             <span>{heroCtaDriverText} (คลิกสมัครทันที)</span>
@@ -129,14 +124,14 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
           <div className="grid grid-cols-3 gap-1.5">
             <a
               href="#contact"
-              className="flex items-center justify-center gap-1 py-2 px-2 rounded-lg bg-white text-slate-900 font-bold text-xs border border-slate-300 shadow-sm active:scale-95 text-center"
+              className="flex items-center justify-center gap-1 py-2.5 px-2 rounded-xl bg-white text-slate-900 font-bold text-xs border border-slate-300 shadow-sm active:scale-95 text-center"
             >
               <PhoneCall className="w-3.5 h-3.5 text-[#D32F2F]" />
               <span>ติดต่อเรา</span>
             </a>
             <a
               href={`tel:${phoneRaw}`}
-              className="flex items-center justify-center gap-1 py-2 px-2 rounded-lg bg-slate-900 text-white font-bold text-xs active:scale-95 text-center"
+              className="flex items-center justify-center gap-1 py-2.5 px-2 rounded-xl bg-slate-900 text-white font-bold text-xs active:scale-95 text-center"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               <span>โทรด่วน</span>
@@ -145,15 +140,13 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
               href={`https://line.me/R/ti/p/${lineId.startsWith("@") ? lineId : `@${lineId}`}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-1 py-2 px-2 rounded-lg bg-[#06C755] text-white font-bold text-xs active:scale-95 text-center"
+              className="flex items-center justify-center gap-1 py-2.5 px-2 rounded-xl bg-[#06C755] text-white font-bold text-xs active:scale-95 text-center"
             >
               <MessageCircle className="w-3.5 h-3.5 text-white" />
               <span>LINE</span>
             </a>
           </div>
         </div>
-
-
       </div>
     </section>
   );
