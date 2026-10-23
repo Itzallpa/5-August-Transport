@@ -21,7 +21,7 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
         <Movable field="heroBannerCard" className="relative w-full sm:w-auto inline-block max-w-full">
           <div className="relative w-full sm:w-auto inline-block rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl shadow-slate-300/60 border border-slate-200/90 bg-white ring-1 ring-slate-900/5 group">
             <a href="#recruitment" className="block cursor-pointer">
-              {/* Desktop Widescreen Banner (3200x1312) */}
+              {/* Single Original Banner Image (3200x1312) */}
               <Image
                 src={heroBackgroundImage}
                 alt="5 August Transport x KEX Express Partner"
@@ -29,17 +29,7 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
                 height={1312}
                 priority
                 unoptimized
-                className="hidden sm:block w-auto h-auto sm:max-h-[calc(100vh-165px)] md:max-h-[660px] max-w-full select-none"
-              />
-              {/* Mobile Portrait Banner (1600x2624 - Fills phone screen with crisp large text & trucks) */}
-              <Image
-                src="/images/hero-cover-mobile.jpg"
-                alt="5 August Transport x KEX Express Partner"
-                width={1600}
-                height={2624}
-                priority
-                unoptimized
-                className="sm:hidden w-full h-auto block select-none"
+                className="w-full sm:w-auto h-auto sm:max-h-[calc(100vh-165px)] md:max-h-[660px] max-w-full block select-none"
               />
             </a>
 
