@@ -11,15 +11,15 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
   const lineId = (content?.lineId && content.lineId !== "0843263546") ? content.lineId : "@486eyver";
 
   // Background Image (CMS upload or fallback hero image)
-  const heroBackgroundImage = content?.heroImageUrl || "/images/hero-cover.jpg";
+  const heroBackgroundImage = content?.heroImageUrl || "/images/hero-cover-v2.jpg";
 
   return (
     <section id="home" className="relative w-full bg-gradient-to-b from-slate-100 via-white to-slate-50 py-2 sm:py-4 px-2 sm:px-4 md:px-6 border-b border-slate-200 overflow-hidden">
       {/* Container matching user's exact drawn rectangular frame (width + vertical height) */}
       <div className="max-w-[1780px] mx-auto w-full flex flex-col items-center">
-        {/* 1. Main Hero Banner Frame - Fills the exact frame drawn by user ("ตามนี้ตามกรอบนี้") */}
+        {/* 1. Main Hero Banner Frame - Fills the exact frame with natural 3200x1312 aspect ratio (no stretch!) */}
         <Movable field="heroBannerCard" className="w-full">
-          <div className="relative w-full h-[68vh] sm:h-[74vh] md:h-[78vh] rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl shadow-slate-300/60 border border-slate-200/90 bg-white ring-1 ring-slate-900/5 group">
+          <div className="relative w-full aspect-[3200/1312] max-h-[82vh] rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl shadow-slate-300/60 border border-slate-200/90 bg-white ring-1 ring-slate-900/5 group">
             <Image
               src={heroBackgroundImage}
               alt="5 August Transport x KEX Express Partner"
@@ -27,7 +27,7 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
               priority
               unoptimized
               sizes="(max-width: 1920px) 100vw, 1780px"
-              className="w-full h-full object-fill select-none"
+              className="w-full h-full object-cover select-none"
             />
 
             {/* Admin Image Edit Button */}
