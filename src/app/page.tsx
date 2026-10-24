@@ -41,7 +41,15 @@ export default async function HomePage() {
 
       <main className="flex-1">
         {layout.sections
-          .filter((s) => s.visible)
+          .filter((s) => {
+            if (!s.visible) return false;
+            // The Figma template in 'solutions' already provides the full fleet & services.
+            // Filter out legacy bloated sections to keep the landing page clean and authentic.
+            if (["about", "fleet", "values", "gallery", "milestones"].includes(s.key)) {
+              return false;
+            }
+            return true;
+          })
           .map((s) => {
             if (s.key.startsWith(BLOCK_KEY_PREFIX)) {
               const block = layout.customBlocks.find((b) => b.id === s.key.slice(BLOCK_KEY_PREFIX.length));

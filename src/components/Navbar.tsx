@@ -16,7 +16,10 @@ export default function Navbar({ content, navLinks: navLinksProp }: { content?: 
   const nameTh = content?.nameTh || COMPANY_INFO.nameTh;
   const lineId = content?.lineId || COMPANY_INFO.lineId;
 
-  const navLinks = (navLinksProp ?? DEFAULT_NAV_LINKS).filter((l) => l.label.trim());
+  const rawLinks = (navLinksProp && navLinksProp.length > 0 ? navLinksProp : DEFAULT_NAV_LINKS).filter((l) => l.label.trim());
+  const hiddenTargets = new Set(["#about", "#fleet", "#strengths", "#gallery", "#milestones"]);
+  const filtered = rawLinks.filter((l) => !hiddenTargets.has(l.href));
+  const navLinks = filtered.length >= 3 ? filtered : DEFAULT_NAV_LINKS;
 
   return (
     <header className="sticky top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm transition-all">

@@ -106,11 +106,9 @@ export type SiteLayout = {
 
 export const DEFAULT_NAV_LINKS: NavLink[] = [
   { href: "#home", label: "หน้าแรก" },
-  { href: "#solutions", label: "โซลูชันแพลตฟอร์ม" },
-  { href: "#about", label: "เกี่ยวกับเรา" },
-  { href: "#fleet", label: "บริการและประเภทรถ" },
-  { href: "#strengths", label: "จุดเด่นบริการ" },
-  { href: "#calculator", label: "คำนวณราคา" },
+  { href: "#solutions", label: "ประเภทรถและบริการ" },
+  { href: "#card-jobs", label: "รูปแบบงานขนส่ง" },
+  { href: "#quote", label: "คำนวณราคา" },
   { href: "#recruitment", label: "ร่วมงานกับเรา" },
   { href: "#contact", label: "ติดต่อเรา" },
 ];
@@ -179,8 +177,9 @@ function groupFromId(id: string): FleetGroup {
 }
 
 export function getDefaultLayout(): SiteLayout {
+  const landingVisible = new Set(["hero", "solutions", "quote", "recruitment"]);
   return {
-    sections: SECTION_KEYS.map((key) => ({ key: key as string, visible: true })),
+    sections: SECTION_KEYS.map((key) => ({ key: key as string, visible: landingVisible.has(key) })),
     customBlocks: [],
     valueItems: KEY_SELLING_POINTS.map((p) => ({
       id: p.id,
