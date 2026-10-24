@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Hero from "@/components/Hero";
+import PlatformSolutions from "@/components/PlatformSolutions";
 import ValueProps from "@/components/ValueProps";
 import FleetSection from "@/components/FleetSection";
 import GallerySection from "@/components/GallerySection";
@@ -28,6 +29,7 @@ export function buildBuiltinSections(
 ): Record<SectionKey, ReactNode> {
   return {
     hero: <Hero content={content} />,
+    solutions: <PlatformSolutions content={content} />,
     about: <AboutSection content={content} />,
     fleet: <FleetSection content={content} items={layout.fleetItems} />,
     gallery: <GallerySection items={layout.galleryItems} />,

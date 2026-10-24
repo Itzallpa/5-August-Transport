@@ -7,6 +7,7 @@ import { KEY_SELLING_POINTS, FLEET_CATEGORIES } from "./constants";
 
 export const SECTION_KEYS = [
   "hero",
+  "solutions",
   "about",
   "fleet",
   "gallery",
@@ -19,6 +20,7 @@ export type SectionKey = (typeof SECTION_KEYS)[number];
 
 export const SECTION_LABELS: Record<SectionKey, string> = {
   hero: "Hero หน้าแรก (แบนเนอร์ใหญ่)",
+  solutions: "บริการและโซลูชันแพลตฟอร์ม (ตามเทมเพลต Figma)",
   about: "เกี่ยวกับเรา",
   fleet: "บริการและประเภทรถ",
   gallery: "แกลเลอรี่ผลงาน",
@@ -104,6 +106,7 @@ export type SiteLayout = {
 
 export const DEFAULT_NAV_LINKS: NavLink[] = [
   { href: "#home", label: "หน้าแรก" },
+  { href: "#solutions", label: "โซลูชันแพลตฟอร์ม" },
   { href: "#about", label: "เกี่ยวกับเรา" },
   { href: "#fleet", label: "บริการและประเภทรถ" },
   { href: "#strengths", label: "จุดเด่นบริการ" },
@@ -314,6 +317,14 @@ export function parseLayout(json?: string | null): SiteLayout {
     if ((isBuiltin || isBlock) && !seen.has(key)) {
       seen.add(key);
       sections.push({ key, visible: o.visible !== false });
+    }
+  }
+
+  if (!seen.has("solutions")) {
+    const heroIdx = sections.findIndex((s) => s.key === "hero");
+    if (heroIdx !== -1) {
+      sections.splice(heroIdx + 1, 0, { key: "solutions", visible: true });
+      seen.add("solutions");
     }
   }
   for (const key of SECTION_KEYS) if (!seen.has(key)) sections.push({ key, visible: true });
