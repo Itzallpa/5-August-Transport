@@ -19,7 +19,7 @@ export default function AboutSection({ content }: { content?: Partial<SiteConten
   const expText = content?.aboutExpText || "ความเชี่ยวชาญในธุรกิจขนส่งและโลจิสติกส์";
 
   return (
-    <section id="about" className="py-24 bg-white text-slate-900 relative">
+    <section id="about" className="pt-28 sm:pt-36 pb-24 bg-white text-slate-900 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           {/* Left Column: Visual & Operations Command Image */}
