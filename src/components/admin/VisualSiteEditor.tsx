@@ -46,6 +46,7 @@ import {
   createBlock,
   sectionLabel,
   SECTION_KEYS,
+  applySolutionField,
   BLOCK_KEY_PREFIX,
   type SiteLayout,
   type SectionKey,
@@ -356,6 +357,11 @@ export default function VisualSiteEditor({
   // Inline editing API for elements on canvas
   const editorApi: EditorApi = {
     setField: (field: string, value: string) => {
+      const solutionLayout = applySolutionField(layout, field, value);
+      if (solutionLayout) {
+        commitLayout(solutionLayout);
+        return;
+      }
       onFieldChange(field as keyof SiteContentData, value);
     },
     getTextPosition: (field: string) => {
@@ -387,7 +393,9 @@ export default function VisualSiteEditor({
         }
 
         if (res.ok && data?.success && data?.url) {
-          onFieldChange(field as keyof SiteContentData, data.url);
+          const solutionLayout = applySolutionField(layout, field, data.url);
+          if (solutionLayout) commitLayout(solutionLayout);
+          else onFieldChange(field as keyof SiteContentData, data.url);
           Swal.fire({
             icon: "success",
             title: "อัปโหลดและเปลี่ยนรูปสำเร็จ",

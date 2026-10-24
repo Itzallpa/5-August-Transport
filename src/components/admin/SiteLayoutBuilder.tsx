@@ -19,6 +19,7 @@ import {
   Calculator,
   Navigation,
   RotateCcw,
+  LayoutGrid,
 } from "lucide-react";
 import {
   parseLayout,
@@ -34,12 +35,14 @@ import {
   type ValueItem,
   type QuoteRate,
   type NavLink,
+  type SolutionCard,
 } from "@/lib/site-layout";
 
-type TabId = "sections" | "values" | "fleet" | "gallery" | "quote" | "nav";
+type TabId = "sections" | "solutions" | "values" | "fleet" | "gallery" | "quote" | "nav";
 
 const TABS: { id: TabId; label: string; icon: typeof LayoutList }[] = [
   { id: "sections", label: "ลำดับ Section", icon: LayoutList },
+  { id: "solutions", label: "การ์ดบริการ/ประเภทรถ (หน้าแรก)", icon: LayoutGrid },
   { id: "values", label: "จุดเด่น", icon: Sparkles },
   { id: "fleet", label: "ประเภทรถ", icon: Truck },
   { id: "gallery", label: "แกลเลอรี่", icon: Camera },
@@ -509,6 +512,135 @@ export default function SiteLayoutBuilder({ layoutJson, onChange, onSave, isPend
                     volume: "ความจุ: ",
                     idealFor: "",
                     features: [""],
+                  },
+                ])
+              }
+            />
+          </div>
+        )}
+
+        {/* ---------------- SOLUTION CARDS ---------------- */}
+        {tab === "solutions" && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+              <Field
+                label="ป้ายหัวข้อเล็ก (Badge)"
+                value={layout.solutionsHeader.badge}
+                onChange={(val) => patch("solutionsHeader", { ...layout.solutionsHeader, badge: val })}
+              />
+              <Field
+                label="หัวข้อใหญ่"
+                value={layout.solutionsHeader.title}
+                onChange={(val) => patch("solutionsHeader", { ...layout.solutionsHeader, title: val })}
+              />
+              <Field
+                label="คำอธิบายใต้หัวข้อ"
+                textarea
+                value={layout.solutionsHeader.subtitle}
+                onChange={(val) => patch("solutionsHeader", { ...layout.solutionsHeader, subtitle: val })}
+              />
+            </div>
+
+            <DragList<SolutionCard>
+              items={layout.solutionCards}
+              keyOf={(c) => c.id}
+              onReorder={(from, to) => patch("solutionCards", moveItem(layout.solutionCards, from, to))}
+              renderItem={(c, i) => {
+                const set = (change: Partial<SolutionCard>) =>
+                  patch("solutionCards", updateAt(layout.solutionCards, i, change));
+                return (
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-32 h-24 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0">
+                        {c.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={c.image} alt={c.title} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-400">ไม่มีรูป</div>
+                        )}
+                      </div>
+                      <div className="flex-1 space-y-2">
+                        <Field label="ที่อยู่ไฟล์รูป (URL/Path)" value={c.image} onChange={(val) => set({ image: val })} />
+                        <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#D32F2F] hover:bg-[#B71C1C] text-white text-xs font-bold cursor-pointer">
+                          <Upload className="w-3.5 h-3.5" />
+                          {uploadingId === c.id ? "กำลังอัปโหลด..." : "เปลี่ยนรูป (เลือกไฟล์จากเครื่อง)"}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              e.target.value = "";
+                              if (file) uploadImage(file, c.id, (url) => set({ image: url }));
+                            }}
+                          />
+                        </label>
+                      </div>
+                      <RowControls
+                        index={i}
+                        total={layout.solutionCards.length}
+                        onMove={(to) => patch("solutionCards", moveItem(layout.solutionCards, i, to))}
+                        onDelete={async () => patch("solutionCards", await removeAt(layout.solutionCards, i, "การ์ด"))}
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <Field label="ป้ายเล็กเหนือหัวข้อ" value={c.tag} onChange={(val) => set({ tag: val })} />
+                      <Field label="หัวข้อการ์ด" value={c.title} onChange={(val) => set({ title: val })} />
+                      <Field label="ข้อความสั้น (การ์ดเล็กด้านบน)" textarea value={c.summary} onChange={(val) => set({ summary: val })} />
+                      <Field label="รายละเอียด" textarea value={c.description} onChange={(val) => set({ description: val })} />
+                      <Field label="คำใต้รูป (ซ้าย)" value={c.imageCaption} onChange={(val) => set({ imageCaption: val })} />
+                      <Field label="ป้ายใต้รูป (ขวา)" value={c.imageBadge} onChange={(val) => set({ imageBadge: val })} />
+                      <Field label="ปุ่มหลัก: ข้อความ" value={c.buttonLabel} onChange={(val) => set({ buttonLabel: val })} />
+                      <Field label="ปุ่มหลัก: ลิงก์" value={c.buttonHref} onChange={(val) => set({ buttonHref: val })} />
+                      <Field label="ปุ่มรอง: ข้อความ (เว้นว่าง = ซ่อน)" value={c.secondaryLabel} onChange={(val) => set({ secondaryLabel: val })} />
+                      <Field label="ปุ่มรอง: ลิงก์ (tel:... / https://...)" value={c.secondaryHref} onChange={(val) => set({ secondaryHref: val })} />
+                    </div>
+                    <div className="space-y-2">
+                      <span className="block text-[11px] font-bold text-slate-600">รายการจุดเด่น (Bullet)</span>
+                      {c.bullets.map((b, bi) => (
+                        <div key={bi} className="flex items-center gap-2">
+                          <div className="flex-1">
+                            <input
+                              className={inputCls}
+                              value={b}
+                              onChange={(e) => set({ bullets: c.bullets.map((x, xi) => (xi === bi ? e.target.value : x)) })}
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => set({ bullets: c.bullets.filter((_, xi) => xi !== bi) })}
+                            className="p-1.5 rounded-lg border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100"
+                            title="ลบบรรทัดนี้"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                      <AddButton label="เพิ่มบรรทัดจุดเด่น" onClick={() => set({ bullets: [...c.bullets, ""] })} />
+                    </div>
+                  </div>
+                );
+              }}
+            />
+            <AddButton
+              label="เพิ่มการ์ดใหม่"
+              onClick={() =>
+                patch("solutionCards", [
+                  ...layout.solutionCards,
+                  {
+                    id: newId("card"),
+                    tag: "ป้ายหมวด",
+                    title: "การ์ดใหม่",
+                    summary: "ข้อความสั้น",
+                    description: "รายละเอียด",
+                    bullets: ["จุดเด่นที่ 1"],
+                    image: "",
+                    imageCaption: "",
+                    imageBadge: "",
+                    buttonLabel: "ติดต่อเรา",
+                    buttonHref: "#contact",
+                    secondaryLabel: "",
+                    secondaryHref: "#",
                   },
                 ])
               }

@@ -29,7 +29,7 @@ export function buildBuiltinSections(
 ): Record<SectionKey, ReactNode> {
   return {
     hero: <Hero content={content} />,
-    solutions: <PlatformSolutions content={content} />,
+    solutions: <PlatformSolutions content={content} header={layout.solutionsHeader} cards={layout.solutionCards} />,
     about: <AboutSection content={content} />,
     fleet: <FleetSection content={content} items={layout.fleetItems} />,
     gallery: <GallerySection items={layout.galleryItems} />,

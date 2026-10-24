@@ -87,6 +87,143 @@ export type GalleryItemData = {
 export type QuoteRate = { id: string; label: string; base: number; multiplier: number };
 export type NavLink = { href: string; label: string };
 
+export type SolutionCard = {
+  id: string;
+  tag: string;
+  title: string;
+  summary: string;
+  description: string;
+  bullets: string[];
+  image: string;
+  imageCaption: string;
+  imageBadge: string;
+  buttonLabel: string;
+  buttonHref: string;
+  secondaryLabel: string;
+  secondaryHref: string;
+};
+export type SolutionsHeader = { badge: string; title: string; subtitle: string };
+
+export const DEFAULT_SOLUTIONS_HEADER: SolutionsHeader = {
+  badge: "กองยานพาหนะและบริการขนส่ง • 5 August Transport",
+  title: "ประเภทรถและบริการขนส่งทั่วไทย",
+  subtitle:
+    "พร้อมตอบโจทย์ธุรกิจทุกขนาด พันธมิตรขนส่ง KEX Express - Linehaul (LH) กองรถ 4 ล้อ, 4 ล้อจัมโบ้, 6 ล้อ และงานเหมาคันครอบคลุมทั่วประเทศ",
+};
+
+export const DEFAULT_SOLUTION_CARDS: SolutionCard[] = [
+  {
+    id: "card-4w",
+    tag: "4W • คล่องตัวสูง • กระจายสินค้าในเมือง",
+    title: "รถกระบะตู้ทึบ 4 ล้อ (4W)",
+    summary: "ความจุ 4.5 – 6.6 CBM | นน. 1 – 1.5 ตัน คล่องตัวสูง ส่งร้านค้า Modern Trade และ Last Mile",
+    description:
+      "ตู้ทึบสะอาด ปิดล็อกมิดชิด กันฝน 100% เหมาะสำหรับงานกระจายพัสดุด่วน ร้านค้า Modern Trade และพื้นที่ชุมชนเมืองที่มีข้อจำกัดความสูง",
+    bullets: [
+      "ความจุกระบะบรรทุก: 4.5 – 6.6 CBM รองรับน้ำหนัก 1.0 – 1.5 ตัน",
+      "ขนาดตู้มาตรฐาน: ยาว 2.10–2.20 ม. x กว้าง 1.20–1.50 ม. x สูง 1.80–2.00 ม.",
+      "เข้าซอยแคบ สะดวกคล่องตัว ส่งตรงถึงมือผู้รับ",
+      "ติดตั้งระบบ GPS Tracking ควบคุมความเร็วและรายงานตำแหน่งเรียลไทม์ 24 ชม.",
+      "มีพนักงานช่วยยกสินค้าและตรวจนับจำนวนอย่างระมัดระวัง",
+    ],
+    image: "/images/solution-truck.jpg",
+    imageCaption: "ตู้ทึบกันน้ำฝน 100%",
+    imageBadge: "น้ำหนัก 1 - 1.5 ตัน",
+    buttonLabel: "ขอใบเสนอราคา / จองคิวรถ 4 ล้อ",
+    buttonHref: "#quote",
+    secondaryLabel: "โทรสอบถาม",
+    secondaryHref: "tel:0843263546",
+  },
+  {
+    id: "card-4wj",
+    tag: "4WJ • ปริมาตรพิเศษ • คุ้มค่าเที่ยววิ่ง",
+    title: "รถ 4 ล้อจัมโบ้ (4WJ)",
+    summary: "ความจุ 10.8 CBM | นน. 3 ตัน จุสินค้ามากกว่ากระบะปกติ 50% คุ้มค่าสำหรับงาน E-Commerce",
+    description:
+      "เพิ่มพื้นที่บรรทุกเป็น 2 เท่า จุสินค้าได้มากกว่ากระบะปกติถึง 50% เหมาะสำหรับงาน E-Commerce กล่องพัสดุ สินค้าแฟชั่น และเฟอร์นิเจอร์",
+    bullets: [
+      "ความจุขนาดใหญ่พิเศษ: 10.8 CBM รองรับน้ำหนักสูงสุด 3 ตัน",
+      "ขนาดตู้พิเศษ: ยาว 3.00 ม. x กว้าง 1.80 ม. x สูง 2.00 ม.",
+      "ช่วยลดต้นทุนค่าขนส่งต่อชิ้น ประหยัดจำนวนเที่ยววิ่งในการขนส่งแต่ละวัน",
+      "โครงสร้างตู้เสริมความแข็งแรง พร้อมตัวล็อกประตูนิรภัย 2 ชั้น",
+      "ทีมคนขับชำนาญเส้นทาง จัดวางและเรียงสินค้าเป็นระเบียบ",
+    ],
+    image: "/images/thai_transport_loading.jpg",
+    imageCaption: "ความจุสูงถึง 10.8 CBM",
+    imageBadge: "น้ำหนัก 3 ตัน",
+    buttonLabel: "ขอใบเสนอราคา 4 ล้อจัมโบ้",
+    buttonHref: "#quote",
+    secondaryLabel: "โทรด่วน",
+    secondaryHref: "tel:0843263546",
+  },
+  {
+    id: "card-6w",
+    tag: "6W • หัวใจงานสายหลัก • ขนส่งข้ามภาค Hub-to-Hub",
+    title: "รถ 6 ล้อตู้ทึบ (6W)",
+    summary: "ความจุ 30 CBM | นน. 5 ตัน รองรับ 10–14 พาเลท วิ่งงาน Hub-to-Hub และข้ามภาค",
+    description:
+      "รองรับการวิ่งงานเชื่อมโยงศูนย์กระจายสินค้าหลัก (Hub-to-Hub) งานสาย Linehaul ของ KEX Express และสินค้าอุตสาหกรรมข้ามภาค",
+    bullets: [
+      "ความจุกว้างขวาง: 30 CBM รองรับน้ำหนักบรรทุก 5.0 ตัน",
+      "ขนาดตู้มาตรฐาน: ยาว 7.20 ม. x กว้าง 2.30 ม. x สูง 2.30 ม.",
+      "รองรับ 10 – 14 พาเลทมาตรฐาน ประตูเปิดได้ทั้งท้ายและข้าง",
+      "ได้รับความไว้วางใจวิ่งงาน Linehaul ให้แก่ KEX Express และคู่ค้าชั้นนำ",
+      "ประกันภัยคุ้มครองสินค้าเต็มวงเงิน พร้อมคนขับชำนาญเส้นทางไกล",
+    ],
+    image: "/images/thai_transport_highway.jpg",
+    imageCaption: "สายหลักข้ามภาค Linehaul",
+    imageBadge: "30 CBM • 5-8 ตัน",
+    buttonLabel: "สอบถามคิวรถ 6 ล้อ / ขอใบเสนอราคา",
+    buttonHref: "#quote",
+    secondaryLabel: "ติดต่อฝ่ายจัดสรรรถ",
+    secondaryHref: "tel:0843263546",
+  },
+  {
+    id: "card-jobs",
+    tag: "ร่วมเป็น Partner ขนส่งกับ 5 August Transport",
+    title: "รูปแบบงานที่รองรับ & เปิดรับสมัครทั้ง 4 ภาค",
+    summary: "งานเหมาคันรายเดือน ประมูลงาน และเปิดรับสมัครคนขับร่วมทั้ง 4 ภาค",
+    description:
+      "ตอบโจทย์ทั้งผู้ประกอบการที่ต้องการรถขนส่งประจำ และคนขับรถร่วมที่ต้องการงานมั่นคง รายได้ดี ร่วมวิ่งงาน KEX Express",
+    bullets: [
+      "Standard Rate Table: อัตราค่าบริการมาตรฐาน จ่ายตรงตามรอบ",
+      "Monthly Truck: งานเหมาคันสัญญารายเดือน งานประจำมั่นคง",
+      "Bidding Truck: งานประมูลราคาวิ่งประจำโรงงานและคลังสินค้า",
+      "Adhoc Truck: งานวิ่งเสริมรายเที่ยวและงานด่วน 24 ชม.",
+    ],
+    image: "/images/thai_transport_fleet_yard.jpg",
+    imageCaption: "Partner KEX Express - Linehaul",
+    imageBadge: "เปิดรับสมัครทั้ง 4 ภาค",
+    buttonLabel: "สมัครขับรถร่วมทันที (เปิดรับ 4W/4WJ/6W)",
+    buttonHref: "#recruitment",
+    secondaryLabel: "LINE: @486eyver",
+    secondaryHref: "https://line.me/R/ti/p/@486eyver",
+  },
+];
+
+/**
+ * Applies an inline-editor edit (field = "solution:<cardId>:<prop>", "solution:<cardId>:bullet:<n>"
+ * or "solution:header:<prop>") to the layout. Returns null if the field isn't a solutions field.
+ */
+export function applySolutionField(layout: SiteLayout, field: string, value: string): SiteLayout | null {
+  if (!field.startsWith("solution:")) return null;
+  const parts = field.split(":");
+  const [, id, prop, idx] = parts;
+  if (id === "header") {
+    return { ...layout, solutionsHeader: { ...layout.solutionsHeader, [prop]: value } as SolutionsHeader };
+  }
+  const cards = layout.solutionCards.map((c) => {
+    if (c.id !== id) return c;
+    if (prop === "bullet") {
+      const bullets = [...c.bullets];
+      bullets[Number(idx)] = value;
+      return { ...c, bullets };
+    }
+    return { ...c, [prop]: value };
+  });
+  return { ...layout, solutionCards: cards };
+}
+
 export type TextPosition = {
   x: number;
   y: number;
@@ -102,6 +239,8 @@ export type SiteLayout = {
   quoteRates: QuoteRate[];
   navLinks: NavLink[];
   textPositions?: Record<string, TextPosition>;
+  solutionsHeader: SolutionsHeader;
+  solutionCards: SolutionCard[];
 };
 
 export const DEFAULT_NAV_LINKS: NavLink[] = [
@@ -202,6 +341,8 @@ export function getDefaultLayout(): SiteLayout {
     galleryItems: DEFAULT_GALLERY_ITEMS.map((g) => ({ ...g })),
     quoteRates: DEFAULT_QUOTE_RATES.map((r) => ({ ...r })),
     navLinks: DEFAULT_NAV_LINKS.map((l) => ({ ...l })),
+    solutionsHeader: { ...DEFAULT_SOLUTIONS_HEADER },
+    solutionCards: DEFAULT_SOLUTION_CARDS.map((c) => ({ ...c, bullets: [...c.bullets] })),
   };
 }
 
@@ -413,7 +554,47 @@ export function parseLayout(json?: string | null): SiteLayout {
       ? (raw.textPositions as Record<string, TextPosition>)
       : {};
 
-  return { sections, customBlocks, valueItems, fleetItems, galleryItems, quoteRates, navLinks, textPositions };
+  const hdrRaw = obj(raw.solutionsHeader);
+  const solutionsHeader: SolutionsHeader = {
+    badge: str(hdrRaw.badge, defaults.solutionsHeader.badge),
+    title: str(hdrRaw.title, defaults.solutionsHeader.title),
+    subtitle: str(hdrRaw.subtitle, defaults.solutionsHeader.subtitle),
+  };
+
+  const solRaw = arr(raw.solutionCards);
+  const solutionCards: SolutionCard[] = solRaw
+    ? solRaw.map((v, i) => {
+        const o = obj(v);
+        return {
+          id: str(o.id, `card-${i}`),
+          tag: str(o.tag),
+          title: str(o.title),
+          summary: str(o.summary),
+          description: str(o.description),
+          bullets: (arr(o.bullets) ?? []).map((b) => str(b)),
+          image: str(o.image),
+          imageCaption: str(o.imageCaption),
+          imageBadge: str(o.imageBadge),
+          buttonLabel: str(o.buttonLabel),
+          buttonHref: str(o.buttonHref, "#"),
+          secondaryLabel: str(o.secondaryLabel),
+          secondaryHref: str(o.secondaryHref, "#"),
+        };
+      })
+    : defaults.solutionCards;
+
+  return {
+    sections,
+    customBlocks,
+    valueItems,
+    fleetItems,
+    galleryItems,
+    quoteRates,
+    navLinks,
+    textPositions,
+    solutionsHeader,
+    solutionCards,
+  };
 }
 
 export function createBlock(type: CustomBlockType, variant?: TextVariant): CustomBlock {
