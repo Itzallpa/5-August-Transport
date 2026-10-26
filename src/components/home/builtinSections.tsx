@@ -1,13 +1,17 @@
 import type { ReactNode } from "react";
 import Hero from "@/components/Hero";
-import PlatformSolutions from "@/components/PlatformSolutions";
-import ValueProps from "@/components/ValueProps";
-import FleetSection from "@/components/FleetSection";
-import GallerySection from "@/components/GallerySection";
-import QuoteCalculator from "@/components/QuoteCalculator";
 import AboutSection from "@/components/AboutSection";
-import Milestones from "@/components/Milestones";
+import QuoteCalculator from "@/components/QuoteCalculator";
+import ServicesSection from "@/components/ServicesSection";
+import FeaturesSection from "@/components/FeaturesSection";
+import PricingSection from "@/components/PricingSection";
+import PlatformSolutions from "@/components/PlatformSolutions";
+import DeliveryTeamSection from "@/components/DeliveryTeamSection";
+import TestimonialsSection from "@/components/TestimonialsSection";
 import DriverRecruitmentForm from "@/components/DriverRecruitmentForm";
+import GallerySection from "@/components/GallerySection";
+import ValueProps from "@/components/ValueProps";
+import Milestones from "@/components/Milestones";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
 import type { SectionKey, SiteLayout } from "@/lib/site-layout";
 
@@ -29,13 +33,17 @@ export function buildBuiltinSections(
 ): Record<SectionKey, ReactNode> {
   return {
     hero: <Hero content={content} />,
-    solutions: <PlatformSolutions content={content} header={layout.solutionsHeader} cards={layout.solutionCards} />,
     about: <AboutSection content={content} />,
-    fleet: <FleetSection content={content} items={layout.fleetItems} />,
+    quote: <QuoteCalculator content={content} rates={layout.quoteRates} />,
+    services: <ServicesSection content={content} />,
+    features: <FeaturesSection content={content} />,
+    pricing: <PricingSection content={content} />,
+    solutions: <PlatformSolutions content={content} header={layout.solutionsHeader} cards={layout.solutionCards} />,
+    team: <DeliveryTeamSection content={content} />,
+    testimonials: <TestimonialsSection content={content} />,
+    recruitment: <DriverRecruitmentForm content={content} />,
     gallery: <GallerySection items={layout.galleryItems} />,
     values: <ValueProps content={content} items={layout.valueItems} />,
-    quote: <QuoteCalculator content={content} rates={layout.quoteRates} />,
     milestones: <Milestones milestones={milestones} />,
-    recruitment: <DriverRecruitmentForm content={content} />,
   };
 }

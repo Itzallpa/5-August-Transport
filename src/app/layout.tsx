@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Kanit, Inter } from "next/font/google";
+import { Kanit, Inter, Poppins } from "next/font/google";
 import "./globals.css";
+import BackToTop from "@/components/BackToTop";
 
 const kanit = Kanit({
   subsets: ["thai", "latin"],
@@ -15,6 +16,13 @@ const inter = Inter({
   display: "swap",
 });
 
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-poppins",
+  display: "swap",
+});
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -23,9 +31,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "5 August Transport | บริษัท 5 สิงหา ทรานสปอร์ต จำกัด - บริการขนส่งและโลจิสติกส์ครบวงจร",
+  title: "5 August Transport | บริการขนส่งและโลจิสติกส์ครบวงจรทั่วไทย (Safe & Faster)",
   description:
-    "ทุกเส้นทาง เราพร้อมส่งต่อความมั่นใจ - บริการขนส่งสินค้าและโลจิสติกส์ ครบวงจร สำหรับธุรกิจของคุณ กองยานพาหนะ 4 ล้อ, 6 ล้อ, 10 ล้อ, เทรลเลอร์ และหัวลากคอนเทนเนอร์ 20/40 FT ทั่วประเทศไทย โทร 084-326-3546",
+    "บริษัท 5 สิงหา ทรานสปอร์ต จำกัด - บริการขนส่งสินค้าและโลจิสติกส์ด่วนทั่วไทย พันธมิตร KEX Express Linehaul กองยานพาหนะ 4 ล้อ, 4 ล้อจัมโบ้, 6 ล้อ และงานเหมาคัน โทร 084-326-3546",
   keywords: [
     "5 August Transport",
     "5 สิงหา ทรานสปอร์ต",
@@ -33,12 +41,11 @@ export const metadata: Metadata = {
     "โลจิสติกส์",
     "รถบรรทุกรับจ้าง",
     "4 ล้อ ตู้ทึบ",
+    "4 ล้อ จัมโบ้",
     "6 ล้อ จัมโบ้",
     "10 ล้อ",
-    "รถเทรลเลอร์",
-    "หัวลากคอนเทนเนอร์",
+    "KEX Express",
     "สมัครงานขับรถ",
-    "KEX",
   ],
   authors: [{ name: "5 August Transport Company Limited" }],
   icons: {
@@ -57,9 +64,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="th" className={`${kanit.variable} ${inter.variable} scroll-smooth`}>
+    <html lang="th" className={`${kanit.variable} ${inter.variable} ${poppins.variable} scroll-smooth`}>
       <body className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased selection:bg-[#D32F2F] selection:text-white">
         {children}
+        <BackToTop />
       </body>
     </html>
   );

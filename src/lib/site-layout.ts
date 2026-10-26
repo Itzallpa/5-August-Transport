@@ -7,27 +7,35 @@ import { KEY_SELLING_POINTS, FLEET_CATEGORIES } from "./constants";
 
 export const SECTION_KEYS = [
   "hero",
-  "solutions",
   "about",
-  "fleet",
+  "quote",
+  "services",
+  "features",
+  "pricing",
+  "solutions",
+  "team",
+  "testimonials",
+  "recruitment",
   "gallery",
   "values",
-  "quote",
   "milestones",
-  "recruitment",
 ] as const;
 export type SectionKey = (typeof SECTION_KEYS)[number];
 
 export const SECTION_LABELS: Record<SectionKey, string> = {
-  hero: "Hero หน้าแรก (แบนเนอร์ใหญ่)",
-  solutions: "บริการและโซลูชันแพลตฟอร์ม (ตามเทมเพลต Figma)",
-  about: "เกี่ยวกับเรา",
-  fleet: "บริการและประเภทรถ",
-  gallery: "แกลเลอรี่ผลงาน",
-  values: "จุดเด่นบริการ",
-  quote: "คำนวณราคา",
-  milestones: "ก้าวสำคัญของบริษัท (Timeline)",
-  recruitment: "ร่วมงานกับเรา (สมัครคนขับ)",
+  hero: "Hero หน้าแรก (Jumbotron & เช็คราคา)",
+  about: "เกี่ยวกับเรา (About Us + 10+ Years)",
+  quote: "ประเมินราคา & สถิติ (Get A Quote & Counters)",
+  services: "บริการของเรา (Services Grid)",
+  features: "ทำไมต้องเลือกเรา (Why Choose Us)",
+  pricing: "ตารางอัตราค่าบริการ (Pricing Plans)",
+  solutions: "ประเภทรถและโซลูชันแพลตฟอร์ม (Fleet Specs)",
+  team: "ทีมงานและพนักงานขับรถ (Delivery Team)",
+  testimonials: "เสียงตอบรับจากลูกค้า (Testimonials)",
+  recruitment: "ร่วมงานกับเรา (สมัครคนขับร่วม)",
+  gallery: "แกลเลอรี่ผลงานและภาพจริง (Gallery)",
+  values: "จุดเด่นบริการ (Core Values)",
+  milestones: "ก้าวสำคัญของบริษัท (Milestones Timeline)",
 };
 
 export const VALUE_ICON_NAMES = [
@@ -245,9 +253,12 @@ export type SiteLayout = {
 
 export const DEFAULT_NAV_LINKS: NavLink[] = [
   { href: "#home", label: "หน้าแรก" },
-  { href: "#solutions", label: "ประเภทรถและบริการ" },
-  { href: "#card-jobs", label: "รูปแบบงานขนส่ง" },
+  { href: "#about", label: "เกี่ยวกับเรา" },
+  { href: "#services", label: "บริการขนส่ง" },
   { href: "#quote", label: "คำนวณราคา" },
+  { href: "#pricing", label: "อัตราค่าบริการ" },
+  { href: "#solutions", label: "ประเภทรถ" },
+  { href: "#team", label: "ทีมงาน" },
   { href: "#recruitment", label: "ร่วมงานกับเรา" },
   { href: "#contact", label: "ติดต่อเรา" },
 ];
@@ -316,9 +327,8 @@ function groupFromId(id: string): FleetGroup {
 }
 
 export function getDefaultLayout(): SiteLayout {
-  const landingVisible = new Set(["hero", "solutions", "quote", "recruitment"]);
   return {
-    sections: SECTION_KEYS.map((key) => ({ key: key as string, visible: landingVisible.has(key) })),
+    sections: SECTION_KEYS.map((key) => ({ key: key as string, visible: true })),
     customBlocks: [],
     valueItems: KEY_SELLING_POINTS.map((p) => ({
       id: p.id,

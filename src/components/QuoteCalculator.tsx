@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import { Calculator, Phone, MessageSquare, ShieldCheck, CheckCircle2, ArrowRight } from "lucide-react";
+import { Calculator, Phone, CheckCircle2, ArrowRight, ShieldCheck, Truck, Users, Award } from "lucide-react";
 import { COMPANY_INFO } from "@/lib/constants";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
 import Swal from "sweetalert2";
@@ -17,20 +16,25 @@ const REGIONS = [
   { id: "south", name: "ภาคใต้ (สุราษฎร์ธานี, สงขลา, ภูเก็ต)" },
 ];
 
-export default function QuoteCalculator({ content, rates }: { content?: Partial<SiteContentData>; rates?: QuoteRate[] }) {
+export default function QuoteCalculator({
+  content,
+  rates,
+}: {
+  content?: Partial<SiteContentData>;
+  rates?: QuoteRate[];
+}) {
   const rateList = rates && rates.length > 0 ? rates : DEFAULT_QUOTE_RATES;
   const TRUCK_RATES: Record<string, QuoteRate> = Object.fromEntries(rateList.map((r) => [r.id, r]));
-  const quoteTitle = content?.quoteTitle || "ประเมินค่าบริการขนส่ง รวดเร็ว โปร่งใส ยุติธรรม";
-  const quoteSubtitle = content?.quoteSubtitle || "เลือกต้นทาง ปลายทาง และประเภทรถเพื่อดูราคาประมาณการเบื้องต้น สำหรับงานประจำ งานเหมาเที่ยว หรือสัญญารายเดือน สามารถติดต่อเจ้าหน้าที่เพื่อรับอัตราพิเศษได้ทันที";
-  const quoteNotice = content?.quoteNotice || "* ราคาที่แสดงเป็นการประมาณการคร่าวๆ ยังไม่รวมภาษีมูลค่าเพิ่ม ค่าทางด่วนพิเศษ หรือแรงงานยกสินค้าเสริม";
+
   const phone = content?.phone || COMPANY_INFO.phone;
   const phoneRaw = content?.phoneRaw || COMPANY_INFO.phoneRaw;
-  const lineId = content?.lineId || COMPANY_INFO.lineId;
 
   const [origin, setOrigin] = useState("bkk");
   const [destination, setDestination] = useState("east");
   const [truckType, setTruckType] = useState(TRUCK_RATES["6w-standard"] ? "6w-standard" : rateList[0].id);
   const [isUrgent, setIsUrgent] = useState(false);
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
 
   const getDistanceFactor = (from: string, to: string) => {
     if (from === to) return 1.0;
@@ -48,17 +52,21 @@ export default function QuoteCalculator({ content, rates }: { content?: Partial<
 
   const truckInfo = TRUCK_RATES[truckType] || rateList[0];
   const distanceFactor = getDistanceFactor(origin, destination);
-  const baseEstimate = Math.round(truckInfo.base * truckInfo.multiplier * distanceFactor * (isUrgent ? 1.2 : 1.0) / 100) * 100;
+  const baseEstimate =
+    Math.round(((truckInfo.base * truckInfo.multiplier * distanceFactor * (isUrgent ? 1.2 : 1.0)) / 100)) *
+    100;
 
   const originName = REGIONS.find((r) => r.id === origin)?.name || origin;
   const destName = REGIONS.find((r) => r.id === destination)?.name || destination;
 
-  const handleRequestOfficialQuote = () => {
+  const handleRequestOfficialQuote = (e: React.FormEvent) => {
+    e.preventDefault();
     Swal.fire({
-      icon: "info",
-      title: "ใบเสนอราคาค่าขนส่ง (ประมาณการ)",
+      icon: "success",
+      title: "สรุปใบเสนอราคาค่าขนส่ง (ประมาณการ)",
       html: `
         <div style="text-align: left; font-size: 14px; line-height: 1.8;">
+          ${customerName ? `<div style="padding: 4px 0;"><strong>ผู้ติดต่อ:</strong> ${customerName} (${customerPhone || "-"})</div>` : ""}
           <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #E2E8F0;">
             <span style="color: #64748B;">ต้นทาง:</span>
             <strong style="color: #18181B;">${originName}</strong>
@@ -75,12 +83,12 @@ export default function QuoteCalculator({ content, rates }: { content?: Partial<
             <span style="color: #64748B;">รูปแบบบริการ:</span>
             <strong style="color: ${isUrgent ? "#D97706" : "#18181B"};">${isUrgent ? "งานเร่งด่วนพิเศษ (+20%)" : "บริการมาตรฐาน"}</strong>
           </div>
-          <div style="display: flex; justify-content: space-between; padding: 10px 12px; margin-top: 10px; background-color: #FEF2F2; border-radius: 6px; font-size: 16px; font-weight: bold; color: #D32F2F;">
+          <div style="display: flex; justify-content: space-between; padding: 12px; margin-top: 12px; background-color: #FEF2F2; border-radius: 8px; font-size: 18px; font-weight: bold; color: #D32F2F; border: 1px solid #FCA5A5;">
             <span>ประมาณการค่าบริการ:</span>
             <span>~${baseEstimate.toLocaleString()} บาท</span>
           </div>
-          <p style="font-size: 12px; color: #64748B; margin-top: 10px;">
-            ${quoteNotice}
+          <p style="font-size: 11px; color: #64748B; margin-top: 10px;">
+            * ราคาที่แสดงเป็นการประมาณการคร่าวๆ ยังไม่รวมภาษีมูลค่าเพิ่ม สำหรับงานสัญญาประจำมีส่วนลดพิเศษ
           </p>
         </div>
       `,
@@ -97,186 +105,181 @@ export default function QuoteCalculator({ content, rates }: { content?: Partial<
   };
 
   return (
-    <section id="calculator" className="py-20 bg-slate-100 text-slate-800 border-b border-slate-200">
+    <section id="quote" className="py-20 sm:py-24 bg-[#F2F2F4] text-slate-900 border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Context & Transport Fleet Photo (Figma Template Style) */}
-          <div className="lg:col-span-5 space-y-5">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-[#D32F2F] border border-red-200 text-xs font-bold uppercase tracking-wider">
-              <Calculator className="w-3.5 h-3.5" />
-              <span>คำนวณราคาขนส่งเบื้องต้น</span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+          {/* Left Column: Get A Quote Narrative + 3 Big Counter Stats */}
+          <div className="lg:col-span-7 space-y-6">
+            <div>
+              <h6 className="text-[#D32F2F] text-xs sm:text-sm font-black uppercase tracking-widest mb-2 font-mono">
+                GET A QUOTE
+              </h6>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                Request A Free Quote <br />
+                <span className="text-[#D32F2F]">ประเมินราคาค่าขนส่งฟรี</span>
+              </h2>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">
-              {quoteTitle}
-            </h2>
-
-            <p className="text-slate-600 text-sm leading-relaxed">
-              {quoteSubtitle}
+            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+              คำนวณและประเมินค่าบริการขนส่งสินค้าได้อย่างรวดเร็ว โปร่งใส และไม่มีค่าใช้จ่ายแอบแฝง พร้อมทีมงานจัดสรรรถที่มีประสบการณ์คอยดูแลตลอด 24 ชั่วโมง ทั้งงานเที่ยวเดียว งานเหมาคัน และสัญญาระยะยาว
             </p>
 
-            {/* Photo Card matching the Figma Template */}
-            <div className="relative h-48 sm:h-56 w-full rounded-2xl overflow-hidden shadow-md border border-slate-200 group">
-              <Image
-                src="/images/thai_transport_highway.jpg"
-                alt="5 August Transport Fleet on Highway"
-                fill
-                sizes="(max-width: 1024px) 100vw, 40vw"
-                className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs font-bold">
-                <span className="flex items-center gap-1.5 bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-white/20">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" /> รวมประกันภัยสินค้า
-                </span>
-                <span className="bg-red-600 text-white px-2.5 py-1 rounded-lg shadow font-extrabold">
-                  GPS 24 ชม.
-                </span>
+            {/* FASTER Signature 3 Counter Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-6 border-t border-slate-300/80">
+              <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm text-center">
+                <h3 className="text-3xl sm:text-4xl font-black text-[#D32F2F] tracking-tight mb-1">
+                  200+
+                </h3>
+                <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">
+                  รถในเครือข่ายพร้อมบริการ
+                </p>
+                <span className="text-[10px] text-slate-400 block mt-0.5">Fleet Vehicles</span>
               </div>
-            </div>
 
-            <div className="space-y-2 text-xs sm:text-sm text-slate-700">
-              <div className="flex items-center gap-2 text-emerald-700 font-semibold">
-                <ShieldCheck className="w-4 h-4" />
-                <span>รวมประกันภัยสินค้าระหว่างทางทุกเที่ยว</span>
+              <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm text-center">
+                <h3 className="text-3xl sm:text-4xl font-black text-[#D32F2F] tracking-tight mb-1">
+                  1,000+
+                </h3>
+                <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">
+                  ลูกค้าองค์กรไว้วางใจ
+                </p>
+                <span className="text-[10px] text-slate-400 block mt-0.5">Corporate Clients</span>
               </div>
-              <div className="flex items-center gap-2 text-slate-700 font-medium">
-                <CheckCircle2 className="w-4 h-4 text-[#D32F2F]" />
-                <span>มีระบบ GPS ติดตามสถานะความเร็วและตำแหน่ง</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-700 font-medium">
-                <CheckCircle2 className="w-4 h-4 text-[#D32F2F]" />
-                <span>ออกใบเสร็จและใบกำกับภาษีถูกต้องตามกฎหมาย</span>
-              </div>
-            </div>
 
-            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-between">
-              <div>
-                <div className="text-xs text-slate-500 font-medium">ต้องการขอใบเสนอราคางานประจำ / สัญญารายเดือน</div>
-                <div className="text-sm font-black text-slate-900 mt-0.5">
-                  โทร: <a href={`tel:${phoneRaw}`} className="text-[#D32F2F] hover:underline">{phone}</a>
-                </div>
+              <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm text-center">
+                <h3 className="text-3xl sm:text-4xl font-black text-[#D32F2F] tracking-tight mb-1">
+                  100K+
+                </h3>
+                <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">
+                  เที่ยวขนส่งสำเร็จ
+                </p>
+                <span className="text-[10px] text-slate-400 block mt-0.5">Successful Deliveries</span>
               </div>
-              <a
-                href={`https://line.me/R/ti/p/${lineId.startsWith("@") ? lineId : `@${lineId}`}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3.5 py-1.5 rounded-xl bg-[#06C755] text-white text-xs font-bold shadow hover:bg-[#05b34c] transition-colors"
-              >
-                LINE สอบถาม
-              </a>
             </div>
           </div>
 
-          {/* Right Form Card - Organic Human-Designed Form */}
-          <div className="lg:col-span-7">
-            <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-lg">
-              <div className="border-b border-slate-200 pb-4 mb-6">
-                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                  <Calculator className="w-5 h-5 text-[#D32F2F]" />
-                  <span>โปรแกรมประเมินราคาค่าขนส่ง (Quick Estimator)</span>
+          {/* Right Column: FASTER Signature Primary Red Quote Form Box */}
+          <div className="lg:col-span-5">
+            <div className="bg-[#D32F2F] rounded-xl p-6 sm:p-8 text-white shadow-2xl border-4 border-white/20">
+              <div className="mb-6">
+                <h3 className="text-xl sm:text-2xl font-black uppercase tracking-wide flex items-center gap-2">
+                  <Calculator className="w-6 h-6 text-white" />
+                  <span>คำนวณราคาออนไลน์</span>
                 </h3>
-                <p className="text-xs text-slate-500 mt-1">
-                  กรอกข้อมูลจุดรับ-ส่ง และประเภทยานพาหนะเพื่อคำนวณราคาอัตโนมัติ
+                <p className="text-xs text-white/80 mt-1 font-medium">
+                  เลือกประเภทรถและเส้นทางเพื่อดูราคาประมาณการทันที
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                {/* Origin */}
+              <form onSubmit={handleRequestOfficialQuote} className="space-y-4">
+                {/* Name & Phone */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] font-bold text-white/90 block mb-1">ชื่อผู้ติดต่อ</label>
+                    <input
+                      type="text"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      placeholder="ชื่อ-นามสกุล / บริษัท"
+                      className="w-full px-3 py-2.5 rounded bg-white text-slate-900 text-xs font-medium placeholder:text-slate-400 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-white/90 block mb-1">เบอร์โทรศัพท์</label>
+                    <input
+                      type="tel"
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      placeholder="08X-XXX-XXXX"
+                      className="w-full px-3 py-2.5 rounded bg-white text-slate-900 text-xs font-medium placeholder:text-slate-400 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Truck Type Select */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">
-                    จุดรับสินค้า (ต้นทาง)
-                  </label>
+                  <label className="text-[11px] font-bold text-white/90 block mb-1">ประเภทยานพาหนะ</label>
                   <select
-                    value={origin}
-                    onChange={(e) => setOrigin(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#D32F2F] focus:bg-white"
+                    value={truckType}
+                    onChange={(e) => setTruckType(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded bg-white text-slate-900 text-xs font-bold focus:outline-none"
                   >
-                    {REGIONS.map((r) => (
+                    {rateList.map((r) => (
                       <option key={r.id} value={r.id}>
-                        {r.name}
+                        {r.label}
                       </option>
                     ))}
                   </select>
                 </div>
 
-                {/* Destination */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">
-                    จุดส่งสินค้า (ปลายทาง)
-                  </label>
-                  <select
-                    value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#D32F2F] focus:bg-white"
-                  >
-                    {REGIONS.map((r) => (
-                      <option key={r.id} value={r.id}>
-                        {r.name}
-                      </option>
-                    ))}
-                  </select>
+                {/* Origin & Destination Selects */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] font-bold text-white/90 block mb-1">ภาค/จังหวัดต้นทาง</label>
+                    <select
+                      value={origin}
+                      onChange={(e) => setOrigin(e.target.value)}
+                      className="w-full px-3 py-2.5 rounded bg-white text-slate-900 text-xs font-medium focus:outline-none"
+                    >
+                      {REGIONS.map((r) => (
+                        <option key={r.id} value={r.id}>
+                          {r.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-white/90 block mb-1">ภาค/จังหวัดปลายทาง</label>
+                    <select
+                      value={destination}
+                      onChange={(e) => setDestination(e.target.value)}
+                      className="w-full px-3 py-2.5 rounded bg-white text-slate-900 text-xs font-medium focus:outline-none"
+                    >
+                      {REGIONS.map((r) => (
+                        <option key={r.id} value={r.id}>
+                          {r.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-              </div>
 
-              {/* Vehicle Type */}
-              <div className="mb-4">
-                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">
-                  ประเภทรถที่ต้องการใช้งาน
-                </label>
-                <select
-                  value={truckType}
-                  onChange={(e) => setTruckType(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#D32F2F] focus:bg-white"
-                >
-                  {Object.entries(TRUCK_RATES).map(([key, item]) => (
-                    <option key={key} value={key}>
-                      {item.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Urgent Toggle */}
-              <div className="mb-6">
-                <label className="flex items-center gap-2.5 cursor-pointer bg-slate-50 p-3 rounded-md border border-slate-200">
+                {/* Urgent Checkbox */}
+                <label className="flex items-center gap-2 cursor-pointer pt-1">
                   <input
                     type="checkbox"
                     checked={isUrgent}
                     onChange={(e) => setIsUrgent(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#D32F2F] focus:ring-[#D32F2F]"
+                    className="w-4 h-4 rounded text-[#D32F2F] focus:ring-0 cursor-pointer"
                   />
-                  <span className="text-xs sm:text-sm font-semibold text-slate-700">
-                    งานด่วนพิเศษ / เข้ารับสินค้าภายใน 2 ชม. (+20%)
+                  <span className="text-xs text-white/95 font-bold">
+                    บริการวิ่งด่วนพิเศษ 24 ชม. (+20%)
                   </span>
                 </label>
-              </div>
 
-              {/* Estimate Result Box */}
-              <div className="bg-red-50 border border-red-200 rounded-lg p-5 mb-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div>
-                  <div className="text-xs text-slate-600 font-medium">ราคาประมาณการเบื้องต้น</div>
-                  <div className="text-3xl font-black text-[#D32F2F]">
-                    ~{baseEstimate.toLocaleString()} <span className="text-sm font-normal text-slate-600">บาท / เที่ยว</span>
+                {/* Live Estimated Price Display */}
+                <div className="bg-black/25 rounded-lg p-3.5 border border-white/20 text-center">
+                  <span className="text-[11px] text-white/80 block uppercase tracking-wider font-semibold">
+                    ราคาประมาณการเบื้องต้น
+                  </span>
+                  <div className="text-2xl sm:text-3xl font-black text-white tracking-tight my-0.5">
+                    ~{baseEstimate.toLocaleString()} บาท
                   </div>
-                  <div className="text-xs text-slate-500 mt-1">
-                    เส้นทาง: {originName} ➔ {destName} ({truckInfo.label})
-                  </div>
+                  <span className="text-[10px] text-white/70 block">
+                    {originName} ➔ {destName} ({truckInfo.label})
+                  </span>
                 </div>
 
+                {/* Submit / Call Button in Dark Navy #1F1F2E */}
                 <button
-                  type="button"
-                  onClick={handleRequestOfficialQuote}
-                  className="w-full sm:w-auto px-5 py-3 bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-bold rounded-md shadow-sm transition-all text-sm flex items-center justify-center gap-2"
+                  type="submit"
+                  className="w-full py-3.5 px-4 rounded bg-[#1F1F2E] hover:bg-black text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg hover:scale-[1.02] flex items-center justify-center gap-2"
                 >
-                  <span>ดูรายละเอียด / ขอใบเสนอราคา</span>
+                  <span>ขอใบเสนอราคาอย่างเป็นทางการ (Get A Quote)</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
-              </div>
-
-              <p className="text-[11px] text-slate-500 text-center sm:text-left leading-relaxed">
-                {quoteNotice}
-              </p>
+              </form>
             </div>
           </div>
         </div>

@@ -1,164 +1,143 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
-import { ShieldCheck, Target, Eye, Award, CheckCircle, Navigation } from "lucide-react";
+import { CheckCircle2, ShieldCheck, Award, X, Truck, Phone } from "lucide-react";
 import { COMPANY_INFO } from "@/lib/constants";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
-import { Editable, Movable, ImageEditButton } from "@/components/editor/EditorContext";
 
 export default function AboutSection({ content }: { content?: Partial<SiteContentData> }) {
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+
+  const phone = content?.phone || COMPANY_INFO.phone;
+  const phoneRaw = content?.phoneRaw || COMPANY_INFO.phoneRaw;
   const nameTh = content?.nameTh || COMPANY_INFO.nameTh;
-  const aboutBadge = content?.aboutBadge || "เกี่ยวกับเรา • วิสัยทัศน์และพันธกิจ";
-  const aboutTitle = content?.aboutTitle || "พร้อมส่งต่อความมั่นใจในทุกการเดินทาง";
-  const aboutSubtitle = content?.aboutSubtitle || "เราคือผู้เชี่ยวชาญด้านการให้บริการขนส่งสินค้าและโซลูชันโลจิสติกส์ครบวงจรในประเทศไทย ดำเนินธุรกิจด้วยความซื่อสัตย์ ตรงต่อเวลา และรักษามาตรฐานความปลอดภัยสูงสุด ร่วมมือกับพันธมิตรระดับประเทศ เพื่อส่งมอบบริการที่คุ้มค่าและมีประสิทธิภาพสูงสุดให้แก่คู่ค้า";
-  const aboutVision = content?.aboutVision || "มุ่งสู่การเป็นผู้นำด้านโลจิสติกส์และการขนส่งสินค้าที่ได้รับความไว้วางใจสูงสุดในภูมิภาค ขับเคลื่อนด้วยเทคโนโลยีและความเป็นมืออาชีพ";
-  const aboutMission = content?.aboutMission || "ส่งมอบสินค้าตรงเวลา ปลอดภัย 100% พร้อมสร้างงานและรายได้ที่มั่นคงเป็นธรรมแก่ผู้ร่วมขับรถทุกคน และสนับสนุนการเติบโตของธุรกิจลูกค้าอย่างยั่งยืน";
-  const aboutCapital = content?.aboutRegisteredCapital || "5,000,000 บาท (ชำระเต็มจำนวน)";
-  const aboutImageUrl = content?.aboutImageUrl || "/images/operations.jpg";
-  const operationsBadge = content?.aboutOperationsBadge || "24/7 Logistics Control Tower";
-  const operationsSub = content?.aboutOperationsSub || "ติดตามสถานะความปลอดภัยและ GPS ทุกคัน";
-  const expYears = content?.aboutExpYears || "10+ ปี";
-  const expText = content?.aboutExpText || "ความเชี่ยวชาญในธุรกิจขนส่งและโลจิสติกส์";
+  const aboutImage = content?.aboutImageUrl || "/images/thai_transport_loading.jpg";
 
   return (
-    <section id="about" className="py-20 sm:py-24 bg-white text-slate-900 relative">
+    <section id="about" className="py-20 sm:py-24 bg-white text-slate-900 border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-          {/* Left Column: Visual & Operations Command Image */}
-          <div className="lg:col-span-6 space-y-6">
-            <Movable field="aboutImageBox" className="block">
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-200 group">
-                <div className="relative h-72 sm:h-96 w-full">
-                  <Image
-                    src={aboutImageUrl}
-                    alt="5 August Transport Logistics Control Center"
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <ImageEditButton field="aboutImageUrl" label="📷 เปลี่ยนรูปภาพทีมงาน/ศูนย์ควบคุม" className="absolute top-4 right-4 z-30" />
-                </div>
-
-                {/* Overlay Badge */}
-                <div className="absolute bottom-4 left-4 right-4 p-4 rounded-2xl bg-slate-950/85 backdrop-blur-md border border-white/10 text-white flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-red-600/30 border border-red-500 flex items-center justify-center">
-                      <Navigation className="w-5 h-5 text-red-400" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-sm">
-                        <Editable field="aboutOperationsBadge" value={operationsBadge} noTransform />
-                      </h4>
-                      <p className="text-xs text-slate-300">
-                        <Editable field="aboutOperationsSub" value={operationsSub} noTransform />
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
-                    มาตรฐานความปลอดภัย 100%
-                  </span>
-                </div>
+          {/* Left Column: Image with Attached Red Experience Badge (matching FASTER exactly) */}
+          <div className="lg:col-span-5 pb-4 lg:pb-0">
+            <div className="relative rounded-lg overflow-hidden shadow-2xl border border-slate-200 bg-slate-900 group">
+              <div className="relative aspect-[4/3] w-full">
+                <Image
+                  src={aboutImage}
+                  alt="5 August Transport Team & Operations"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 45vw"
+                  className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                />
               </div>
-            </Movable>
 
-            {/* Credibility highlights */}
-            <div className="grid grid-cols-2 gap-4">
-              <Movable field="aboutExpBox" className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                <div className="font-black text-2xl text-[#D32F2F]">
-                  <Editable field="aboutExpYears" value={expYears} noTransform />
-                </div>
-                <div className="text-xs text-slate-600 font-medium mt-0.5">
-                  <Editable field="aboutExpText" value={expText} noTransform />
-                </div>
-              </Movable>
-
-              <Movable field="aboutCapitalBox" className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                <div className="font-black text-2xl text-slate-900">
-                  <Editable field="aboutRegisteredCapital" value={aboutCapital} noTransform />
-                </div>
-                <div className="text-xs text-slate-600 font-medium mt-0.5">
-                  ทุนจดทะเบียนรองรับงานระดับองค์กร
-                </div>
-              </Movable>
+              {/* FASTER Attached Experience Banner in Brand Primary Red */}
+              <div className="bg-[#D32F2F] text-white text-center p-5 sm:p-6 shadow-md">
+                <h3 className="text-xl sm:text-2xl font-black uppercase tracking-wide m-0">
+                  10+ Years Experience
+                </h3>
+                <span className="text-xs sm:text-sm font-medium text-white/90 block mt-1">
+                  ประสบการณ์กว่า 10 ปี ในธุรกิจขนส่งและโลจิสติกส์มืออาชีพ
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Right Column: Narrative, Vision, Mission, Values */}
-          <div className="lg:col-span-6 space-y-8">
-            <div className="space-y-3">
-              <Movable field="aboutBadgeBox" className="inline-block rounded-full">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-red-700 border border-red-200 text-xs font-bold tracking-wider uppercase">
-                  <Editable field="aboutBadge" value={aboutBadge} noTransform />
-                </div>
-              </Movable>
-              <Movable field="aboutHeadingBox" className="block">
-                <h2 className="text-3xl sm:text-4xl font-black text-slate-900 leading-tight">
-                  <Editable field="nameTh" value={nameTh} noTransform /> <br />
-                  <span className="text-[#D32F2F]">
-                    <Editable field="aboutTitle" value={aboutTitle} noTransform />
-                  </span>
-                </h2>
-              </Movable>
-              <Movable field="aboutSubtitleBox" className="block">
-                <p className="text-slate-600 leading-relaxed font-light text-base sm:text-lg">
-                  <Editable field="aboutSubtitle" value={aboutSubtitle} multiline noTransform />
-                </p>
-              </Movable>
+          {/* Right Column: About Us Narrative */}
+          <div className="lg:col-span-7 space-y-6">
+            <div>
+              <h6 className="text-[#D32F2F] text-xs sm:text-sm font-black uppercase tracking-widest mb-2 font-mono">
+                ABOUT US
+              </h6>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                Trusted & Faster Logistic Service Provider
+              </h2>
             </div>
 
-            {/* Vision & Mission Cards */}
-            <div className="space-y-4">
-              <Movable field="aboutVisionCard" className="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-4 hover:border-red-300 transition-colors">
-                <div className="w-10 h-10 rounded-xl bg-red-100 text-[#D32F2F] flex items-center justify-center shrink-0">
-                  <Eye className="w-5 h-5" />
-                </div>
-                <div className="space-y-1">
-                  <h3 className="font-bold text-slate-900 text-base">วิสัยทัศน์ (Vision)</h3>
-                  <p className="text-sm text-slate-600 leading-relaxed font-light">
-                    <Editable field="aboutVision" value={aboutVision} multiline noTransform />
-                  </p>
-                </div>
-              </Movable>
+            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+              <strong>{nameTh} (5 AUGUST TRANSPORT)</strong> ผู้เชี่ยวชาญด้านการให้บริการขนส่งสินค้าและโซลูชันโลจิสติกส์ครบวงจรในประเทศไทย ดำเนินธุรกิจด้วยความซื่อสัตย์ ตรงต่อเวลา และรักษามาตรฐานความปลอดภัยสูงสุด ร่วมมือกับพันธมิตรชั้นนำระดับประเทศ อาทิ KEX Express ในการวิ่งงานสายหลัก Linehaul (LH) ทั่วประเทศ
+            </p>
 
-              <Movable field="aboutMissionCard" className="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-4 hover:border-red-300 transition-colors">
-                <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0">
-                  <Target className="w-5 h-5" />
-                </div>
-                <div className="space-y-1">
-                  <h3 className="font-bold text-slate-900 text-base">พันธกิจ (Mission)</h3>
-                  <p className="text-sm text-slate-600 leading-relaxed font-light">
-                    <Editable field="aboutMission" value={aboutMission} multiline noTransform />
-                  </p>
-                </div>
-              </Movable>
+            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+              เรามีความพร้อมทั้งกองยานพาหนะขนาดใหญ่กว่า 200 คัน ทั้งรถ 4 ล้อตู้ทึบ, 4 ล้อจัมโบ้, 6 ล้อ และงานเหมาคัน ทุนจดทะเบียน 5,000,000 บาท (ชำระเต็มจำนวน) พร้อมระบบควบคุมความเร็วด้วย GPS ตลอด 24 ชั่วโมง
+            </p>
+
+            {/* Credibility highlights */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <div className="flex items-center gap-2.5 text-xs sm:text-sm font-bold text-slate-800">
+                <CheckCircle2 className="w-4 h-4 text-[#D32F2F] shrink-0" />
+                <span>พันธมิตรขนส่ง KEX Express - Linehaul</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs sm:text-sm font-bold text-slate-800">
+                <CheckCircle2 className="w-4 h-4 text-[#D32F2F] shrink-0" />
+                <span>ทุนจดทะเบียน 5,000,000 บาท (มั่นคง 100%)</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs sm:text-sm font-bold text-slate-800">
+                <CheckCircle2 className="w-4 h-4 text-[#D32F2F] shrink-0" />
+                <span>ระบบ GPS Tracking และประกันภัยสินค้า</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs sm:text-sm font-bold text-slate-800">
+                <CheckCircle2 className="w-4 h-4 text-[#D32F2F] shrink-0" />
+                <span>บริการวิ่งงานครอบคลุมทุกภูมิภาคทั่วไทย</span>
+              </div>
             </div>
 
-            {/* Core Values checklist */}
-            <div className="pt-2">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-                ค่านิยมหลักขององค์กร (Core Values):
-              </h4>
-              <div className="grid grid-cols-2 gap-3 text-xs sm:text-sm text-slate-700">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <span>ความซื่อสัตย์และโปร่งใส (Integrity)</span>
+            {/* FASTER Play Video / Presentation Button & Contact */}
+            <div className="flex items-center gap-6 pt-4">
+              <div className="flex items-center">
+                <button
+                  type="button"
+                  onClick={() => setIsVideoModalOpen(true)}
+                  className="btn-play"
+                  aria-label="Play Video Presentation"
+                >
+                  <span />
+                </button>
+                <div className="ml-5">
+                  <h4 className="font-extrabold text-slate-900 text-sm sm:text-base leading-tight">
+                    วิดีโอแนะนำบริษัท
+                  </h4>
+                  <span className="text-xs text-slate-500 font-medium">ชมภาพบรรยากาศการทำงาน</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <span>ความปลอดภัยเป็นหนึ่ง (Safety First)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <span>ตรงต่อเวลาเสมอ (Punctuality)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <span>พัฒนาด้วยเทคโนโลยี (Innovation)</span>
-                </div>
+              </div>
+
+              <div className="hidden sm:block border-l border-slate-200 pl-6">
+                <a
+                  href={`tel:${phoneRaw}`}
+                  className="inline-flex items-center gap-2 text-xs font-bold text-[#D32F2F] hover:underline"
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>โทร: {phone}</span>
+                </a>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Video Modal */}
+      {isVideoModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="relative w-full max-w-3xl bg-black rounded-xl overflow-hidden shadow-2xl">
+            <button
+              onClick={() => setIsVideoModalOpen(false)}
+              className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/20 hover:bg-white text-white hover:text-black transition-colors"
+              aria-label="Close modal"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="aspect-video w-full">
+              <iframe
+                className="w-full h-full"
+                src="https://www.youtube.com/embed/DWRcNpR6Kdc?autoplay=1"
+                title="5 August Transport Logistics Video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
-

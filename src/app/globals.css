@@ -201,3 +201,93 @@ div:where(.swal2-container) button.swal2-cancel {
   outline: 2px solid #2563EB !important;
   background-color: rgba(59, 130, 246, 0.15) !important;
 }
+
+/* FASTER Template Signature Elements */
+.btn-play {
+  position: relative;
+  display: block;
+  box-sizing: content-box;
+  width: 16px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  outline: none !important;
+  padding: 18px 20px 18px 28px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.btn-play:before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  display: block;
+  width: 60px;
+  height: 60px;
+  background: #D32F2F;
+  border-radius: 50%;
+  animation: pulse-border 1500ms ease-out infinite;
+}
+
+.btn-play:after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  display: block;
+  width: 60px;
+  height: 60px;
+  background: #D32F2F;
+  border-radius: 50%;
+  transition: all 200ms;
+}
+
+.btn-play:hover:after {
+  background: #B71C1C;
+}
+
+.btn-play span {
+  display: block;
+  position: relative;
+  z-index: 3;
+  width: 0;
+  height: 0;
+  border-left: 16px solid #FFFFFF;
+  border-top: 11px solid transparent;
+  border-bottom: 11px solid transparent;
+}
+
+@keyframes pulse-border {
+  0% {
+    transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* Team Card Hover Effects */
+.team-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.team-card .team-social {
+  position: absolute;
+  bottom: -60px;
+  left: 0;
+  right: 0;
+  transition: all 0.35s ease;
+}
+
+.team-card:hover .team-social {
+  bottom: 0;
+}
+

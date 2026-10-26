@@ -35,27 +35,20 @@ export default async function HomePage() {
   const builtin = buildBuiltinSections(c, layout, milestones);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 selection:bg-[#D32F2F] selection:text-white">
-      {/* Global Navigation Bar */}
+    <div className="min-h-screen flex flex-col bg-white text-slate-800 selection:bg-[#D32F2F] selection:text-white">
+      {/* Global Navigation Bar with Topbar */}
       <Navbar content={c} navLinks={layout.navLinks} />
 
       <main className="flex-1">
         {layout.sections
-          .filter((s) => {
-            if (!s.visible) return false;
-            // The Figma template in 'solutions' already provides the full fleet & services.
-            // Filter out legacy bloated sections to keep the landing page clean and authentic.
-            if (["about", "fleet", "values", "gallery", "milestones"].includes(s.key)) {
-              return false;
-            }
-            return true;
-          })
+          .filter((s) => s.visible)
           .map((s) => {
             if (s.key.startsWith(BLOCK_KEY_PREFIX)) {
               const block = layout.customBlocks.find((b) => b.id === s.key.slice(BLOCK_KEY_PREFIX.length));
               return block ? <CustomBlockView key={s.key} block={block} /> : null;
             }
-            return <Fragment key={s.key}>{builtin[s.key as SectionKey]}</Fragment>;
+            const sectionNode = builtin[s.key as SectionKey];
+            return sectionNode ? <Fragment key={s.key}>{sectionNode}</Fragment> : null;
           })}
       </main>
 
