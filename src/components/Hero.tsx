@@ -13,7 +13,10 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
   const phone = content?.phone || COMPANY_INFO.phone;
   const phoneRaw = content?.phoneRaw || COMPANY_INFO.phoneRaw;
   const lineId = content?.lineId && content.lineId !== "0843263546" ? content.lineId : "@486eyver";
-  const heroBackgroundImage = content?.heroImageUrl || "/images/hero-cover-v2.jpg";
+  const rawHeroImage = content?.heroImageUrl;
+  const heroBackgroundImage = (!rawHeroImage || rawHeroImage === "/images/hero-cover.jpg") 
+    ? "/images/hero-cover-v2.jpg?v=3" 
+    : `${rawHeroImage}?v=3`;
 
   const handleTrack = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,26 +54,26 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
   };
 
   return (
-    <section id="home" className="relative w-full bg-gradient-to-b from-slate-100 via-white to-slate-50 py-3 sm:py-5 px-2 sm:px-4 md:px-6 border-b border-slate-200 overflow-hidden">
-      <div className="max-w-[1720px] mx-auto w-full flex flex-col items-center">
-        {/* 1. Main Hero Banner Frame - 100% Crystal Clear Without Any Blur or Dark Dimming */}
-        <div className="relative w-full sm:w-auto inline-block max-w-full">
-          <div className="relative w-full sm:w-auto inline-block rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl shadow-slate-300/70 border border-slate-200/90 bg-white ring-1 ring-slate-900/5 group">
-            <a href="#recruitment" className="block cursor-pointer" title="คลิกเพื่อดูรายละเอียดและสมัครร่วมงาน">
+    <section id="home" className="relative w-full bg-gradient-to-b from-slate-100 via-white to-slate-50 py-4 sm:py-6 px-3 sm:px-6 md:px-8 border-b border-slate-200 overflow-hidden">
+      <div className="max-w-[1600px] mx-auto w-full flex flex-col items-center">
+        {/* 1. Main Hero Banner Frame - 100% Crystal Clear Master Infographic (No Blur, No Dimming Overlay) */}
+        <div className="w-full">
+          <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl shadow-slate-300/60 border border-slate-200/90 bg-white ring-1 ring-slate-900/5 group">
+            <a href="#recruitment" className="block cursor-pointer w-full" title="คลิกเพื่อดูรายละเอียดและสมัครร่วมงาน">
               {/* Desktop Widescreen Banner (3200x1312) - High Resolution Crisp Image */}
               <Image
                 src={heroBackgroundImage}
-                alt="5 August Transport x KEX Express Partner"
+                alt="5 August Transport x KEX Express Partner - บริการขนส่งและรับสมัครรถร่วม"
                 width={3200}
                 height={1312}
                 priority
                 unoptimized
-                className="hidden sm:block w-auto h-auto sm:max-h-[calc(100vh-175px)] md:max-h-[680px] max-w-full select-none"
+                className="hidden sm:block w-full h-auto object-contain select-none"
               />
               {/* Mobile Seamless Portrait Banner (1440x2105) */}
               <Image
-                src="/images/hero-cover-mobile.jpg"
-                alt="5 August Transport x KEX Express Partner"
+                src="/images/hero-cover-mobile.jpg?v=3"
+                alt="5 August Transport x KEX Express Partner - บริการขนส่งและรับสมัครรถร่วม"
                 width={1440}
                 height={2105}
                 priority
