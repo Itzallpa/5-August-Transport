@@ -48,6 +48,7 @@ import {
   SECTION_KEYS,
   applySolutionField,
   applyTextOverride,
+  applyGalleryField,
   BLOCK_KEY_PREFIX,
   type SiteLayout,
   type SectionKey,
@@ -368,6 +369,11 @@ export default function VisualSiteEditor({
         commitLayout(textOverrideLayout);
         return;
       }
+      const galleryLayout = applyGalleryField(layout, field, value);
+      if (galleryLayout) {
+        commitLayout(galleryLayout);
+        return;
+      }
       onFieldChange(field as keyof SiteContentData, value);
     },
     getTextPosition: (field: string) => {
@@ -403,11 +409,16 @@ export default function VisualSiteEditor({
           if (solutionLayout) {
             commitLayout(solutionLayout);
           } else {
-            const textOverrideLayout = applyTextOverride(layout, field, data.url);
-            if (textOverrideLayout) {
-              commitLayout(textOverrideLayout);
+            const galleryLayout = applyGalleryField(layout, field, data.url);
+            if (galleryLayout) {
+              commitLayout(galleryLayout);
             } else {
-              onFieldChange(field as keyof SiteContentData, data.url);
+              const textOverrideLayout = applyTextOverride(layout, field, data.url);
+              if (textOverrideLayout) {
+                commitLayout(textOverrideLayout);
+              } else {
+                onFieldChange(field as keyof SiteContentData, data.url);
+              }
             }
           }
           Swal.fire({

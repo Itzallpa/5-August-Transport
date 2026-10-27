@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Camera, CheckCircle2, MapPin, Sparkles, ExternalLink, ShieldCheck } from "lucide-react";
 
 import { DEFAULT_GALLERY_ITEMS, type GalleryItemData, type SiteLayout } from "@/lib/site-layout";
-import { Editable } from "@/components/editor/EditorContext";
+import { Editable, ImageEditButton } from "@/components/editor/EditorContext";
 
 export default function GallerySection({
   items,
@@ -87,13 +87,20 @@ export default function GallerySection({
                   sizes="(max-width: 768px) 100vw, 600px"
                   className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                 />
+                <ImageEditButton
+                  field={`gallery:${item.id}:image`}
+                  label="📷 เปลี่ยนรูปภาพ"
+                  className="absolute top-3 right-3 z-30"
+                />
                 <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/75 backdrop-blur-sm text-white text-[11px] font-bold">
                   {item.categoryLabel}
                 </div>
                 <div className="absolute bottom-3 left-3 right-3 px-3.5 py-2 rounded-2xl bg-white/95 backdrop-blur-sm border border-white/60 shadow-md flex items-center justify-between text-xs text-slate-800 font-semibold">
                   <span className="flex items-center gap-1.5 text-emerald-800">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span className="truncate">{item.highlight}</span>
+                    <span className="truncate">
+                      <Editable field={`gallery:${item.id}:highlight`} value={item.highlight} noTransform />
+                    </span>
                   </span>
                   <span className="text-[#D32F2F] font-bold text-[11px] shrink-0 flex items-center gap-1">
                     <span>ดูภาพใหญ่</span>
@@ -105,13 +112,13 @@ export default function GallerySection({
               <div className="p-6 space-y-2">
                 <div className="flex items-center gap-1.5 text-xs text-slate-500">
                   <MapPin className="w-3.5 h-3.5 text-[#D32F2F] shrink-0" />
-                  <span>{item.location}</span>
+                  <Editable field={`gallery:${item.id}:location`} value={item.location} noTransform />
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 group-hover:text-[#D32F2F] transition-colors leading-snug">
-                  {item.title}
+                  <Editable field={`gallery:${item.id}:title`} value={item.title} noTransform />
                 </h3>
                 <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
-                  {item.description}
+                  <Editable field={`gallery:${item.id}:description`} value={item.description} multiline noTransform />
                 </p>
               </div>
             </div>

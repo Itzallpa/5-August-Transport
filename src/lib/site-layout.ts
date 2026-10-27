@@ -238,6 +238,18 @@ export function applyTextOverride(layout: SiteLayout, field: string, value: stri
   return { ...layout, textOverrides: { ...(layout.textOverrides ?? {}), [field]: value } };
 }
 
+/** Gallery item inline edit: field format "gallery:<id>:<prop>". Returns null otherwise. */
+export function applyGalleryField(layout: SiteLayout, field: string, value: string): SiteLayout | null {
+  if (!field.startsWith("gallery:")) return null;
+  const parts = field.split(":");
+  const [, id, prop] = parts;
+  const items = layout.galleryItems.map((g) => {
+    if (g.id !== id) return g;
+    return { ...g, [prop]: value };
+  });
+  return { ...layout, galleryItems: items };
+}
+
 export type TextPosition = {
   x: number;
   y: number;
