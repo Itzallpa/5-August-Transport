@@ -5,7 +5,8 @@ import { Calculator, Phone, CheckCircle2, ArrowRight, ShieldCheck, Truck, Users,
 import { COMPANY_INFO } from "@/lib/constants";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
 import Swal from "sweetalert2";
-import { DEFAULT_QUOTE_RATES, type QuoteRate } from "@/lib/site-layout";
+import { DEFAULT_QUOTE_RATES, type QuoteRate, type SiteLayout } from "@/lib/site-layout";
+import { Editable } from "@/components/editor/EditorContext";
 
 const REGIONS = [
   { id: "bkk", name: "กรุงเทพฯ และปริมณฑล" },
@@ -19,15 +20,22 @@ const REGIONS = [
 export default function QuoteCalculator({
   content,
   rates,
+  layout,
 }: {
   content?: Partial<SiteContentData>;
   rates?: QuoteRate[];
+  layout?: SiteLayout;
 }) {
   const rateList = rates && rates.length > 0 ? rates : DEFAULT_QUOTE_RATES;
   const TRUCK_RATES: Record<string, QuoteRate> = Object.fromEntries(rateList.map((r) => [r.id, r]));
 
   const phone = content?.phone || COMPANY_INFO.phone;
   const phoneRaw = content?.phoneRaw || COMPANY_INFO.phoneRaw;
+  const quoteTitle = content?.quoteTitle || "Request A Free Quote";
+  const quoteSubtitle = content?.quoteSubtitle || "ประเมินราคาค่าขนส่งฟรี";
+  const quoteNotice =
+    content?.quoteNotice ||
+    "คำนวณและประเมินค่าบริการขนส่งสินค้าได้อย่างรวดเร็ว โปร่งใส และไม่มีค่าใช้จ่ายแอบแฝง พร้อมทีมงานจัดสรรรถที่มีประสบการณ์คอยดูแลตลอด 24 ชั่วโมง ทั้งงานเที่ยวเดียว งานเหมาคัน และสัญญาระยะยาว";
 
   const [origin, setOrigin] = useState("bkk");
   const [destination, setDestination] = useState("east");
@@ -112,16 +120,18 @@ export default function QuoteCalculator({
           <div className="lg:col-span-7 space-y-6">
             <div>
               <h6 className="text-[#D32F2F] text-xs sm:text-sm font-black uppercase tracking-widest mb-2 font-mono">
-                GET A QUOTE
+                <Editable field="t:quote:badge" value={layout?.textOverrides?.["t:quote:badge"] || "GET A QUOTE"} noTransform />
               </h6>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-                Request A Free Quote <br />
-                <span className="text-[#D32F2F]">ประเมินราคาค่าขนส่งฟรี</span>
+                <Editable field="quoteTitle" value={quoteTitle} noTransform /> <br />
+                <span className="text-[#D32F2F]">
+                  <Editable field="quoteSubtitle" value={quoteSubtitle} noTransform />
+                </span>
               </h2>
             </div>
 
             <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-              คำนวณและประเมินค่าบริการขนส่งสินค้าได้อย่างรวดเร็ว โปร่งใส และไม่มีค่าใช้จ่ายแอบแฝง พร้อมทีมงานจัดสรรรถที่มีประสบการณ์คอยดูแลตลอด 24 ชั่วโมง ทั้งงานเที่ยวเดียว งานเหมาคัน และสัญญาระยะยาว
+              <Editable field="quoteNotice" value={quoteNotice} multiline noTransform />
             </p>
 
             {/* FASTER Signature 3 Counter Stats */}

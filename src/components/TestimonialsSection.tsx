@@ -1,8 +1,21 @@
 import Image from "next/image";
 import { Star, Quote } from "lucide-react";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
+import type { SiteLayout } from "@/lib/site-layout";
+import { Editable } from "@/components/editor/EditorContext";
 
-export default function TestimonialsSection({ content }: { content?: Partial<SiteContentData> }) {
+export default function TestimonialsSection({
+  content,
+  layout,
+}: {
+  content?: Partial<SiteContentData>;
+  layout?: SiteLayout;
+}) {
+  const badge = layout?.textOverrides?.["t:testimonials:badge"] || "TESTIMONIAL";
+  const title = layout?.textOverrides?.["t:testimonials:title"] || "เสียงตอบรับจากลูกค้าผู้ใช้บริการ";
+  const subtitle =
+    layout?.textOverrides?.["t:testimonials:subtitle"] ||
+    "ความไว้วางใจจากลูกค้าองค์กร ธุรกิจชั้นนำ และคู่ค้าคือแรงผลักดันให้เราพัฒนาบริการอย่างไม่หยุดยั้ง";
   const testimonials = [
     {
       id: "rev1",
@@ -40,13 +53,13 @@ export default function TestimonialsSection({ content }: { content?: Partial<Sit
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h6 className="text-[#D32F2F] text-xs sm:text-sm font-black uppercase tracking-widest mb-2 font-mono">
-            TESTIMONIAL
+            <Editable field="t:testimonials:badge" value={badge} noTransform />
           </h6>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight mb-4">
-            เสียงตอบรับจากลูกค้าผู้ใช้บริการ
+            <Editable field="t:testimonials:title" value={title} noTransform />
           </h2>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-            ความไว้วางใจจากลูกค้าองค์กร ธุรกิจชั้นนำ และคู่ค้าคือแรงผลักดันให้เราพัฒนาบริการอย่างไม่หยุดยั้ง
+            <Editable field="t:testimonials:subtitle" value={subtitle} multiline noTransform />
           </p>
         </div>
 

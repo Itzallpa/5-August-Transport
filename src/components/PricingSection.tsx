@@ -1,9 +1,22 @@
 import { Check, Star, ArrowRight, Phone } from "lucide-react";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
+import type { SiteLayout } from "@/lib/site-layout";
+import { Editable } from "@/components/editor/EditorContext";
 import { COMPANY_INFO } from "@/lib/constants";
 
-export default function PricingSection({ content }: { content?: Partial<SiteContentData> }) {
+export default function PricingSection({
+  content,
+  layout,
+}: {
+  content?: Partial<SiteContentData>;
+  layout?: SiteLayout;
+}) {
   const phoneRaw = content?.phoneRaw || COMPANY_INFO.phoneRaw;
+  const badge = layout?.textOverrides?.["t:pricing:badge"] || "PRICING PLAN";
+  const title = layout?.textOverrides?.["t:pricing:title"] || "อัตราค่าบริการขนส่งมาตรฐาน โปร่งใส คุ้มค่า";
+  const subtitle =
+    layout?.textOverrides?.["t:pricing:subtitle"] ||
+    "อัตราค่าบริการมาตรฐานสำหรับงานขนส่งในเมือง ข้ามภาค และงานเหมาคัน สามารถคำนวณราคาออนไลน์หรือติดต่อเจ้าหน้าที่ได้ทันที";
 
   const plans = [
     {
@@ -82,13 +95,13 @@ export default function PricingSection({ content }: { content?: Partial<SiteCont
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h6 className="text-[#D32F2F] text-xs sm:text-sm font-black uppercase tracking-widest mb-2 font-mono">
-            PRICING PLAN
+            <Editable field="t:pricing:badge" value={badge} noTransform />
           </h6>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight mb-4">
-            อัตราค่าบริการขนส่งมาตรฐาน โปร่งใส คุ้มค่า
+            <Editable field="t:pricing:title" value={title} noTransform />
           </h2>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-            อัตราค่าบริการมาตรฐานสำหรับงานขนส่งในเมือง ข้ามภาค และงานเหมาคัน สามารถคำนวณราคาออนไลน์หรือติดต่อเจ้าหน้าที่ได้ทันที
+            <Editable field="t:pricing:subtitle" value={subtitle} multiline noTransform />
           </p>
         </div>
 

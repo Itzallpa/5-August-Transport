@@ -232,6 +232,12 @@ export function applySolutionField(layout: SiteLayout, field: string, value: str
   return { ...layout, solutionCards: cards };
 }
 
+/** Generic inline text edit: field must start with "t:". Returns null otherwise. */
+export function applyTextOverride(layout: SiteLayout, field: string, value: string): SiteLayout | null {
+  if (!field.startsWith("t:")) return null;
+  return { ...layout, textOverrides: { ...(layout.textOverrides ?? {}), [field]: value } };
+}
+
 export type TextPosition = {
   x: number;
   y: number;
@@ -247,6 +253,7 @@ export type SiteLayout = {
   quoteRates: QuoteRate[];
   navLinks: NavLink[];
   textPositions?: Record<string, TextPosition>;
+  textOverrides?: Record<string, string>;
   solutionsHeader: SolutionsHeader;
   solutionCards: SolutionCard[];
 };
@@ -564,6 +571,13 @@ export function parseLayout(json?: string | null): SiteLayout {
       ? (raw.textPositions as Record<string, TextPosition>)
       : {};
 
+  const textOverrides: Record<string, string> = {};
+  if (raw?.textOverrides && typeof raw.textOverrides === "object") {
+    for (const [k, v] of Object.entries(raw.textOverrides as Record<string, unknown>)) {
+      if (typeof v === "string") textOverrides[k] = v;
+    }
+  }
+
   const hdrRaw = obj(raw.solutionsHeader);
   const solutionsHeader: SolutionsHeader = {
     badge: str(hdrRaw.badge, defaults.solutionsHeader.badge),
@@ -602,6 +616,7 @@ export function parseLayout(json?: string | null): SiteLayout {
     quoteRates,
     navLinks,
     textPositions,
+    textOverrides,
     solutionsHeader,
     solutionCards,
   };

@@ -1,11 +1,25 @@
 import Image from "next/image";
 import { CheckCircle2, ShieldCheck, Clock, Award, Headphones, ArrowRight, Phone } from "lucide-react";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
+import type { SiteLayout } from "@/lib/site-layout";
+import { Editable, ImageEditButton } from "@/components/editor/EditorContext";
 import { COMPANY_INFO } from "@/lib/constants";
 
-export default function FeaturesSection({ content }: { content?: Partial<SiteContentData> }) {
+export default function FeaturesSection({
+  content,
+  layout,
+}: {
+  content?: Partial<SiteContentData>;
+  layout?: SiteLayout;
+}) {
   const phone = content?.phone || COMPANY_INFO.phone;
   const phoneRaw = content?.phoneRaw || COMPANY_INFO.phoneRaw;
+  const featureImage = layout?.textOverrides?.["t:features:image"] || "/images/solution-truck.jpg";
+  const badge = layout?.textOverrides?.["t:features:badge"] || "WHY CHOOSE US";
+  const title = layout?.textOverrides?.["t:features:title"] || "Faster, Safe and Trusted Logistics Services";
+  const subtitle =
+    layout?.textOverrides?.["t:features:subtitle"] ||
+    "บริษัท 5 สิงหา ทรานสปอร์ต จำกัด มุ่งมั่นส่งมอบบริการขนส่งสินค้าและโลจิสติกส์ที่รวดเร็ว ปลอดภัย และตรงต่อเวลา เพื่อสนับสนุนการเติบโตอย่างยั่งยืนของธุรกิจคุณ พร้อมระบบบริหารจัดการกองยานพาหนะทันสมัย";
 
   const features = [
     {
@@ -34,12 +48,13 @@ export default function FeaturesSection({ content }: { content?: Partial<SiteCon
           <div className="lg:col-span-5">
             <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg shadow-xl border border-slate-200 group bg-slate-900">
               <Image
-                src="/images/solution-truck.jpg"
+                src={featureImage}
                 alt="5 August Transport Fleet Safety & Reliability"
                 fill
                 sizes="(max-width: 1024px) 100vw, 45vw"
                 className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
               />
+              <ImageEditButton field="t:features:image" label="📷 เปลี่ยนรูปภาพ" className="absolute top-3 right-3 z-30" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-6">
                 <span className="px-3 py-1 bg-[#D32F2F] text-white text-xs font-bold rounded">
                   GPS Tracking 24 ชม. • ประกันสินค้า 100%
@@ -52,15 +67,15 @@ export default function FeaturesSection({ content }: { content?: Partial<SiteCon
           <div className="lg:col-span-7 space-y-6">
             <div>
               <h6 className="text-[#D32F2F] text-xs sm:text-sm font-black uppercase tracking-widest mb-2 font-mono">
-                WHY CHOOSE US
+                <Editable field="t:features:badge" value={badge} noTransform />
               </h6>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-                Faster, Safe and Trusted Logistics Services
+                <Editable field="t:features:title" value={title} noTransform />
               </h2>
             </div>
 
             <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-              บริษัท 5 สิงหา ทรานสปอร์ต จำกัด มุ่งมั่นส่งมอบบริการขนส่งสินค้าและโลจิสติกส์ที่รวดเร็ว ปลอดภัย และตรงต่อเวลา เพื่อสนับสนุนการเติบโตอย่างยั่งยืนของธุรกิจคุณ พร้อมระบบบริหารจัดการกองยานพาหนะทันสมัย
+              <Editable field="t:features:subtitle" value={subtitle} multiline noTransform />
             </p>
 
             {/* Bullet points with red check icons */}

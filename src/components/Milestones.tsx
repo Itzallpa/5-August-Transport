@@ -1,6 +1,9 @@
 import { COMPANY_MILESTONES } from "@/lib/constants";
 import { Sparkles, CheckCircle2, Calendar } from "lucide-react";
 
+import type { SiteLayout } from "@/lib/site-layout";
+import { Editable } from "@/components/editor/EditorContext";
+
 type MilestoneItem = {
   id?: string;
   year: string;
@@ -11,11 +14,19 @@ type MilestoneItem = {
 
 export default function Milestones({
   milestones,
+  layout,
 }: {
   milestones?: MilestoneItem[];
+  layout?: SiteLayout;
 }) {
   const displayMilestones: MilestoneItem[] =
     milestones && milestones.length > 0 ? milestones : COMPANY_MILESTONES;
+
+  const badge = layout?.textOverrides?.["t:milestones:badge"] || "เส้นทางการเติบโตของเรา";
+  const title = layout?.textOverrides?.["t:milestones:title"] || "ก้าวสำคัญและความสำเร็จ (Company Milestones)";
+  const subtitle =
+    layout?.textOverrides?.["t:milestones:subtitle"] ||
+    "จากจุดเริ่มต้นสู่วันนี้ บริษัท 5 สิงหา ทรานสปอร์ต จำกัด ไม่เคยหยุดพัฒนา เพื่อสร้างรากฐานโลจิสติกส์ที่แข็งแกร่งและไว้วางใจได้";
 
   return (
     <section id="milestones" className="py-20 bg-slate-50 text-slate-800 border-b border-slate-200">
@@ -23,15 +34,15 @@ export default function Milestones({
         <div className="text-center space-y-3 mb-16">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-[#D32F2F] border border-red-200 text-xs font-bold uppercase tracking-wider">
             <Calendar className="w-3.5 h-3.5" />
-            <span>เส้นทางการเติบโตของเรา</span>
+            <Editable field="t:milestones:badge" value={badge} noTransform />
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            ก้าวสำคัญและความสำเร็จ (Company Milestones)
+            <Editable field="t:milestones:title" value={title} noTransform />
           </h2>
 
           <p className="text-slate-600 text-base max-w-2xl mx-auto font-normal leading-relaxed">
-            จากจุดเริ่มต้นสู่วันนี้ บริษัท 5 สิงหา ทรานสปอร์ต จำกัด ไม่เคยหยุดพัฒนา เพื่อสร้างรากฐานโลจิสติกส์ที่แข็งแกร่งและไว้วางใจได้
+            <Editable field="t:milestones:subtitle" value={subtitle} multiline noTransform />
           </p>
         </div>
 

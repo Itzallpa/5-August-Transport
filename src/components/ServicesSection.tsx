@@ -1,7 +1,20 @@
 import { Truck, Box, ShieldCheck, Clock, MapPin, Warehouse, ArrowRight, CheckCircle2 } from "lucide-react";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
+import type { SiteLayout } from "@/lib/site-layout";
+import { Editable } from "@/components/editor/EditorContext";
 
-export default function ServicesSection({ content }: { content?: Partial<SiteContentData> }) {
+export default function ServicesSection({
+  content,
+  layout,
+}: {
+  content?: Partial<SiteContentData>;
+  layout?: SiteLayout;
+}) {
+  const badge = layout?.textOverrides?.["t:services:badge"] || "OUR SERVICES";
+  const title = layout?.textOverrides?.["t:services:title"] || "บริการขนส่งสินค้ามาตรฐานระดับประเทศ";
+  const subtitle =
+    layout?.textOverrides?.["t:services:subtitle"] ||
+    "พร้อมตอบโจทย์ธุรกิจทุกขนาด พันธมิตรขนส่ง KEX Express - Linehaul กองรถ 4 ล้อ, 4 ล้อจัมโบ้, 6 ล้อ และงานเหมาคันครอบคลุมทั่วประเทศ";
   const services = [
     {
       id: "4w",
@@ -71,13 +84,13 @@ export default function ServicesSection({ content }: { content?: Partial<SiteCon
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h6 className="text-[#D32F2F] text-xs sm:text-sm font-black uppercase tracking-widest mb-2 font-mono">
-            OUR SERVICES
+            <Editable field="t:services:badge" value={badge} noTransform />
           </h6>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight mb-4">
-            บริการขนส่งสินค้ามาตรฐานระดับประเทศ
+            <Editable field="t:services:title" value={title} noTransform />
           </h2>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-            พร้อมตอบโจทย์ธุรกิจทุกขนาด พันธมิตรขนส่ง KEX Express - Linehaul กองรถ 4 ล้อ, 4 ล้อจัมโบ้, 6 ล้อ และงานเหมาคันครอบคลุมทั่วประเทศ
+            <Editable field="t:services:subtitle" value={subtitle} multiline noTransform />
           </p>
         </div>
 

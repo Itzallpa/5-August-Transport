@@ -1,11 +1,24 @@
 import Image from "next/image";
 import { Phone, MessageSquare, ShieldCheck, Truck } from "lucide-react";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
+import type { SiteLayout } from "@/lib/site-layout";
+import { Editable } from "@/components/editor/EditorContext";
 import { COMPANY_INFO } from "@/lib/constants";
 
-export default function DeliveryTeamSection({ content }: { content?: Partial<SiteContentData> }) {
+export default function DeliveryTeamSection({
+  content,
+  layout,
+}: {
+  content?: Partial<SiteContentData>;
+  layout?: SiteLayout;
+}) {
   const phoneRaw = content?.phoneRaw || COMPANY_INFO.phoneRaw;
   const lineId = content?.lineId || COMPANY_INFO.lineId;
+  const badge = layout?.textOverrides?.["t:team:badge"] || "DELIVERY TEAM";
+  const title = layout?.textOverrides?.["t:team:title"] || "ทีมงานและบุคลากรขนส่งมืออาชีพ";
+  const subtitle =
+    layout?.textOverrides?.["t:team:subtitle"] ||
+    "ขับเคลื่อนทุกการขนส่งด้วยความปลอดภัย ซื่อสัตย์ และตรงต่อเวลา ผ่านการอบรมและตรวจประวัติอาชญากรรมอย่างเข้มงวด";
 
   const teamMembers = [
     {
@@ -44,13 +57,13 @@ export default function DeliveryTeamSection({ content }: { content?: Partial<Sit
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h6 className="text-[#D32F2F] text-xs sm:text-sm font-black uppercase tracking-widest mb-2 font-mono">
-            DELIVERY TEAM
+            <Editable field="t:team:badge" value={badge} noTransform />
           </h6>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight mb-4">
-            ทีมงานและบุคลากรขนส่งมืออาชีพ
+            <Editable field="t:team:title" value={title} noTransform />
           </h2>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-            ขับเคลื่อนทุกการขนส่งด้วยความปลอดภัย ซื่อสัตย์ และตรงต่อเวลา ผ่านการอบรมและตรวจประวัติอาชญากรรมอย่างเข้มงวด
+            <Editable field="t:team:subtitle" value={subtitle} multiline noTransform />
           </p>
         </div>
 

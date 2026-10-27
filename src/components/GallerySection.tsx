@@ -4,12 +4,25 @@ import { useState } from "react";
 import Image from "next/image";
 import { Camera, CheckCircle2, MapPin, Sparkles, ExternalLink, ShieldCheck } from "lucide-react";
 
-import { DEFAULT_GALLERY_ITEMS, type GalleryItemData } from "@/lib/site-layout";
+import { DEFAULT_GALLERY_ITEMS, type GalleryItemData, type SiteLayout } from "@/lib/site-layout";
+import { Editable } from "@/components/editor/EditorContext";
 
-export default function GallerySection({ items }: { items?: GalleryItemData[] }) {
+export default function GallerySection({
+  items,
+  layout,
+}: {
+  items?: GalleryItemData[];
+  layout?: SiteLayout;
+}) {
   const galleryItems = items ?? DEFAULT_GALLERY_ITEMS;
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [selectedImage, setSelectedImage] = useState<GalleryItemData | null>(null);
+
+  const badge = layout?.textOverrides?.["t:gallery:badge"] || "แกลเลอรี่ผลงานและภาพการปฏิบัติงานจริง";
+  const title = layout?.textOverrides?.["t:gallery:title"] || "ภาพผลงานจริง";
+  const subtitle =
+    layout?.textOverrides?.["t:gallery:subtitle"] ||
+    "สัมผัสความพร้อมของกองยานพาหนะและทีมงานมืออาชีพ การโหลดสินค้า การจัดส่งตรงเวลา และมาตรฐานความปลอดภัยในทุกเที่ยวการเดินทาง";
 
   const filteredItems = galleryItems.filter((item) => {
     if (activeCategory === "all") return true;
@@ -23,15 +36,16 @@ export default function GallerySection({ items }: { items?: GalleryItemData[] })
         <div className="text-center max-w-3xl mx-auto space-y-3 mb-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-50 text-[#D32F2F] border border-red-200 text-xs font-bold tracking-wide">
             <Camera className="w-3.5 h-3.5" />
-            <span>แกลเลอรี่ผลงานและภาพการปฏิบัติงานจริง</span>
+            <Editable field="t:gallery:badge" value={badge} noTransform />
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">
-            ภาพผลงานจริง <span className="text-[#D32F2F]">5 August Transport</span>
+            <Editable field="t:gallery:title" value={title} noTransform />{" "}
+            <span className="text-[#D32F2F]">5 August Transport</span>
           </h2>
 
           <p className="text-slate-600 text-base font-normal max-w-2xl mx-auto leading-relaxed">
-            สัมผัสความพร้อมของกองยานพาหนะและทีมงานมืออาชีพ การโหลดสินค้า การจัดส่งตรงเวลา และมาตรฐานความปลอดภัยในทุกเที่ยวการเดินทาง
+            <Editable field="t:gallery:subtitle" value={subtitle} multiline noTransform />
           </p>
         </div>
 

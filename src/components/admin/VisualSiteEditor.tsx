@@ -47,6 +47,7 @@ import {
   sectionLabel,
   SECTION_KEYS,
   applySolutionField,
+  applyTextOverride,
   BLOCK_KEY_PREFIX,
   type SiteLayout,
   type SectionKey,
@@ -362,6 +363,11 @@ export default function VisualSiteEditor({
         commitLayout(solutionLayout);
         return;
       }
+      const textOverrideLayout = applyTextOverride(layout, field, value);
+      if (textOverrideLayout) {
+        commitLayout(textOverrideLayout);
+        return;
+      }
       onFieldChange(field as keyof SiteContentData, value);
     },
     getTextPosition: (field: string) => {
@@ -394,8 +400,16 @@ export default function VisualSiteEditor({
 
         if (res.ok && data?.success && data?.url) {
           const solutionLayout = applySolutionField(layout, field, data.url);
-          if (solutionLayout) commitLayout(solutionLayout);
-          else onFieldChange(field as keyof SiteContentData, data.url);
+          if (solutionLayout) {
+            commitLayout(solutionLayout);
+          } else {
+            const textOverrideLayout = applyTextOverride(layout, field, data.url);
+            if (textOverrideLayout) {
+              commitLayout(textOverrideLayout);
+            } else {
+              onFieldChange(field as keyof SiteContentData, data.url);
+            }
+          }
           Swal.fire({
             icon: "success",
             title: "อัปโหลดและเปลี่ยนรูปสำเร็จ",

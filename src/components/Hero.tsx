@@ -5,9 +5,17 @@ import Image from "next/image";
 import { Truck, ArrowRight, PhoneCall, Search, MessageSquare, ShieldCheck } from "lucide-react";
 import { COMPANY_INFO } from "@/lib/constants";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
+import type { SiteLayout } from "@/lib/site-layout";
+import { Editable, ImageEditButton } from "@/components/editor/EditorContext";
 import Swal from "sweetalert2";
 
-export default function Hero({ content }: { content?: Partial<SiteContentData> }) {
+export default function Hero({
+  content,
+  layout,
+}: {
+  content?: Partial<SiteContentData>;
+  layout?: SiteLayout;
+}) {
   const [trackingId, setTrackingId] = useState("");
 
   const phone = content?.phone || COMPANY_INFO.phone;
@@ -59,6 +67,7 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
         {/* 1. Main Hero Banner Frame - 100% Crystal Clear Master Infographic (No Blur, No Dimming Overlay) */}
         <div className="w-full">
           <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl shadow-slate-300/60 border border-slate-200/90 bg-white ring-1 ring-slate-900/5 group">
+            <ImageEditButton field="heroImageUrl" label="📷 เปลี่ยนรูป Hero Banner" className="absolute top-4 right-4 z-30" />
             <a href="#recruitment" className="block cursor-pointer w-full" title="คลิกเพื่อดูรายละเอียดและสมัครร่วมงาน">
               {/* Desktop Widescreen Banner (3200x1312) - High Resolution Crisp Image */}
               <Image
@@ -114,7 +123,7 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
                 href="#quote"
                 className="px-5 py-3 rounded-xl bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-bold text-xs sm:text-sm uppercase tracking-wider shadow-md shadow-red-950/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5"
               >
-                <span>ขอใบเสนอราคา</span>
+                <Editable field="t:hero:ctaQuote" value={layout?.textOverrides?.["t:hero:ctaQuote"] || "ขอใบเสนอราคา"} noTransform />
                 <ArrowRight className="w-3.5 h-3.5" />
               </a>
 
@@ -122,7 +131,7 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
                 href="#recruitment"
                 className="px-5 py-3 rounded-xl bg-[#1F1F2E] hover:bg-black text-white font-bold text-xs sm:text-sm uppercase tracking-wider transition-all hover:scale-105 active:scale-95 text-center"
               >
-                <span>สมัครร่วมงานคนขับ</span>
+                <Editable field="heroCtaDriverText" value={content?.heroCtaDriverText || "สมัครร่วมงานคนขับ"} noTransform />
               </a>
 
               <a
@@ -130,7 +139,7 @@ export default function Hero({ content }: { content?: Partial<SiteContentData> }
                 className="px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs sm:text-sm border border-slate-200 transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5"
               >
                 <PhoneCall className="w-3.5 h-3.5 text-[#D32F2F]" />
-                <span>{phone}</span>
+                <Editable field="phone" value={phone} noTransform />
               </a>
 
               <a

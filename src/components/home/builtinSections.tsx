@@ -32,18 +32,18 @@ export function buildBuiltinSections(
   milestones: MilestoneRow[]
 ): Record<SectionKey, ReactNode> {
   return {
-    hero: <Hero content={content} />,
+    hero: <Hero content={content} layout={layout} />,
     about: <AboutSection content={content} />,
-    quote: <QuoteCalculator content={content} rates={layout.quoteRates} />,
-    services: <ServicesSection content={content} />,
-    features: <FeaturesSection content={content} />,
-    pricing: <PricingSection content={content} />,
+    quote: <QuoteCalculator content={content} rates={layout.quoteRates} layout={layout} />,
+    services: <ServicesSection content={content} layout={layout} />,
+    features: <FeaturesSection content={content} layout={layout} />,
+    pricing: <PricingSection content={content} layout={layout} />,
     solutions: <PlatformSolutions content={content} header={layout.solutionsHeader} cards={layout.solutionCards} />,
-    team: <DeliveryTeamSection content={content} />,
-    testimonials: <TestimonialsSection content={content} />,
+    team: <DeliveryTeamSection content={content} layout={layout} />,
+    testimonials: <TestimonialsSection content={content} layout={layout} />,
     recruitment: <DriverRecruitmentForm content={content} />,
-    gallery: <GallerySection items={layout.galleryItems} />,
+    gallery: <GallerySection items={layout.galleryItems} layout={layout} />,
     values: <ValueProps content={content} items={layout.valueItems} />,
-    milestones: <Milestones milestones={milestones} />,
+    milestones: <Milestones milestones={milestones} layout={layout} />,
   };
 }
