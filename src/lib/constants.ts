@@ -13,6 +13,13 @@ export const COMPANY_INFO = {
   operatingHours: "เปิดบริการตลอด 24 ชั่วโมง (24/7 Logistics Support)",
 };
 
+/** The CMS phone-number placeholder was saved as LINE ID; fall back to the real LINE OA. */
+export function resolveLineId(lineId?: string | null): string {
+  const id = (lineId || "").trim();
+  if (!id || /^0\d{8,9}$/.test(id)) return COMPANY_INFO.lineId;
+  return id.startsWith("@") ? id : `@${id}`;
+}
+
 export const KEY_SELLING_POINTS = [
   {
     id: "on-time",

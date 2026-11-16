@@ -1,4 +1,5 @@
-import { Truck, Box, ShieldCheck, Clock, MapPin, Warehouse, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Truck, Box, ShieldCheck, Clock, MapPin, Warehouse, ArrowUpRight } from "lucide-react";
+import SectionHeading from "@/components/ui/SectionHeading";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
 import type { SiteLayout } from "@/lib/site-layout";
 import { Editable } from "@/components/editor/EditorContext";
@@ -10,7 +11,7 @@ export default function ServicesSection({
   content?: Partial<SiteContentData>;
   layout?: SiteLayout;
 }) {
-  const badge = layout?.textOverrides?.["t:services:badge"] || "OUR SERVICES";
+  const badge = layout?.textOverrides?.["t:services:badge"] || "บริการ";
   const title = layout?.textOverrides?.["t:services:title"] || "บริการขนส่งสินค้ามาตรฐานระดับประเทศ";
   const subtitle =
     layout?.textOverrides?.["t:services:subtitle"] ||
@@ -79,74 +80,56 @@ export default function ServicesSection({
   ];
 
   return (
-    <section id="services" className="py-20 sm:py-24 bg-white text-slate-900 border-b border-slate-200">
+    <section id="services" className="py-20 sm:py-28 bg-paper">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h6 className="text-[#D32F2F] text-xs sm:text-sm font-black uppercase tracking-widest mb-2 font-mono">
-            <Editable field="t:services:badge" value={badge} noTransform />
-          </h6>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight mb-4">
-            <Editable field="t:services:title" value={title} noTransform />
-          </h2>
-          <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-            <Editable field="t:services:subtitle" value={subtitle} multiline noTransform />
-          </p>
+        <SectionHeading
+          label={<Editable field="t:services:badge" value={badge} noTransform />}
+          title={<Editable field="t:services:title" value={title} noTransform />}
+          intro={<Editable field="t:services:subtitle" value={subtitle} multiline noTransform />}
+        />
+
+        {/* Column labels (desktop) */}
+        <div className="hidden md:grid grid-cols-12 gap-6 pb-3 eyebrow text-muted border-b border-ink">
+          <span className="col-span-5">บริการ</span>
+          <span className="col-span-2">ความจุ</span>
+          <span className="col-span-2">น้ำหนักบรรทุก</span>
+          <span className="col-span-3">เหมาะกับงาน</span>
         </div>
 
-        {/* 6 Services Grid matching FASTER card style */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <ul>
           {services.map((s) => {
             const Icon = s.icon;
             return (
-              <div
-                key={s.id}
-                className="bg-[#F2F2F4] rounded-lg overflow-hidden border border-slate-200/80 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group"
-              >
-                <div>
-                  {/* FASTER Card Header: Solid Primary Red with dark icon and white title */}
-                  <div className="bg-[#D32F2F] group-hover:bg-[#B71C1C] transition-colors p-5 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-[#1F1F2E] flex items-center justify-center shrink-0 text-white shadow-sm">
-                      <Icon className="w-6 h-6 text-white" />
-                    </div>
+              <li key={s.id} className="border-b border-line">
+                <a
+                  href={s.href}
+                  className="group grid grid-cols-12 gap-x-6 gap-y-2 py-6 md:py-7 -mx-4 px-4 hover:bg-paper-2 transition-colors"
+                >
+                  <div className="col-span-12 md:col-span-5 flex items-start gap-4">
+                    <Icon className="w-5 h-5 mt-1 text-brand shrink-0" aria-hidden />
                     <div>
-                      <h3 className="text-white font-extrabold text-lg leading-tight">
-                        {s.title}
-                      </h3>
-                      <span className="text-white/80 text-xs font-medium">
-                        {s.titleEn}
-                      </span>
+                      <h3 className="text-xl text-ink font-medium leading-snug">{s.title}</h3>
+                      <p className="text-sm text-muted mt-0.5">{s.titleEn}</p>
                     </div>
                   </div>
-
-                  {/* Card Body */}
-                  <div className="p-6 space-y-4">
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-700 bg-white px-3 py-1.5 rounded border border-slate-200 w-fit">
-                      <span className="text-[#D32F2F] font-black">{s.cbm}</span>
-                      <span>•</span>
-                      <span>{s.weight}</span>
-                    </div>
-
-                    <p className="text-slate-600 text-sm leading-relaxed">
-                      {s.desc}
-                    </p>
+                  <p className="col-span-6 md:col-span-2 font-mono text-sm text-ink tabular md:pt-1.5">
+                    <span className="md:hidden text-muted">ความจุ </span>{s.cbm}
+                  </p>
+                  <p className="col-span-6 md:col-span-2 font-mono text-sm text-ink tabular md:pt-1.5">
+                    <span className="md:hidden text-muted">น้ำหนัก </span>{s.weight}
+                  </p>
+                  <div className="col-span-12 md:col-span-3 flex items-start justify-between gap-4">
+                    <p className="text-sm text-ink-soft leading-relaxed">{s.desc}</p>
+                    <ArrowUpRight
+                      className="w-5 h-5 shrink-0 text-muted group-hover:text-brand group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"
+                      aria-hidden
+                    />
                   </div>
-                </div>
-
-                {/* Card Footer Link */}
-                <div className="px-6 pb-6 pt-2">
-                  <a
-                    href={s.href}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#D32F2F] group-hover:text-[#B71C1C] border-b-2 border-[#D32F2F] pb-0.5 tracking-wide uppercase transition-all"
-                  >
-                    <span>ดูรายละเอียดเพิ่มเติม</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                  </a>
-                </div>
-              </div>
+                </a>
+              </li>
             );
           })}
-        </div>
+        </ul>
       </div>
     </section>
   );

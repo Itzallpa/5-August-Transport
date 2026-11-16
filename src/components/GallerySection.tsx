@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import { useEscapeKey } from "@/lib/use-escape-key";
 import Image from "next/image";
-import { Camera, CheckCircle2, MapPin, Sparkles, ExternalLink, ShieldCheck } from "lucide-react";
+import { X } from "lucide-react";
+import SectionHeading from "@/components/ui/SectionHeading";
 
 import { DEFAULT_GALLERY_ITEMS, type GalleryItemData, type SiteLayout } from "@/lib/site-layout";
 import { Editable, ImageEditButton } from "@/components/editor/EditorContext";
@@ -17,9 +19,11 @@ export default function GallerySection({
   const galleryItems = items ?? DEFAULT_GALLERY_ITEMS;
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [selectedImage, setSelectedImage] = useState<GalleryItemData | null>(null);
+  const closeImage = useCallback(() => setSelectedImage(null), []);
+  useEscapeKey(selectedImage !== null, closeImage);
 
-  const badge = layout?.textOverrides?.["t:gallery:badge"] || "แกลเลอรี่ผลงานและภาพการปฏิบัติงานจริง";
-  const title = layout?.textOverrides?.["t:gallery:title"] || "ภาพผลงานจริง";
+  const badge = layout?.textOverrides?.["t:gallery:badge"] || "ภาพการทำงานจริง";
+  const title = layout?.textOverrides?.["t:gallery:title"] || "ภาพจากหน้างานจริง ไม่ใช่ภาพสต็อก";
   const subtitle =
     layout?.textOverrides?.["t:gallery:subtitle"] ||
     "สัมผัสความพร้อมของกองยานพาหนะและทีมงานมืออาชีพ การโหลดสินค้า การจัดส่งตรงเวลา และมาตรฐานความปลอดภัยในทุกเที่ยวการเดินทาง";
@@ -30,161 +34,119 @@ export default function GallerySection({
   });
 
   return (
-    <section id="gallery" className="py-20 bg-gradient-to-b from-white via-slate-50 to-white text-slate-800 border-b border-slate-200">
+    <section id="gallery" className="py-20 sm:py-28 bg-paper border-t border-line">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-3 mb-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-50 text-[#D32F2F] border border-red-200 text-xs font-bold tracking-wide">
-            <Camera className="w-3.5 h-3.5" />
-            <Editable field="t:gallery:badge" value={badge} noTransform />
-          </div>
+        <SectionHeading
+          label={<Editable field="t:gallery:badge" value={badge} noTransform />}
+          title={<Editable field="t:gallery:title" value={title} noTransform />}
+          intro={<Editable field="t:gallery:subtitle" value={subtitle} multiline noTransform />}
+        />
 
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">
-            <Editable field="t:gallery:title" value={title} noTransform />{" "}
-            <span className="text-[#D32F2F]">5 August Transport</span>
-          </h2>
-
-          <p className="text-slate-600 text-base font-normal max-w-2xl mx-auto leading-relaxed">
-            <Editable field="t:gallery:subtitle" value={subtitle} multiline noTransform />
-          </p>
-        </div>
-
-        {/* Filter Pills */}
-        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-12">
+        <div className="flex flex-wrap gap-x-8 gap-y-2 mb-8 border-b border-line" role="group" aria-label="กรองภาพ">
           {[
-            { id: "all", label: "ภาพผลงานทั้งหมด" },
-            { id: "loading", label: "งานยกและโหลดสินค้า" },
-            { id: "route", label: "วิ่งงานบนเส้นทางจริง" },
-            { id: "fleet", label: "ลานจอดและกองรถ" },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveCategory(tab.id)}
-              className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all shadow-sm ${
-                activeCategory === tab.id
-                  ? "bg-[#D32F2F] text-white shadow-red-200 scale-105"
-                  : "bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900 border border-slate-200"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+            { id: "all", label: "ทั้งหมด" },
+            { id: "loading", label: "งานโหลดสินค้า" },
+            { id: "route", label: "บนเส้นทาง" },
+            { id: "fleet", label: "กองรถ" },
+          ].map((tab) => {
+            const active = activeCategory === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveCategory(tab.id)}
+                aria-pressed={active}
+                className={`relative h-11 text-sm transition-colors ${active ? "text-ink font-medium" : "text-muted hover:text-ink"}`}
+              >
+                {tab.label}
+                {active && <span className="absolute left-0 right-0 -bottom-px h-0.5 bg-brand" aria-hidden />}
+              </button>
+            );
+          })}
         </div>
 
-        {/* Gallery Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {filteredItems.map((item) => (
-            <div
-              key={item.id}
-              onClick={() => setSelectedImage(item)}
-              className="group cursor-pointer rounded-3xl bg-white border border-slate-200 shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col justify-between hover:-translate-y-1"
-            >
-              <div className="relative w-full h-64 sm:h-72 overflow-hidden bg-slate-100">
-                <Image
-                  src={item.image || "/images/hero.jpg"}
-                  alt={item.title}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 600px"
-                  className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                />
-                <ImageEditButton
-                  field={`gallery:${item.id}:image`}
-                  label="📷 เปลี่ยนรูปภาพ"
-                  className="absolute top-3 right-3 z-30"
-                />
-                <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/75 backdrop-blur-sm text-white text-[11px] font-bold">
-                  {item.categoryLabel}
-                </div>
-                <div className="absolute bottom-3 left-3 right-3 px-3.5 py-2 rounded-2xl bg-white/95 backdrop-blur-sm border border-white/60 shadow-md flex items-center justify-between text-xs text-slate-800 font-semibold">
-                  <span className="flex items-center gap-1.5 text-emerald-800">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span className="truncate">
-                      <Editable field={`gallery:${item.id}:highlight`} value={item.highlight} noTransform />
-                    </span>
-                  </span>
-                  <span className="text-[#D32F2F] font-bold text-[11px] shrink-0 flex items-center gap-1">
-                    <span>ดูภาพใหญ่</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </span>
-                </div>
-              </div>
-
-              <div className="p-6 space-y-2">
-                <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                  <MapPin className="w-3.5 h-3.5 text-[#D32F2F] shrink-0" />
-                  <Editable field={`gallery:${item.id}:location`} value={item.location} noTransform />
-                </div>
-                <h3 className="text-lg font-bold text-slate-900 group-hover:text-[#D32F2F] transition-colors leading-snug">
-                  <Editable field={`gallery:${item.id}:title`} value={item.title} noTransform />
-                </h3>
-                <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
-                  <Editable field={`gallery:${item.id}:description`} value={item.description} multiline noTransform />
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Bottom Guarantee Banner */}
-        <div className="mt-12 rounded-3xl bg-gradient-to-r from-red-50 via-white to-red-50 border border-red-200 p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
-          <div className="flex items-center gap-4 text-center sm:text-left">
-            <div className="w-14 h-14 rounded-2xl bg-[#D32F2F] text-white flex items-center justify-center shrink-0 shadow-md font-bold text-2xl">
-              ✓
-            </div>
-            <div>
-              <h4 className="text-base sm:text-lg font-bold text-slate-900">
-                มั่นใจทุกเที่ยวการขนส่ง การันตีความปลอดภัยและตรงต่อเวลา
-              </h4>
-              <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-                มีคนช่วยยกสินค้า ดูแลสินค้าตั้งแต่ต้นทางจนถึงมือผู้รับปลายทางอย่างสมบูรณ์แบบ
-              </p>
-            </div>
-          </div>
-          <a
-            href="#calculator"
-            className="px-6 py-3 rounded-full bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all shrink-0"
-          >
-            ประเมินราคาขนส่งทันที
-          </a>
+        <div className="grid md:grid-cols-12 gap-x-6 gap-y-10">
+          {filteredItems.map((item, i) => {
+            const feature = i === 0 && filteredItems.length > 2;
+            return (
+              <figure key={item.id} className={feature ? "md:col-span-8 md:row-span-2" : "md:col-span-4"}>
+                <button
+                  type="button"
+                  onClick={() => setSelectedImage(item)}
+                  className="group block w-full text-left"
+                  aria-label={`ดูภาพใหญ่: ${item.title}`}
+                >
+                  <div className={`relative overflow-hidden bg-paper-2 ${feature ? "aspect-[4/3]" : "aspect-[4/3]"}`}>
+                    <Image
+                      src={item.image || "/images/thai_transport_highway.jpg"}
+                      alt={item.title}
+                      fill
+                      sizes={feature ? "(max-width: 768px) 100vw, 66vw" : "(max-width: 768px) 100vw, 33vw"}
+                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                    />
+                  </div>
+                </button>
+                <ImageEditButton field={`gallery:${item.id}:image`} label="เปลี่ยนรูปภาพ" className="mt-2" />
+                <figcaption className="mt-4">
+                  <p className="eyebrow text-muted flex flex-wrap gap-x-3">
+                    <span className="text-brand">{item.categoryLabel}</span>
+                    <Editable field={`gallery:${item.id}:location`} value={item.location} noTransform />
+                  </p>
+                  <h3 className={`mt-2 text-ink font-medium leading-snug ${feature ? "text-2xl" : "text-lg"}`}>
+                    <Editable field={`gallery:${item.id}:title`} value={item.title} noTransform />
+                  </h3>
+                  <p className="mt-2 text-sm text-ink-soft leading-relaxed">
+                    <Editable field={`gallery:${item.id}:description`} value={item.description} multiline noTransform />
+                  </p>
+                  <p className="mt-2 text-xs text-muted">
+                    <Editable field={`gallery:${item.id}:highlight`} value={item.highlight} noTransform />
+                  </p>
+                </figcaption>
+              </figure>
+            );
+          })}
         </div>
       </div>
 
       {/* Lightbox Modal */}
       {selectedImage && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/90"
           onClick={() => setSelectedImage(null)}
         >
           <div
-            className="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl relative"
+            className="bg-paper max-w-4xl w-full overflow-hidden relative"
+            role="dialog"
+            aria-modal="true"
+            aria-label={selectedImage.title}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative w-full h-80 sm:h-96 bg-slate-900">
+            <div className="relative w-full aspect-[16/10] bg-ink">
               <Image
-                src={selectedImage.image || "/images/hero.jpg"}
+                src={selectedImage.image || "/images/thai_transport_highway.jpg"}
                 alt={selectedImage.title}
                 fill
                 className="object-contain"
               />
               <button
-                onClick={() => setSelectedImage(null)}
-                className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center font-bold text-lg shadow-md transition-colors"
+                onClick={closeImage}
+                aria-label="ปิด"
+                autoFocus
+                className="absolute top-3 right-3 w-11 h-11 bg-ink/80 hover:bg-ink text-paper flex items-center justify-center transition-colors"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             </div>
             <div className="p-6 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="px-3 py-1 rounded-full bg-red-50 text-[#D32F2F] text-xs font-bold border border-red-200">
+                <span className="eyebrow text-brand">
                   {selectedImage.categoryLabel}
                 </span>
-                <span className="text-xs text-slate-500 flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-[#D32F2F]" />
+                <span className="text-xs text-muted">
                   {selectedImage.location}
                 </span>
               </div>
-              <h3 className="text-xl font-bold text-slate-900">{selectedImage.title}</h3>
-              <p className="text-sm text-slate-600 leading-relaxed">{selectedImage.description}</p>
+              <h3 className="text-xl font-medium text-ink">{selectedImage.title}</h3>
+              <p className="text-sm text-ink-soft leading-relaxed">{selectedImage.description}</p>
             </div>
           </div>
         </div>

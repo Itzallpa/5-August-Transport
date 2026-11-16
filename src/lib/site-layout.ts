@@ -134,7 +134,7 @@ export const DEFAULT_SOLUTION_CARDS: SolutionCard[] = [
       "ติดตั้งระบบ GPS Tracking ควบคุมความเร็วและรายงานตำแหน่งเรียลไทม์ 24 ชม.",
       "มีพนักงานช่วยยกสินค้าและตรวจนับจำนวนอย่างระมัดระวัง",
     ],
-    image: "/images/solution-truck.jpg",
+    image: "/images/thai_transport_fleet_yard.jpg",
     imageCaption: "ตู้ทึบกันน้ำฝน 100%",
     imageBadge: "น้ำหนัก 1 - 1.5 ตัน",
     buttonLabel: "ขอใบเสนอราคา / จองคิวรถ 4 ล้อ",
@@ -199,7 +199,7 @@ export const DEFAULT_SOLUTION_CARDS: SolutionCard[] = [
       "Bidding Truck: งานประมูลราคาวิ่งประจำโรงงานและคลังสินค้า",
       "Adhoc Truck: งานวิ่งเสริมรายเที่ยวและงานด่วน 24 ชม.",
     ],
-    image: "/images/thai_transport_fleet_yard.jpg",
+    image: "/images/operations.jpg",
     imageCaption: "Partner KEX Express - Linehaul",
     imageBadge: "เปิดรับสมัครทั้ง 4 ภาค",
     buttonLabel: "สมัครขับรถร่วมทันที (เปิดรับ 4W/4WJ/6W)",
@@ -318,14 +318,14 @@ export const DEFAULT_GALLERY_ITEMS: GalleryItemData[] = [
   },
   {
     id: "g4",
-    title: "ภาพรวมกองรถขนส่ง 4 ล้อ, 6 ล้อ และ 10 ล้อ พร้อมทีมงานประจำ",
-    category: "fleet",
-    categoryLabel: "มาตรฐานกองรถ",
+    title: "ศูนย์ควบคุมการเดินรถ ติดตามรถทุกคันผ่าน GPS ตลอด 24 ชั่วโมง",
+    category: "route",
+    categoryLabel: "ศูนย์ควบคุม",
     location: "ศูนย์ประสานงานขนส่งสินค้าทั่วไทย",
-    image: "/images/thai_transport_hero.jpg",
+    image: "/images/operations.jpg",
     description:
-      "ตัวถังตู้ทึบสะอาด กันน้ำ กันฝน 100% พร้อมบริการงานเหมาคัน รายเที่ยว และสัญญารายเดือนจากพันธมิตรชั้นนำ",
-    highlight: "ตู้ทึบสะอาด กันฝน 100% มีประกันสินค้า",
+      "ทีม Dispatch เฝ้าดูตำแหน่งและความเร็วของรถทุกคันแบบเรียลไทม์ พร้อมประสานงานแก้ปัญหาหน้างานได้ทันที",
+    highlight: "ติดตาม GPS เรียลไทม์ทุกคัน",
   },
 ];
 

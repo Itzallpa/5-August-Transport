@@ -1,4 +1,5 @@
-import { Clock, ShieldCheck, Coins, Truck, Users, MapPin, CheckCircle2, Award, Star, Heart, Zap } from "lucide-react";
+import { Clock, ShieldCheck, Coins, Truck, Users, MapPin, Award, Star, Heart, Zap } from "lucide-react";
+import SectionHeading from "@/components/ui/SectionHeading";
 import { KEY_SELLING_POINTS } from "@/lib/constants";
 import type { ValueItem } from "@/lib/site-layout";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
@@ -25,69 +26,43 @@ export default function ValueProps({ content, items }: { content?: Partial<SiteC
   const valueSubtitle = content?.valueSubtitle || "เรามุ่งมั่นพัฒนาคุณภาพการบริการอย่างต่อเนื่อง ทั้งด้านกองยานพาหนะ บุคลากร และเทคโนโลยี เพื่อส่งมอบความมั่นใจสูงสุดให้แก่ลูกค้าทุกท่าน";
 
   return (
-    <section id="strengths" className="py-20 bg-white text-slate-800 border-b border-slate-200">
+    <section id="strengths" className="py-20 sm:py-28 bg-paper-2">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
-          <Movable field="valueBadgeBox" className="inline-block rounded-full">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-[#D32F2F] border border-red-200 text-xs font-bold tracking-wider uppercase">
-              <CheckCircle2 className="w-3.5 h-3.5" />
+        <SectionHeading
+          label={
+            <Movable field="valueBadgeBox" as="span">
               <Editable field="valueBadge" value={valueBadge} noTransform />
-            </div>
-          </Movable>
-
-          <Movable field="valueTitleBox" className="block">
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+            </Movable>
+          }
+          title={
+            <Movable field="valueTitleBox" as="span">
               <Editable field="valueTitle" value={valueTitle} noTransform />{" "}
-              <span className="text-[#D32F2F]">
+              <span className="text-brand">
                 <Editable field="valueTitleHighlight" value={valueTitleHighlight} noTransform />
               </span>
-            </h2>
-          </Movable>
-
-          <Movable field="valueSubtitleBox" className="block">
-            <p className="text-slate-600 text-base font-normal leading-relaxed">
+            </Movable>
+          }
+          intro={
+            <Movable field="valueSubtitleBox" as="span">
               <Editable field="valueSubtitle" value={valueSubtitle} multiline noTransform />
-            </p>
-          </Movable>
-        </div>
+            </Movable>
+          }
+        />
 
-        {/* 6 Key Selling Points - Organic, Human-Designed & Friendly Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {valueItems.map((item) => {
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-line border-y border-line">
+          {valueItems.map((item, i) => {
             const IconComponent = ICON_MAP[item.icon as keyof typeof ICON_MAP] || Truck;
             return (
               <div
                 key={item.id}
-                className="bg-white border border-slate-200/90 rounded-3xl p-7 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative flex flex-col justify-between group"
+                className="bg-paper-2 py-8 sm:px-8"
               >
-                <div>
-                  <div className="flex items-center gap-4 mb-5">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-50 to-red-100 text-[#D32F2F] flex items-center justify-center shrink-0 shadow-sm group-hover:scale-110 transition-transform">
-                      <IconComponent className="w-7 h-7" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-slate-900 group-hover:text-[#D32F2F] transition-colors">
-                        {item.titleTh}
-                      </h3>
-                      <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full inline-block mt-0.5 border border-emerald-200/60">
-                        ✓ มาตรฐานบริการจริง
-                      </span>
-                    </div>
-                  </div>
-
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    {item.description}
-                  </p>
+                <div className="flex items-center justify-between">
+                  <IconComponent className="w-6 h-6 text-brand" strokeWidth={1.5} aria-hidden />
+                  <span className="font-mono text-xs text-muted tabular">{String(i + 1).padStart(2, "0")}</span>
                 </div>
-
-                <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
-                  <span className="flex items-center gap-1 text-slate-700">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>มีคนช่วยยกและประสานงาน</span>
-                  </span>
-                  <span className="text-[#D32F2F] font-bold">5 August Care</span>
-                </div>
+                <h3 className="mt-6 text-xl text-ink font-medium">{item.titleTh}</h3>
+                <p className="mt-3 text-sm text-ink-soft leading-relaxed">{item.description}</p>
               </div>
             );
           })}

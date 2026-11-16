@@ -1,5 +1,4 @@
-import Image from "next/image";
-import { Star, Quote } from "lucide-react";
+import SectionHeading from "@/components/ui/SectionHeading";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
 import type { SiteLayout } from "@/lib/site-layout";
 import { Editable } from "@/components/editor/EditorContext";
@@ -11,7 +10,7 @@ export default function TestimonialsSection({
   content?: Partial<SiteContentData>;
   layout?: SiteLayout;
 }) {
-  const badge = layout?.textOverrides?.["t:testimonials:badge"] || "TESTIMONIAL";
+  const badge = layout?.textOverrides?.["t:testimonials:badge"] || "เสียงจากลูกค้า";
   const title = layout?.textOverrides?.["t:testimonials:title"] || "เสียงตอบรับจากลูกค้าผู้ใช้บริการ";
   const subtitle =
     layout?.textOverrides?.["t:testimonials:subtitle"] ||
@@ -47,66 +46,42 @@ export default function TestimonialsSection({
     },
   ];
 
+  const [lead, ...rest] = testimonials;
+
   return (
-    <section id="testimonials" className="py-20 sm:py-24 bg-white text-slate-900 border-b border-slate-200">
+    <section id="testimonials" className="py-20 sm:py-28 bg-paper">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h6 className="text-[#D32F2F] text-xs sm:text-sm font-black uppercase tracking-widest mb-2 font-mono">
-            <Editable field="t:testimonials:badge" value={badge} noTransform />
-          </h6>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight mb-4">
-            <Editable field="t:testimonials:title" value={title} noTransform />
-          </h2>
-          <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-            <Editable field="t:testimonials:subtitle" value={subtitle} multiline noTransform />
-          </p>
-        </div>
+        <SectionHeading
+          label={<Editable field="t:testimonials:badge" value={badge} noTransform />}
+          title={<Editable field="t:testimonials:title" value={title} noTransform />}
+          intro={<Editable field="t:testimonials:subtitle" value={subtitle} multiline noTransform />}
+        />
 
-        {/* Testimonial Cards in FASTER Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {testimonials.map((t) => (
-            <div
-              key={t.id}
-              className="bg-[#F2F2F4] rounded-lg p-6 relative border border-slate-200/80 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
-            >
-              <Quote className="absolute top-4 right-4 w-8 h-8 text-[#D32F2F]/20" />
+        <div className="grid lg:grid-cols-12 gap-12 lg:gap-16">
+          <figure className="lg:col-span-7">
+            <span className="block font-serif text-7xl leading-none text-brand select-none" aria-hidden>
+              &ldquo;
+            </span>
+            <blockquote className="-mt-4 text-2xl sm:text-3xl leading-snug text-ink font-medium tracking-tight">
+              {lead.text}
+            </blockquote>
+            <figcaption className="mt-8 pt-4 border-t border-line">
+              <p className="text-ink font-medium">{lead.name}</p>
+              <p className="text-sm text-muted">{lead.role}</p>
+            </figcaption>
+          </figure>
 
-              <div>
-                {/* Header with Avatar & Name */}
-                <div className="flex items-center gap-3.5 mb-4">
-                  <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 border-[#D32F2F]/30">
-                    <Image
-                      src={t.avatar}
-                      alt={t.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="font-extrabold text-slate-900 text-sm leading-tight">
-                      {t.name}
-                    </h3>
-                    <p className="text-[11px] text-slate-500 font-medium leading-snug">
-                      {t.role}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Star rating */}
-                <div className="flex items-center gap-1 text-amber-500 mb-3">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-current" />
-                  ))}
-                </div>
-
-                {/* Testimonial Text */}
-                <p className="text-slate-600 text-xs sm:text-sm leading-relaxed italic">
-                  "{t.text}"
-                </p>
-              </div>
-            </div>
-          ))}
+          <div className="lg:col-span-5 border-t border-ink">
+            {rest.map((t) => (
+              <figure key={t.id} className="py-6 border-b border-line">
+                <blockquote className="text-ink-soft leading-relaxed">&ldquo;{t.text}&rdquo;</blockquote>
+                <figcaption className="mt-4 text-sm">
+                  <span className="text-ink font-medium">{t.name}</span>
+                  <span className="text-muted"> — {t.role}</span>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
         </div>
       </div>
     </section>

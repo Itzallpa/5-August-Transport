@@ -41,6 +41,51 @@ const EditorContext = createContext<EditorApi | null>(null);
 export const EditorProvider = EditorContext.Provider;
 export const useEditor = () => useContext(EditorContext);
 
+/**
+ * Read-only saved text/box offsets for the PUBLIC site (no editor present).
+ * Without this, positions set in the visual editor were saved but never rendered live.
+ */
+const TextPositionsContext = createContext<Record<string, TextPosition> | undefined>(undefined);
+
+export function TextPositionsProvider({
+  positions,
+  children,
+}: {
+  positions?: Record<string, TextPosition>;
+  children: ReactNode;
+}) {
+  return <TextPositionsContext.Provider value={positions}>{children}</TextPositionsContext.Provider>;
+}
+
+const ZERO_POS: TextPosition = { x: 0, y: 0 };
+
+/**
+ * Local position state that re-syncs from the editor when the editor/field changes
+ * (React "adjust state during render" pattern — avoids setState inside an effect).
+ * On the public site it simply returns the saved position.
+ */
+function usePosition(editor: EditorApi | null, field: string) {
+  const saved = useContext(TextPositionsContext);
+  const readPos = () => editor?.getTextPosition?.(field) ?? saved?.[field] ?? ZERO_POS;
+  const [pos, setPos] = useState<TextPosition>(readPos);
+  const [source, setSource] = useState({ editor, field, saved });
+  if (source.editor !== editor || source.field !== field || source.saved !== saved) {
+    setSource({ editor, field, saved });
+    setPos(readPos());
+  }
+  return [pos, setPos] as const;
+}
+
+function alignClassFor(align: TextPosition["align"]) {
+  return align === "center"
+    ? "text-center"
+    : align === "right"
+      ? "text-right"
+      : align === "left"
+        ? "text-left"
+        : "";
+}
+
 type Tag = "span" | "p" | "div" | "h1" | "h2" | "h3";
 
 /**
@@ -59,20 +104,13 @@ export function Movable({
   as?: "div" | "span";
 }) {
   const editor = useEditor();
-  const Tag = as as any;
+  // "div" | "span" share the same props; narrowing to "div" keeps the ref typing simple.
+  const Tag = as as "div";
 
   const [active, setActive] = useState(false);
-  const containerRef = useRef<HTMLElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const initialPos = editor?.getTextPosition?.(field) ?? { x: 0, y: 0 };
-  const [pos, setPos] = useState<TextPosition>(initialPos);
-
-  useEffect(() => {
-    if (editor?.getTextPosition) {
-      const p = editor.getTextPosition(field);
-      setPos(p);
-    }
-  }, [editor, field]);
+  const [pos, setPos] = usePosition(editor, field);
 
   useEffect(() => {
     if (!active) return;
@@ -328,16 +366,7 @@ export function Editable({
   const containerRef = useRef<HTMLSpanElement>(null);
 
   // Position offset (x, y) & alignment (only used if noTransform is false)
-  const initialPos = editor?.getTextPosition?.(field) ?? { x: 0, y: 0 };
-  const [pos, setPos] = useState<TextPosition>(initialPos);
-
-  // Sync when editor position changes
-  useEffect(() => {
-    if (!noTransform && editor?.getTextPosition) {
-      const p = editor.getTextPosition(field);
-      setPos(p);
-    }
-  }, [editor, field, noTransform]);
+  const [pos, setPos] = usePosition(editor, field);
 
   // Click outside listener to hide micro-toolbar
   useEffect(() => {
@@ -352,14 +381,17 @@ export function Editable({
   }, [active]);
 
   if (!editor) {
-    if (!noTransform && (pos.x !== 0 || pos.y !== 0)) {
-      return (
-        <Tag className={className} style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}>
-          {value}
-        </Tag>
-      );
-    }
-    return <Tag className={className}>{value}</Tag>;
+    if (noTransform) return <Tag className={className}>{value}</Tag>;
+    const publicAlign = alignClassFor(pos.align);
+    const hasOffset = pos.x !== 0 || pos.y !== 0;
+    return (
+      <Tag
+        className={[className, publicAlign].filter(Boolean).join(" ") || undefined}
+        style={hasOffset ? { transform: `translate(${pos.x}px, ${pos.y}px)` } : undefined}
+      >
+        {value}
+      </Tag>
+    );
   }
 
   // If wrapped in <Movable>, simply render editable text without its own duplicate transform/toolbar
@@ -458,14 +490,7 @@ export function Editable({
     window.addEventListener("mouseup", onMouseUp);
   };
 
-  const alignClass =
-    pos.align === "center"
-      ? "text-center"
-      : pos.align === "right"
-        ? "text-right"
-        : pos.align === "left"
-          ? "text-left"
-          : "";
+  const alignClass = alignClassFor(pos.align);
 
   return (
     <span

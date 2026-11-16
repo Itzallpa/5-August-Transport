@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Calculator, Phone, CheckCircle2, ArrowRight, ShieldCheck, Truck, Users, Award } from "lucide-react";
+import { Phone, ArrowRight } from "lucide-react";
+import SectionHeading from "@/components/ui/SectionHeading";
 import { COMPANY_INFO } from "@/lib/constants";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
 import Swal from "sweetalert2";
@@ -69,12 +70,15 @@ export default function QuoteCalculator({
 
   const handleRequestOfficialQuote = (e: React.FormEvent) => {
     e.preventDefault();
+    const esc = (v: string) => v.replace(/[<>&"']/g, "");
+    const safeName = esc(customerName);
+    const safePhone = esc(customerPhone);
     Swal.fire({
       icon: "success",
       title: "สรุปใบเสนอราคาค่าขนส่ง (ประมาณการ)",
       html: `
         <div style="text-align: left; font-size: 14px; line-height: 1.8;">
-          ${customerName ? `<div style="padding: 4px 0;"><strong>ผู้ติดต่อ:</strong> ${customerName} (${customerPhone || "-"})</div>` : ""}
+          ${safeName ? `<div style="padding: 4px 0;"><strong>ผู้ติดต่อ:</strong> ${safeName} (${safePhone || "-"})</div>` : ""}
           <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #E2E8F0;">
             <span style="color: #64748B;">ต้นทาง:</span>
             <strong style="color: #18181B;">${originName}</strong>
@@ -91,7 +95,7 @@ export default function QuoteCalculator({
             <span style="color: #64748B;">รูปแบบบริการ:</span>
             <strong style="color: ${isUrgent ? "#D97706" : "#18181B"};">${isUrgent ? "งานเร่งด่วนพิเศษ (+20%)" : "บริการมาตรฐาน"}</strong>
           </div>
-          <div style="display: flex; justify-content: space-between; padding: 12px; margin-top: 12px; background-color: #FEF2F2; border-radius: 8px; font-size: 18px; font-weight: bold; color: #D32F2F; border: 1px solid #FCA5A5;">
+          <div style="display: flex; justify-content: space-between; padding: 12px; margin-top: 12px; background-color: #F5F2EC; border-radius: 8px; font-size: 18px; font-weight: bold; color: #C1121F; border: 1px solid #D8D0C2;">
             <span>ประมาณการค่าบริการ:</span>
             <span>~${baseEstimate.toLocaleString()} บาท</span>
           </div>
@@ -103,7 +107,7 @@ export default function QuoteCalculator({
       showCancelButton: true,
       confirmButtonText: "โทรจองคิวรถทันที",
       cancelButtonText: "ปิดหน้าต่าง",
-      confirmButtonColor: "#D32F2F",
+      confirmButtonColor: "#C1121F",
       cancelButtonColor: "#64748B",
     }).then((result) => {
       if (result.isConfirmed) {
@@ -112,186 +116,119 @@ export default function QuoteCalculator({
     });
   };
 
-  return (
-    <section id="quote" className="py-20 sm:py-24 bg-[#F2F2F4] text-slate-900 border-b border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-          {/* Left Column: Get A Quote Narrative + 3 Big Counter Stats */}
-          <div className="lg:col-span-7 space-y-6">
-            <div>
-              <h6 className="text-[#D32F2F] text-xs sm:text-sm font-black uppercase tracking-widest mb-2 font-mono">
-                <Editable field="t:quote:badge" value={layout?.textOverrides?.["t:quote:badge"] || "GET A QUOTE"} noTransform />
-              </h6>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-                <Editable field="quoteTitle" value={quoteTitle} noTransform /> <br />
-                <span className="text-[#D32F2F]">
-                  <Editable field="quoteSubtitle" value={quoteSubtitle} noTransform />
-                </span>
-              </h2>
-            </div>
+  const fieldCls =
+    "w-full h-11 px-3 bg-white border border-line text-ink text-sm focus:outline-none focus:border-ink transition-colors";
+  const labelCls = "block text-xs text-muted mb-1.5";
 
-            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+  return (
+    <section id="quote" className="py-20 sm:py-28 bg-paper-2">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <SectionHeading
+          index="03"
+          label={<Editable field="t:quote:badge" value={layout?.textOverrides?.["t:quote:badge"] || "ประเมินราคา"} noTransform />}
+          title={<Editable field="quoteTitle" value={quoteTitle} noTransform />}
+          intro={<Editable field="quoteSubtitle" value={quoteSubtitle} multiline noTransform />}
+        />
+
+        <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+          {/* Context column */}
+          <div className="lg:col-span-5 lg:pt-2 order-2 lg:order-1">
+            <ol className="border-t border-ink">
+              {[
+                ["เลือกประเภทรถ", "4 ล้อ, 4 ล้อจัมโบ้, 6 ล้อ หรือเหมาคัน"],
+                ["ระบุต้นทาง–ปลายทาง", "ระบบประเมินตามระยะทางระหว่างภาค"],
+                ["รับราคาประมาณการทันที", "ทีมงานโทรยืนยันราคาจริงภายในวันเดียวกัน"],
+              ].map(([t, d], i) => (
+                <li key={t} className="grid grid-cols-[3rem_1fr] py-5 border-b border-line">
+                  <span className="font-mono text-sm text-muted tabular">{String(i + 1).padStart(2, "0")}</span>
+                  <div>
+                    <p className="text-ink font-medium">{t}</p>
+                    <p className="text-sm text-muted mt-0.5">{d}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-6 text-sm text-muted leading-relaxed">
               <Editable field="quoteNotice" value={quoteNotice} multiline noTransform />
             </p>
-
-            {/* FASTER Signature 3 Counter Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-6 border-t border-slate-300/80">
-              <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm text-center">
-                <h3 className="text-3xl sm:text-4xl font-black text-[#D32F2F] tracking-tight mb-1">
-                  200+
-                </h3>
-                <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">
-                  รถในเครือข่ายพร้อมบริการ
-                </p>
-                <span className="text-[10px] text-slate-400 block mt-0.5">Fleet Vehicles</span>
-              </div>
-
-              <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm text-center">
-                <h3 className="text-3xl sm:text-4xl font-black text-[#D32F2F] tracking-tight mb-1">
-                  1,000+
-                </h3>
-                <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">
-                  ลูกค้าองค์กรไว้วางใจ
-                </p>
-                <span className="text-[10px] text-slate-400 block mt-0.5">Corporate Clients</span>
-              </div>
-
-              <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm text-center">
-                <h3 className="text-3xl sm:text-4xl font-black text-[#D32F2F] tracking-tight mb-1">
-                  100K+
-                </h3>
-                <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">
-                  เที่ยวขนส่งสำเร็จ
-                </p>
-                <span className="text-[10px] text-slate-400 block mt-0.5">Successful Deliveries</span>
-              </div>
-            </div>
+            <a
+              href={`tel:${phoneRaw}`}
+              className="mt-6 inline-flex items-center gap-2 text-ink font-medium underline underline-offset-4 decoration-line hover:decoration-ink"
+            >
+              <Phone className="w-4 h-4 text-brand" aria-hidden />
+              คุยกับเจ้าหน้าที่โดยตรง {phone}
+            </a>
           </div>
 
-          {/* Right Column: FASTER Signature Primary Red Quote Form Box */}
-          <div className="lg:col-span-5">
-            <div className="bg-[#D32F2F] rounded-xl p-6 sm:p-8 text-white shadow-2xl border-4 border-white/20">
-              <div className="mb-6">
-                <h3 className="text-xl sm:text-2xl font-black uppercase tracking-wide flex items-center gap-2">
-                  <Calculator className="w-6 h-6 text-white" />
-                  <span>คำนวณราคาออนไลน์</span>
-                </h3>
-                <p className="text-xs text-white/80 mt-1 font-medium">
-                  เลือกประเภทรถและเส้นทางเพื่อดูราคาประมาณการทันที
+          {/* Calculator */}
+          <form
+            onSubmit={handleRequestOfficialQuote}
+            className="lg:col-span-7 order-1 lg:order-2 bg-white border border-line"
+          >
+            <div className="p-6 sm:p-8 grid sm:grid-cols-2 gap-5">
+              <div className="sm:col-span-2">
+                <label htmlFor="q-truck" className={labelCls}>ประเภทรถ</label>
+                <select id="q-truck" value={truckType} onChange={(e) => setTruckType(e.target.value)} className={fieldCls}>
+                  {rateList.map((r) => (
+                    <option key={r.id} value={r.id}>{r.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="q-origin" className={labelCls}>ต้นทาง</label>
+                <select id="q-origin" value={origin} onChange={(e) => setOrigin(e.target.value)} className={fieldCls}>
+                  {REGIONS.map((r) => (
+                    <option key={r.id} value={r.id}>{r.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="q-dest" className={labelCls}>ปลายทาง</label>
+                <select id="q-dest" value={destination} onChange={(e) => setDestination(e.target.value)} className={fieldCls}>
+                  {REGIONS.map((r) => (
+                    <option key={r.id} value={r.id}>{r.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="q-name" className={labelCls}>ชื่อผู้ติดต่อ / บริษัท</label>
+                <input id="q-name" type="text" autoComplete="name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className={fieldCls} />
+              </div>
+              <div>
+                <label htmlFor="q-phone" className={labelCls}>เบอร์โทรศัพท์</label>
+                <input id="q-phone" type="tel" autoComplete="tel" inputMode="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} placeholder="08X-XXX-XXXX" className={fieldCls} />
+              </div>
+              <label className="sm:col-span-2 flex items-center gap-3 cursor-pointer select-none text-sm text-ink">
+                <input
+                  type="checkbox"
+                  checked={isUrgent}
+                  onChange={(e) => setIsUrgent(e.target.checked)}
+                  className="w-5 h-5 accent-[#C1121F] cursor-pointer"
+                />
+                งานด่วนพิเศษภายใน 24 ชม. <span className="text-muted">(+20%)</span>
+              </label>
+            </div>
+
+            {/* Live estimate */}
+            <div className="border-t border-line bg-paper px-6 sm:px-8 py-6 flex flex-col sm:flex-row sm:items-end justify-between gap-5">
+              <div aria-live="polite">
+                <p className="text-xs text-muted">ราคาประมาณการ</p>
+                <p className="mt-1 font-mono text-4xl sm:text-5xl text-ink tabular tracking-tight">
+                  ฿{baseEstimate.toLocaleString()}
+                </p>
+                <p className="mt-1 text-xs text-muted">
+                  {originName.split(" (")[0]} → {destName.split(" (")[0]} · {truckInfo.label}
                 </p>
               </div>
-
-              <form onSubmit={handleRequestOfficialQuote} className="space-y-4">
-                {/* Name & Phone */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[11px] font-bold text-white/90 block mb-1">ชื่อผู้ติดต่อ</label>
-                    <input
-                      type="text"
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                      placeholder="ชื่อ-นามสกุล / บริษัท"
-                      className="w-full px-3 py-2.5 rounded bg-white text-slate-900 text-xs font-medium placeholder:text-slate-400 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[11px] font-bold text-white/90 block mb-1">เบอร์โทรศัพท์</label>
-                    <input
-                      type="tel"
-                      value={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value)}
-                      placeholder="08X-XXX-XXXX"
-                      className="w-full px-3 py-2.5 rounded bg-white text-slate-900 text-xs font-medium placeholder:text-slate-400 focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                {/* Truck Type Select */}
-                <div>
-                  <label className="text-[11px] font-bold text-white/90 block mb-1">ประเภทยานพาหนะ</label>
-                  <select
-                    value={truckType}
-                    onChange={(e) => setTruckType(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded bg-white text-slate-900 text-xs font-bold focus:outline-none"
-                  >
-                    {rateList.map((r) => (
-                      <option key={r.id} value={r.id}>
-                        {r.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Origin & Destination Selects */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[11px] font-bold text-white/90 block mb-1">ภาค/จังหวัดต้นทาง</label>
-                    <select
-                      value={origin}
-                      onChange={(e) => setOrigin(e.target.value)}
-                      className="w-full px-3 py-2.5 rounded bg-white text-slate-900 text-xs font-medium focus:outline-none"
-                    >
-                      {REGIONS.map((r) => (
-                        <option key={r.id} value={r.id}>
-                          {r.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-white/90 block mb-1">ภาค/จังหวัดปลายทาง</label>
-                    <select
-                      value={destination}
-                      onChange={(e) => setDestination(e.target.value)}
-                      className="w-full px-3 py-2.5 rounded bg-white text-slate-900 text-xs font-medium focus:outline-none"
-                    >
-                      {REGIONS.map((r) => (
-                        <option key={r.id} value={r.id}>
-                          {r.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* Urgent Checkbox */}
-                <label className="flex items-center gap-2 cursor-pointer pt-1">
-                  <input
-                    type="checkbox"
-                    checked={isUrgent}
-                    onChange={(e) => setIsUrgent(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#D32F2F] focus:ring-0 cursor-pointer"
-                  />
-                  <span className="text-xs text-white/95 font-bold">
-                    บริการวิ่งด่วนพิเศษ 24 ชม. (+20%)
-                  </span>
-                </label>
-
-                {/* Live Estimated Price Display */}
-                <div className="bg-black/25 rounded-lg p-3.5 border border-white/20 text-center">
-                  <span className="text-[11px] text-white/80 block uppercase tracking-wider font-semibold">
-                    ราคาประมาณการเบื้องต้น
-                  </span>
-                  <div className="text-2xl sm:text-3xl font-black text-white tracking-tight my-0.5">
-                    ~{baseEstimate.toLocaleString()} บาท
-                  </div>
-                  <span className="text-[10px] text-white/70 block">
-                    {originName} ➔ {destName} ({truckInfo.label})
-                  </span>
-                </div>
-
-                {/* Submit / Call Button in Dark Navy #1F1F2E */}
-                <button
-                  type="submit"
-                  className="w-full py-3.5 px-4 rounded bg-[#1F1F2E] hover:bg-black text-white font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg hover:scale-[1.02] flex items-center justify-center gap-2"
-                >
-                  <span>ขอใบเสนอราคาอย่างเป็นทางการ (Get A Quote)</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </form>
+              <button
+                type="submit"
+                className="inline-flex items-center justify-center gap-2 h-12 px-6 bg-brand hover:bg-brand-deep text-white font-medium transition-colors shrink-0"
+              >
+                ขอใบเสนอราคาจริง
+                <ArrowRight className="w-4 h-4" aria-hidden />
+              </button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </section>

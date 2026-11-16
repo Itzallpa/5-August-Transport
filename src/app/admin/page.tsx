@@ -2,7 +2,7 @@
 
 import Swal from "sweetalert2";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useEffectEvent, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -500,10 +500,16 @@ function AdminPortalContent() {
   const rejectedApps = applications.filter((a) => a.status === "REJECTED");
   const bannedApps = applications.filter((a) => a.status === "BANNED");
 
+  // Effect Event: always calls the latest refreshData without re-running on every render
+  const onFiltersChanged = useEffectEvent(() => {
+    refreshData();
+  });
+
   useEffect(() => {
-    if (isAuthenticated) {
-      refreshData();
-    }
+    if (!isAuthenticated) return;
+    // Deferred so state updates happen in a callback (and rapid filter changes collapse into one fetch)
+    const t = setTimeout(onFiltersChanged, 0);
+    return () => clearTimeout(t);
   }, [isAuthenticated, partnerFilter]);
 
   const showToast = (msg: string) => {
@@ -1727,7 +1733,7 @@ function AdminPortalContent() {
                     คิวใบสมัครคนขับรอการตรวจสอบ ({pendingApps.length} รายการ)
                   </h4>
                   <p className="text-xs text-amber-800">
-                    เมื่อคุณกด <strong>"อนุมัติเข้ากองรถ"</strong> หรือ <strong>"มอบหมายคู่ค้า"</strong> รายชื่อจะย้ายไปยังแท็บ <strong>"กองรถคนขับ (Fleet)"</strong> ทันที
+                    เมื่อคุณกด <strong>&ldquo;อนุมัติเข้ากองรถ&rdquo;</strong> หรือ <strong>&ldquo;มอบหมายคู่ค้า&rdquo;</strong> รายชื่อจะย้ายไปยังแท็บ <strong>&ldquo;กองรถคนขับ (Fleet)&rdquo;</strong> ทันที
                   </p>
                 </div>
               </div>
@@ -2106,7 +2112,7 @@ function AdminPortalContent() {
                     รายการใบสมัครไม่ผ่านการอนุมัติ / สละสิทธิ์ ({rejectedApps.length} รายการ)
                   </h4>
                   <p className="text-xs text-rose-800">
-                    ผู้สมัครที่ไม่ผ่านเกณฑ์การคัดเลือก คุณสามารถกด <strong>"นำกลับมาพิจารณาใหม่"</strong> เพื่อย้ายกลับไปยังแท็บรอตรวจได้ตลอดเวลา
+                    ผู้สมัครที่ไม่ผ่านเกณฑ์การคัดเลือก คุณสามารถกด <strong>&ldquo;นำกลับมาพิจารณาใหม่&rdquo;</strong> เพื่อย้ายกลับไปยังแท็บรอตรวจได้ตลอดเวลา
                   </p>
                 </div>
               </div>

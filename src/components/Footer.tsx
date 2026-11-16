@@ -1,17 +1,6 @@
-import Link from "next/image";
 import Image from "next/image";
-import {
-  Phone,
-  Mail,
-  MapPin,
-  Clock,
-  ArrowRight,
-  MessageSquare,
-  ShieldCheck,
-  Send,
-  Truck,
-} from "lucide-react";
-import { COMPANY_INFO } from "@/lib/constants";
+import { ArrowUpRight } from "lucide-react";
+import { COMPANY_INFO, resolveLineId } from "@/lib/constants";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
 
 export default function Footer({ content }: { content?: Partial<SiteContentData> }) {
@@ -21,184 +10,137 @@ export default function Footer({ content }: { content?: Partial<SiteContentData>
   const phoneRaw = content?.phoneRaw || COMPANY_INFO.phoneRaw;
   const email = content?.email || COMPANY_INFO.email;
   const address = content?.address || COMPANY_INFO.address;
-  const lineId = content?.lineId || COMPANY_INFO.lineId;
+  const lineId = resolveLineId(content?.lineId);
   const operatingHours = content?.operatingHours || COMPANY_INFO.operatingHours;
+  const ctaBadge = content?.footerContactBadge || "ติดต่อฝ่ายปฏิบัติการเดินรถ";
+  const ctaTitle =
+    content?.footerContactTitle || "พร้อมเป็นพันธมิตรโลจิสติกส์ที่ขับเคลื่อนธุรกิจของคุณ";
+  const ctaSubtitle =
+    content?.footerContactSubtitle ||
+    "ปรึกษางานขนส่งประจำโรงงาน เหมาเที่ยว หรือกระจายสินค้า DC โทรหาเราได้ตลอด 24 ชั่วโมง";
+  const copyright = content?.footerCopyright || `© ${new Date().getFullYear()} ${nameTh} สงวนลิขสิทธิ์`;
+  const lineHref = `https://line.me/R/ti/p/${lineId}`;
+
+  const columns = [
+    {
+      title: "บริษัท",
+      links: [
+        { href: "#about", label: "เกี่ยวกับเรา" },
+        { href: "#team", label: "ทีมงาน" },
+        { href: "#gallery", label: "ภาพการทำงาน" },
+        { href: "#recruitment", label: "ร่วมงานกับเรา" },
+      ],
+    },
+    {
+      title: "บริการ",
+      links: [
+        { href: "#services", label: "บริการขนส่ง" },
+        { href: "#solutions", label: "ประเภทรถ" },
+        { href: "#pricing", label: "อัตราค่าบริการ" },
+        { href: "#quote", label: "คำนวณราคา" },
+      ],
+    },
+  ];
 
   return (
-    <footer id="contact" className="bg-[#1F1F2E] text-white pt-16 sm:pt-20 border-t-4 border-[#D32F2F]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12">
-          {/* Col 1: Get In Touch (Company Info) */}
-          <div className="lg:col-span-4 space-y-5">
-            <div className="flex items-center gap-3">
-              <div className="relative h-14 w-44 bg-white rounded-lg p-2 shadow shrink-0">
-                <Image
-                  src={content?.logoUrl || "/images/logo.png"}
-                  alt="5 August Transport Logo"
-                  fill
-                  className="object-contain p-1"
-                />
-              </div>
+    <footer id="contact" className="bg-ink text-paper">
+      {/* Closing CTA */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
+        <p className="eyebrow text-paper/60 flex items-center gap-3">
+          <span className="inline-block w-8 h-px bg-brand" aria-hidden />
+          {ctaBadge}
+        </p>
+        <h2 className="mt-6 max-w-4xl text-3xl sm:text-5xl lg:text-6xl font-semibold tracking-tight">
+          {ctaTitle}
+        </h2>
+        <p className="mt-6 max-w-2xl text-paper/70 text-lg leading-relaxed">{ctaSubtitle}</p>
+
+        <div className="mt-12 grid md:grid-cols-3 border-t border-line-dark">
+          <a
+            href={`tel:${phoneRaw}`}
+            className="group py-6 md:pr-6 border-b md:border-b-0 border-line-dark flex items-end justify-between gap-4"
+          >
+            <span>
+              <span className="block text-xs text-paper/60">โทร 24 ชั่วโมง</span>
+              <span className="mt-1 block font-mono text-2xl sm:text-3xl tabular group-hover:text-white">{phone}</span>
+            </span>
+            <ArrowUpRight className="w-5 h-5 text-paper/40 group-hover:text-brand transition-colors" aria-hidden />
+          </a>
+          <a
+            href={lineHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group py-6 md:px-6 md:border-l border-b md:border-b-0 border-line-dark flex items-end justify-between gap-4"
+          >
+            <span>
+              <span className="block text-xs text-paper/60">LINE</span>
+              <span className="mt-1 block font-mono text-2xl sm:text-3xl group-hover:text-white">{lineId}</span>
+            </span>
+            <ArrowUpRight className="w-5 h-5 text-paper/40 group-hover:text-[#06C755] transition-colors" aria-hidden />
+          </a>
+          <a
+            href={`mailto:${email}`}
+            className="group py-6 md:pl-6 md:border-l border-line-dark flex items-end justify-between gap-4 min-w-0"
+          >
+            <span className="min-w-0">
+              <span className="block text-xs text-paper/60">อีเมล</span>
+              <span className="mt-1 block text-lg sm:text-xl truncate group-hover:text-white">{email}</span>
+            </span>
+            <ArrowUpRight className="w-5 h-5 shrink-0 text-paper/40 group-hover:text-brand transition-colors" aria-hidden />
+          </a>
+        </div>
+      </div>
+
+      {/* Directory */}
+      <div className="border-t border-line-dark">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 grid gap-10 md:grid-cols-12">
+          <div className="md:col-span-5">
+            <div className="relative h-14 w-44 bg-paper p-2">
+              <Image
+                src={content?.logoUrl || "/images/logo.png"}
+                alt="5 August Transport"
+                fill
+                sizes="176px"
+                className="object-contain p-1.5"
+              />
             </div>
-
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-light">
-              บริษัท 5 สิงหา ทรานสปอร์ต จำกัด ผู้ให้บริการขนส่งสินค้าและโลจิสติกส์ด่วนทั่วไทย พันธมิตร KEX Express Linehaul มุ่งมั่นส่งต่อความมั่นใจในทุกการเดินทาง ด้วยมาตรฐานความปลอดภัยสูงสุด
-            </p>
-
-            <div className="space-y-3 pt-2 text-xs sm:text-sm text-slate-300">
-              <div className="flex items-start gap-3">
-                <MapPin className="w-4 h-4 text-[#D32F2F] shrink-0 mt-1" />
-                <span className="leading-relaxed">{address}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Phone className="w-4 h-4 text-[#D32F2F] shrink-0" />
-                <a href={`tel:${phoneRaw}`} className="hover:text-white font-bold transition-colors">
-                  {phone} (สายด่วน 24 ชม.)
-                </a>
-              </div>
-              <div className="flex items-center gap-3">
-                <Mail className="w-4 h-4 text-[#D32F2F] shrink-0" />
-                <a href={`mailto:${email}`} className="hover:text-white transition-colors">
-                  {email}
-                </a>
-              </div>
-              <div className="flex items-center gap-3 text-emerald-400 font-semibold">
-                <Clock className="w-4 h-4 shrink-0" />
-                <span>{operatingHours}</span>
-              </div>
-            </div>
+            <p className="mt-6 text-sm text-paper/70 leading-relaxed max-w-sm">{address}</p>
+            <p className="mt-3 text-sm text-paper/50">{operatingHours}</p>
           </div>
 
-          {/* Col 2: Quick Links */}
-          <div className="lg:col-span-2 space-y-4">
-            <h4 className="text-base font-black text-[#D32F2F] uppercase tracking-wider font-mono">
-              Quick Links
-            </h4>
-            <ul className="space-y-2.5 text-xs sm:text-sm text-slate-300">
-              <li>
-                <a href="#home" className="hover:text-[#D32F2F] transition-colors flex items-center gap-1.5">
-                  <ArrowRight className="w-3.5 h-3.5 text-[#D32F2F]" />
-                  <span>หน้าแรก (Home)</span>
-                </a>
-              </li>
-              <li>
-                <a href="#about" className="hover:text-[#D32F2F] transition-colors flex items-center gap-1.5">
-                  <ArrowRight className="w-3.5 h-3.5 text-[#D32F2F]" />
-                  <span>เกี่ยวกับเรา (About)</span>
-                </a>
-              </li>
-              <li>
-                <a href="#services" className="hover:text-[#D32F2F] transition-colors flex items-center gap-1.5">
-                  <ArrowRight className="w-3.5 h-3.5 text-[#D32F2F]" />
-                  <span>บริการขนส่ง (Services)</span>
-                </a>
-              </li>
-              <li>
-                <a href="#quote" className="hover:text-[#D32F2F] transition-colors flex items-center gap-1.5">
-                  <ArrowRight className="w-3.5 h-3.5 text-[#D32F2F]" />
-                  <span>คำนวณราคา (Price Quote)</span>
-                </a>
-              </li>
-              <li>
-                <a href="#pricing" className="hover:text-[#D32F2F] transition-colors flex items-center gap-1.5">
-                  <ArrowRight className="w-3.5 h-3.5 text-[#D32F2F]" />
-                  <span>อัตราค่าบริการ (Pricing)</span>
-                </a>
-              </li>
-              <li>
-                <a href="#recruitment" className="hover:text-[#D32F2F] transition-colors flex items-center gap-1.5">
-                  <ArrowRight className="w-3.5 h-3.5 text-[#D32F2F]" />
-                  <span>ร่วมงานกับเรา (Careers)</span>
-                </a>
-              </li>
-            </ul>
-          </div>
+          {columns.map((col) => (
+            <nav key={col.title} className="md:col-span-2" aria-label={col.title}>
+              <h3 className="eyebrow text-paper/50">{col.title}</h3>
+              <ul className="mt-4 space-y-1">
+                {col.links.map((l) => (
+                  <li key={l.href}>
+                    <a href={l.href} className="inline-block py-1.5 text-sm text-paper/80 hover:text-white transition-colors">
+                      {l.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
 
-          {/* Col 3: Services & Fleet */}
-          <div className="lg:col-span-3 space-y-4">
-            <h4 className="text-base font-black text-[#D32F2F] uppercase tracking-wider font-mono">
-              Our Services
-            </h4>
-            <ul className="space-y-2.5 text-xs sm:text-sm text-slate-300">
-              <li>
-                <a href="#solutions" className="hover:text-[#D32F2F] transition-colors flex items-center gap-1.5">
-                  <Truck className="w-3.5 h-3.5 text-[#D32F2F]" />
-                  <span>รถกระบะ 4 ล้อ ตู้ทึบ (City Last-Mile)</span>
-                </a>
-              </li>
-              <li>
-                <a href="#solutions" className="hover:text-[#D32F2F] transition-colors flex items-center gap-1.5">
-                  <Truck className="w-3.5 h-3.5 text-[#D32F2F]" />
-                  <span>รถ 4 ล้อ จัมโบ้ (10.8 CBM High Capacity)</span>
-                </a>
-              </li>
-              <li>
-                <a href="#solutions" className="hover:text-[#D32F2F] transition-colors flex items-center gap-1.5">
-                  <Truck className="w-3.5 h-3.5 text-[#D32F2F]" />
-                  <span>รถ 6 ล้อ ตู้ทึบ (Linehaul ข้ามภาค)</span>
-                </a>
-              </li>
-              <li>
-                <a href="#pricing" className="hover:text-[#D32F2F] transition-colors flex items-center gap-1.5">
-                  <Truck className="w-3.5 h-3.5 text-[#D32F2F]" />
-                  <span>งานเหมาคันสัญญารายเดือน (Dedicated)</span>
-                </a>
-              </li>
-              <li>
-                <a href="#features" className="hover:text-[#D32F2F] transition-colors flex items-center gap-1.5">
-                  <Truck className="w-3.5 h-3.5 text-[#D32F2F]" />
-                  <span>งานวิ่งด่วนฉุกเฉิน 24 ชม. ทั่วประเทศ</span>
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Col 4: Newsletter & Quick Contact */}
-          <div className="lg:col-span-3 space-y-4">
-            <h4 className="text-base font-black text-[#D32F2F] uppercase tracking-wider font-mono">
-              Contact & Social
-            </h4>
-            <p className="text-xs text-slate-300 leading-relaxed font-light">
-              ติดต่อสอบถามอัตราค่าบริการ หรือปรึกษาการขนส่งสินค้าประจำโรงงานได้ทันทีผ่าน LINE OA
-            </p>
-
-            {/* LINE OA Button */}
+          <div className="md:col-span-3">
+            <h3 className="eyebrow text-paper/50">พันธมิตร</h3>
+            <p className="mt-4 text-sm text-paper/80">KEX Express — Linehaul</p>
             <a
-              href={`https://line.me/ti/p/~${lineId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-[#06C755] hover:bg-[#05a847] text-white font-extrabold text-xs uppercase tracking-wider shadow transition-all hover:scale-[1.02]"
+              href="#recruitment"
+              className="mt-6 inline-flex items-center gap-2 h-11 px-4 border border-line-dark text-sm hover:border-paper transition-colors"
             >
-              <MessageSquare className="w-4 h-4" />
-              <span>แอด LINE ID: {lineId}</span>
-            </a>
-
-            {/* Direct Phone Call Button */}
-            <a
-              href={`tel:${phoneRaw}`}
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-extrabold text-xs uppercase tracking-wider shadow transition-all hover:scale-[1.02]"
-            >
-              <Phone className="w-4 h-4" />
-              <span>โทรด่วน: {phone}</span>
+              สมัครคนขับรถร่วม
+              <ArrowUpRight className="w-4 h-4" aria-hidden />
             </a>
           </div>
         </div>
       </div>
 
-      {/* Sub-Footer Copyright Bar */}
-      <div className="border-t border-[#3E3E4E] bg-[#181824] py-5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-          <p className="m-0 text-center sm:text-left">
-            &copy; 2026 <strong className="text-white">{nameEn}</strong> ({nameTh}). All Rights Reserved.
-          </p>
-
-          <div className="flex items-center gap-4 text-slate-400">
-            <a href="#home" className="hover:text-white transition-colors">Privacy Policy</a>
-            <span>•</span>
-            <a href="#home" className="hover:text-white transition-colors">Terms of Service</a>
-            <span>•</span>
-            <a href="#recruitment" className="text-amber-400 hover:underline">รับสมัครคนขับร่วม</a>
-          </div>
+      <div className="border-t border-line-dark">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row justify-between gap-2 text-xs text-paper/50">
+          <p>{copyright}</p>
+          <p className="font-mono uppercase tracking-wider">{nameEn}</p>
         </div>
       </div>
     </footer>

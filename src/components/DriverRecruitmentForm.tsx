@@ -10,31 +10,12 @@ import {
   driverApplicationSchema,
   DriverApplicationInput,
 } from "@/lib/validations";
-import { LICENSE_TYPES, VEHICLE_OPTIONS, COMPANY_INFO } from "@/lib/constants";
+import { LICENSE_TYPES, VEHICLE_OPTIONS, COMPANY_INFO, resolveLineId } from "@/lib/constants";
 import { submitDriverApplication } from "@/app/actions/driver-actions";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
 import { Editable, Movable } from "@/components/editor/EditorContext";
-import {
-  Truck,
-  User,
-  Phone,
-  MessageSquare,
-  MapPin,
-  FileBadge,
-  Clock,
-  Upload,
-  CheckCircle2,
-  AlertCircle,
-  Coins,
-  CalendarCheck,
-  ShieldCheck,
-  Send,
-  Briefcase,
-  Loader2,
-  Trash2,
-  Eye,
-  ImageIcon,
-} from "lucide-react";
+import SectionHeading from "@/components/ui/SectionHeading";
+import { Upload, CheckCircle2, Send, Loader2, Trash2 } from "lucide-react";
 
 export default function DriverRecruitmentForm({ content }: { content?: Partial<SiteContentData> }) {
   const recruitBadge = content?.recruitBadge || "เปิดรับสมัครเพื่อนร่วมทาง • สร้างรายได้มั่นคง";
@@ -47,7 +28,7 @@ export default function DriverRecruitmentForm({ content }: { content?: Partial<S
   const benefit4 = content?.recruitBenefit4 || "สิทธิประโยชน์และโบนัสเที่ยวพิเศษสำหรับคนขับผลงานดี";
   const phone = content?.phone || COMPANY_INFO.phone;
   const phoneRaw = content?.phoneRaw || COMPANY_INFO.phoneRaw;
-  const lineId = content?.lineId || COMPANY_INFO.lineId;
+  const lineId = resolveLineId(content?.lineId);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mockFileName, setMockFileName] = useState<string | null>(null);
@@ -104,7 +85,7 @@ export default function DriverRecruitmentForm({ content }: { content?: Partial<S
           icon: "error",
           title: "อัปโหลดไม่สำเร็จ",
           text: data.error || "กรุณาเลือกไฟล์ภาพ JPG, PNG หรือ WEBP",
-          confirmButtonColor: "#D32F2F",
+          confirmButtonColor: "#C1121F",
         });
       }
     } catch {
@@ -112,7 +93,7 @@ export default function DriverRecruitmentForm({ content }: { content?: Partial<S
         icon: "error",
         title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์อัปโหลดได้",
-        confirmButtonColor: "#D32F2F",
+        confirmButtonColor: "#C1121F",
       });
     } finally {
       setIsUploadingDocument(false);
@@ -132,7 +113,7 @@ export default function DriverRecruitmentForm({ content }: { content?: Partial<S
             particleCount: 100,
             spread: 70,
             origin: { y: 0.6 },
-            colors: ["#D32F2F", "#EF4444", "#1E293B", "#F59E0B"],
+            colors: ["#C1121F", "#EF4444", "#1E293B", "#F59E0B"],
           });
         } catch {
           // Ignore confetti errors
@@ -148,7 +129,7 @@ export default function DriverRecruitmentForm({ content }: { content?: Partial<S
               <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px; margin: 12px 0;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                   <span style="color: #64748B;">รหัสอ้างอิงใบสมัคร:</span>
-                  <strong style="color: #D32F2F; font-family: monospace;">${res.data.id.slice(0, 8).toUpperCase()}</strong>
+                  <strong style="color: #C1121F; font-family: monospace;">${res.data.id.slice(0, 8).toUpperCase()}</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                   <span style="color: #64748B;">เบอร์โทรติดต่อ:</span>
@@ -165,7 +146,7 @@ export default function DriverRecruitmentForm({ content }: { content?: Partial<S
             </div>
           `,
           confirmButtonText: "ตกลง รับทราบ",
-          confirmButtonColor: "#D32F2F",
+          confirmButtonColor: "#C1121F",
         });
 
         reset();
@@ -176,7 +157,7 @@ export default function DriverRecruitmentForm({ content }: { content?: Partial<S
           icon: "error",
           title: "ไม่สามารถส่งใบสมัครได้",
           text: res.error || "กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง",
-          confirmButtonColor: "#D32F2F",
+          confirmButtonColor: "#C1121F",
           confirmButtonText: "ปิด",
         });
       }
@@ -185,7 +166,7 @@ export default function DriverRecruitmentForm({ content }: { content?: Partial<S
         icon: "error",
         title: "ระบบขัดข้องชั่วคราว",
         text: `กรุณาโทรติดต่อฝ่ายบุคคลโดยตรงที่เบอร์ ${phone} หรือแอด LINE: ${lineId}`,
-        confirmButtonColor: "#D32F2F",
+        confirmButtonColor: "#C1121F",
         confirmButtonText: "ปิด",
       });
     } finally {
@@ -199,237 +180,185 @@ export default function DriverRecruitmentForm({ content }: { content?: Partial<S
     }
   };
 
+  const field = (hasError: boolean) =>
+    `w-full h-11 px-3 bg-white border text-ink text-sm focus:outline-none transition-colors ${
+      hasError ? "border-brand bg-[#FBEAEA]" : "border-line focus:border-ink"
+    }`;
+
+  const benefits = [
+    { title: benefit1, note: "งานจาก KEX Express และศูนย์กระจายสินค้า DC ประจำ" },
+    { title: benefit2, note: "เงินเข้าตามรอบชัดเจน มีเงินสำรองค่าน้ำมันและเงินเบิกฉุกเฉิน" },
+    { title: benefit3, note: "ทีมประสานงานดูแลปัญหาหน้างานและเส้นทางตลอด 24 ชั่วโมง" },
+    { title: benefit4, note: "เงินพิเศษตามระยะทางและคะแนนความตรงต่อเวลา" },
+  ];
+
   return (
-    <section id="recruitment" className="py-20 bg-slate-100 text-slate-800 border-b border-slate-200">
+    <section id="recruitment" className="py-20 sm:py-28 bg-paper-2">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          {/* Left Column: Why Join Us */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="space-y-3">
-              <Movable field="recruitBadgeBox" className="inline-block rounded-full">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-[#D32F2F] border border-red-200 text-xs font-bold uppercase tracking-wider">
-                  <Briefcase className="w-3.5 h-3.5" />
-                  <Editable field="recruitBadge" value={recruitBadge} noTransform />
-                </div>
-              </Movable>
+        <SectionHeading
+          label={
+            <Movable field="recruitBadgeBox" as="span">
+              <Editable field="recruitBadge" value={recruitBadge} noTransform />
+            </Movable>
+          }
+          title={
+            <Movable field="recruitTitleBox" as="span">
+              <Editable field="recruitTitle" value={recruitTitle} noTransform />
+            </Movable>
+          }
+          intro={
+            <Movable field="recruitSubtitleBox" as="span">
+              <Editable field="recruitSubtitle" value={recruitSubtitle} multiline noTransform />
+            </Movable>
+          }
+        />
 
-              <Movable field="recruitTitleBox" className="block">
-                <h2 className="text-2xl sm:text-4xl font-black text-slate-900 leading-tight">
-                  <Editable field="recruitTitle" value={recruitTitle} noTransform />
-                </h2>
-              </Movable>
-
-              <Movable field="recruitSubtitleBox" className="block">
-                <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-                  <Editable field="recruitSubtitle" value={recruitSubtitle} multiline noTransform />
-                </p>
-              </Movable>
-            </div>
-
-            {/* Income Highlight Card */}
-            <Movable field="recruitIncomeBox" className="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-md flex items-center justify-between block">
-              <div>
-                <span className="text-xs text-slate-500 font-semibold uppercase block">ประมาณการรายได้คนขับร่วม:</span>
-                <span className="text-xl sm:text-2xl font-black text-[#D32F2F] mt-0.5 block">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+          <div className="lg:col-span-5">
+            <Movable field="recruitIncomeBox" className="block">
+              <div className="border-t border-ink pt-5">
+                <p className="text-sm text-muted">รายได้คนขับรถร่วมโดยประมาณ</p>
+                <p className="mt-2 font-mono text-3xl sm:text-4xl text-ink tabular tracking-tight">
                   <Editable field="recruitIncomeHighlight" value={recruitIncome} noTransform />
+                </p>
+                <p className="mt-1 text-sm text-ink-soft">จ่ายตรงงวด รับงานต่อเนื่องทุกวัน</p>
+              </div>
+            </Movable>
+
+            <ul className="mt-10 border-t border-line">
+              {benefits.map((bf, i) => (
+                <li key={i} className="grid grid-cols-[2.5rem_1fr] py-4 border-b border-line">
+                  <span className="font-mono text-xs text-muted tabular pt-1">{String(i + 1).padStart(2, "0")}</span>
+                  <div>
+                    <h3 className="text-ink font-medium">{bf.title}</h3>
+                    <p className="text-sm text-muted mt-0.5">{bf.note}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <Movable field="recruitPosterBox" className="block mt-10">
+              <button
+                type="button"
+                className="group flex w-full items-center gap-4 text-left"
+                onClick={() => {
+                  Swal.fire({
+                    imageUrl: "/images/kex-partner-poster.jpg",
+                    imageAlt: "รายละเอียดรับสมัครรถร่วม 5 August x KEX",
+                    width: "800px",
+                    confirmButtonText: "ปิด",
+                    confirmButtonColor: "#C1121F",
+                  });
+                }}
+              >
+                <span className="relative w-20 h-24 shrink-0 bg-white border border-line overflow-hidden">
+                  <Image src="/images/kex-partner-poster.jpg" alt="" fill sizes="80px" className="object-cover object-top" />
                 </span>
-              </div>
-              <span className="px-3 py-1 text-xs font-bold bg-emerald-100 text-emerald-800 rounded-full border border-emerald-200">
-                จ่ายตรงงวด
-              </span>
+                <span>
+                  <span className="block text-ink font-medium group-hover:text-brand transition-colors">ดูโปสเตอร์และสเปครถที่รับสมัคร</span>
+                  <span className="block text-sm text-muted mt-0.5">5 August × KEX Express · 4W / 4WJ / 6W</span>
+                </span>
+              </button>
             </Movable>
 
-            {/* Official KEX Partner Recruitment Poster Preview */}
-            <Movable field="recruitPosterBox" className="block">
-              <div className="p-4 rounded-3xl bg-white border border-slate-200 shadow-md space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                  <div className="relative h-6 w-36">
-                    <Image
-                      src="/images/partner-logo.png"
-                      alt="5 August x KEX"
-                      fill
-                      className="object-contain object-left"
-                    />
-                  </div>
-                  <span className="text-[11px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full border border-red-200">
-                    เปิดรับ 4W • 4WJ • 6W
-                  </span>
-                </div>
-
-                <div
-                  className="relative h-64 sm:h-72 w-full rounded-2xl overflow-hidden cursor-pointer group/poster bg-slate-50 border border-slate-100"
-                  onClick={() => {
-                    Swal.fire({
-                      imageUrl: "/images/kex-partner-poster.jpg",
-                      imageAlt: "รายละเอียดรับสมัครรถร่วม 5 August x KEX",
-                      width: "800px",
-                      showConfirmButton: true,
-                      confirmButtonText: "ปิดหน้าต่าง",
-                      confirmButtonColor: "#D32F2F",
-                    });
-                  }}
-                  title="คลิกเพื่อดูโปสเตอร์และสเปครถขนาดใหญ่"
-                >
-                  <Image
-                    src="/images/kex-partner-poster.jpg"
-                    alt="โปสเตอร์รับสมัครรถร่วม KEX Express x 5 August Transport"
-                    fill
-                    className="object-contain object-center group-hover/poster:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/poster:opacity-100 transition-opacity flex items-center justify-center">
-                    <span className="px-3.5 py-1.5 rounded-full bg-white text-slate-900 font-bold text-xs shadow-lg flex items-center gap-1.5">
-                      <Eye className="w-4 h-4 text-red-600" />
-                      <span>คลิกเพื่อดูสเปครถขนาดใหญ่</span>
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Movable>
-
-            {/* Benefit Highlights - Organic Human List Cards */}
-            <div className="space-y-3">
-              <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex items-start gap-3">
-                <div className="p-2.5 rounded-xl bg-red-50 text-[#D32F2F] shrink-0 mt-0.5">
-                  <Coins className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-900 text-sm">{benefit1}</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">มีพันธมิตรจัดส่งพัสดุด่วนระดับชาติ (KEX) และศูนย์กระจายสินค้า DC ประจำ</p>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex items-start gap-3">
-                <div className="p-2.5 rounded-xl bg-amber-50 text-amber-600 shrink-0 mt-0.5">
-                  <CalendarCheck className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-900 text-sm">{benefit2}</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">เงินเข้าบัญชีตามรอบชัดเจน มีระบบเงินสำรองค่าน้ำมันและเงินเบิกฉุกเฉิน</p>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex items-start gap-3">
-                <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 shrink-0 mt-0.5">
-                  <ShieldCheck className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-900 text-sm">{benefit3}</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">ทีมประสานงานคอยดูแลแก้ไขปัญหาหน้างานและเส้นทางตลอด 24 ชั่วโมง</p>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex items-start gap-3">
-                <div className="p-2.5 rounded-xl bg-amber-50 text-amber-600 shrink-0 mt-0.5">
-                  <CheckCircle2 className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-900 text-sm">{benefit4}</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">เงินพิเศษตามระยะทางและคะแนนความตรงต่อเวลา พร้อมสิทธิประโยชน์มากมาย</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Direct Contact Banner */}
-            <div className="p-5 rounded-2xl bg-slate-900 text-white text-xs sm:text-sm space-y-1.5 shadow-md">
-              <span className="font-bold text-white block">ต้องการสอบถามตำแหน่งงานโดยตรงกับฝ่ายบุคคล:</span>
-              <p className="text-slate-300">
-                โทร: <a href={`tel:${phoneRaw}`} className="text-red-400 font-bold hover:underline">{phone}</a> หรือแอด LINE: <span className="font-bold text-emerald-400 font-mono">@{lineId}</span>
-              </p>
-            </div>
+            <p className="mt-10 text-sm text-ink-soft">
+              สอบถามฝ่ายบุคคลโดยตรง{" "}
+              <a href={`tel:${phoneRaw}`} className="font-mono text-ink underline underline-offset-4 decoration-line hover:decoration-ink">{phone}</a>
+              {" "}หรือ LINE <span className="font-mono text-ink">{lineId.startsWith("@") ? lineId : `@${lineId}`}</span>
+            </p>
           </div>
 
-          {/* Right Column: Organic Human Application Form */}
+          {/* Application form */}
           <div className="lg:col-span-7">
-            <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xl">
-              <div className="border-b border-slate-200 pb-4 mb-6">
-                <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                  <Truck className="w-5 h-5 text-[#D32F2F]" />
-                  <span>แบบฟอร์มสมัครขับรถร่วม (Driver Application)</span>
-                </h3>
-                <p className="text-xs text-slate-500 mt-1">
+            <div className="bg-white border border-line p-6 sm:p-10">
+              <div className="pb-6 mb-8 border-b border-line">
+                <h3 className="text-2xl font-semibold text-ink tracking-tight">ใบสมัครคนขับรถร่วม</h3>
+                <p className="text-sm text-muted mt-2">
                   กรอกข้อมูลเบื้องต้นให้ครบถ้วน เพื่อให้เจ้าหน้าที่ตรวจสอบและนัดหมายเริ่มงาน
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
                 {/* Full Name & Phone */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label htmlFor="rf-fullName" className="block text-sm text-ink mb-1.5">
                       ชื่อ - นามสกุลจริง *
                     </label>
                     <input
                       type="text"
                       placeholder="เช่น สมเกียรติ มั่นคงดี"
-                      {...register("fullName")}
-                      className={`w-full px-3.5 py-2.5 rounded-md border text-slate-900 text-sm bg-slate-50 focus:bg-white focus:outline-none ${
-                        errors.fullName ? "border-red-500 bg-red-50" : "border-slate-300 focus:border-[#D32F2F] focus:ring-1 focus:ring-[#D32F2F]"
-                      }`}
+                      id="rf-fullName"
+                    {...register("fullName")}
+                      className={field(!!errors.fullName)}
+                      aria-invalid={!!errors.fullName}
                     />
                     {errors.fullName && (
-                      <p className="text-xs text-red-600 mt-1">{errors.fullName.message}</p>
+                      <p className="text-xs text-brand mt-1.5" role="alert">{errors.fullName.message}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label htmlFor="rf-phone" className="block text-sm text-ink mb-1.5">
                       เบอร์โทรศัพท์ติดต่อ *
                     </label>
                     <input
                       type="tel"
                       placeholder="เช่น 0843263546"
-                      {...register("phone")}
-                      className={`w-full px-3.5 py-2.5 rounded-md border text-slate-900 text-sm bg-slate-50 focus:bg-white focus:outline-none ${
-                        errors.phone ? "border-red-500 bg-red-50" : "border-slate-300 focus:border-[#D32F2F] focus:ring-1 focus:ring-[#D32F2F]"
-                      }`}
+                      id="rf-phone"
+                    {...register("phone")}
+                      className={field(!!errors.phone)}
+                      aria-invalid={!!errors.phone}
                     />
                     {errors.phone && (
-                      <p className="text-xs text-red-600 mt-1">{errors.phone.message}</p>
+                      <p className="text-xs text-brand mt-1.5" role="alert">{errors.phone.message}</p>
                     )}
                   </div>
                 </div>
 
                 {/* LINE ID & Province */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label htmlFor="rf-lineId" className="block text-sm text-ink mb-1.5">
                       LINE ID (สำหรับส่งงาน / แจ้งผล)
                     </label>
                     <input
                       type="text"
                       placeholder="เช่น somkiat_line"
-                      {...register("lineId")}
-                      className="w-full px-3.5 py-2.5 rounded-md border border-slate-300 text-slate-900 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:border-[#D32F2F] focus:ring-1 focus:ring-[#D32F2F]"
+                      id="rf-lineId"
+                    {...register("lineId")}
+                      className={field(false)}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label htmlFor="rf-province" className="block text-sm text-ink mb-1.5">
                       จังหวัด / พื้นที่พักอาศัย *
                     </label>
                     <input
                       type="text"
                       placeholder="เช่น สมุทรปราการ, บางพลี, ชลบุรี"
-                      {...register("province")}
-                      className={`w-full px-3.5 py-2.5 rounded-md border text-slate-900 text-sm bg-slate-50 focus:bg-white focus:outline-none ${
-                        errors.province ? "border-red-500 bg-red-50" : "border-slate-300 focus:border-[#D32F2F] focus:ring-1 focus:ring-[#D32F2F]"
-                      }`}
+                      id="rf-province"
+                    {...register("province")}
+                      className={field(!!errors.province)}
+                      aria-invalid={!!errors.province}
                     />
                     {errors.province && (
-                      <p className="text-xs text-red-600 mt-1">{errors.province.message}</p>
+                      <p className="text-xs text-brand mt-1.5" role="alert">{errors.province.message}</p>
                     )}
                   </div>
                 </div>
 
                 {/* License Type & Vehicle Type */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label htmlFor="rf-licenseType" className="block text-sm text-ink mb-1.5">
                       ประเภทใบอนุญาตขับขี่ที่มี *
                     </label>
                     <select
-                      {...register("licenseType")}
-                      className="w-full px-3.5 py-2.5 rounded-md border border-slate-300 text-slate-900 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:border-[#D32F2F] focus:ring-1 focus:ring-[#D32F2F]"
+                      id="rf-licenseType"
+                    {...register("licenseType")}
+                      className={field(false)}
                     >
                       {LICENSE_TYPES.map((lt) => (
                         <option key={lt.value} value={lt.value}>
@@ -440,12 +369,13 @@ export default function DriverRecruitmentForm({ content }: { content?: Partial<S
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label htmlFor="rf-vehicleType" className="block text-sm text-ink mb-1.5">
                       ประเภทยานพาหนะที่ต้องการสมัคร *
                     </label>
                     <select
-                      {...register("vehicleType")}
-                      className="w-full px-3.5 py-2.5 rounded-md border border-slate-300 text-slate-900 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:border-[#D32F2F] focus:ring-1 focus:ring-[#D32F2F]"
+                      id="rf-vehicleType"
+                    {...register("vehicleType")}
+                      className={field(false)}
                     >
                       {VEHICLE_OPTIONS.map((vo) => (
                         <option key={vo.value} value={vo.value}>
@@ -458,7 +388,7 @@ export default function DriverRecruitmentForm({ content }: { content?: Partial<S
 
                 {/* Experience Years */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label htmlFor="rf-experienceYears" className="block text-sm text-ink mb-1.5">
                     จำนวนปีประสบการณ์ขับรถขนส่ง (ปี) *
                   </label>
                   <input
@@ -466,35 +396,35 @@ export default function DriverRecruitmentForm({ content }: { content?: Partial<S
                     min={0}
                     max={50}
                     placeholder="เช่น 3"
-                    {...register("experienceYears")}
-                    className={`w-full px-3.5 py-2.5 rounded-md border text-slate-900 text-sm bg-slate-50 focus:bg-white focus:outline-none ${
-                      errors.experienceYears ? "border-red-500 bg-red-50" : "border-slate-300 focus:border-[#D32F2F] focus:ring-1 focus:ring-[#D32F2F]"
-                    }`}
+                    id="rf-experienceYears"
+                  {...register("experienceYears")}
+                    className={field(!!errors.experienceYears)}
+                      aria-invalid={!!errors.experienceYears}
                   />
                   {errors.experienceYears && (
-                    <p className="text-xs text-red-600 mt-1">{errors.experienceYears.message}</p>
+                    <p className="text-xs text-brand mt-1.5" role="alert">{errors.experienceYears.message}</p>
                   )}
                 </div>
 
                 {/* Real File Upload */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label htmlFor="rf-notes" className="block text-sm text-ink mb-1.5">
                     แนบรูปถ่ายใบขับขี่ / บัตรประชาชน (ถ้ามี)
                   </label>
 
                   {isUploadingDocument ? (
-                    <div className="border-2 border-dashed border-red-300 rounded-md p-5 text-center bg-red-50/50 flex flex-col items-center justify-center gap-2">
-                      <Loader2 className="w-6 h-6 text-[#D32F2F] animate-spin" />
-                      <span className="text-xs font-semibold text-slate-700">กำลังอัปโหลดรูปภาพ... กรุณารอสักครู่</span>
+                    <div className="border border-dashed border-line p-5 text-center bg-paper flex flex-col items-center justify-center gap-2">
+                      <Loader2 className="w-6 h-6 text-brand animate-spin" />
+                      <span className="text-sm text-ink">กำลังอัปโหลดรูปภาพ... กรุณารอสักครู่</span>
                     </div>
                   ) : uploadedDocumentUrl ? (
-                    <div className="border border-emerald-300 rounded-md p-3.5 bg-emerald-50/50 flex items-center justify-between gap-3">
+                    <div className="border border-line p-3.5 bg-paper flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 overflow-hidden">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={uploadedDocumentUrl}
                           alt="เอกสารที่แนบ"
-                          className="w-12 h-12 object-cover rounded border border-emerald-300 bg-white shrink-0"
+                          className="w-12 h-12 object-cover border border-line bg-white shrink-0"
                         />
                         <div className="truncate">
                           <div className="text-xs font-bold text-emerald-800 flex items-center gap-1.5">
@@ -513,7 +443,7 @@ export default function DriverRecruitmentForm({ content }: { content?: Partial<S
                           setMockFileName(null);
                           setValue("documentUrl", "");
                         }}
-                        className="px-2.5 py-1.5 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors flex items-center gap-1 shrink-0 font-medium border border-red-200"
+                        className="h-10 px-3 text-xs text-ink hover:bg-ink hover:text-paper transition-colors flex items-center gap-1.5 shrink-0 border border-ink"
                         title="ลบรูปและเลือกใหม่"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -521,7 +451,7 @@ export default function DriverRecruitmentForm({ content }: { content?: Partial<S
                       </button>
                     </div>
                   ) : (
-                    <div className="relative border-2 border-dashed border-slate-300 hover:border-slate-400 rounded-md p-4 text-center cursor-pointer bg-slate-50 transition-colors">
+                    <div className="relative border border-dashed border-line hover:border-ink p-6 text-center cursor-pointer bg-paper transition-colors">
                       <input
                         type="file"
                         accept="image/*"
@@ -529,9 +459,9 @@ export default function DriverRecruitmentForm({ content }: { content?: Partial<S
                         className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                       />
                       <div className="flex flex-col items-center justify-center gap-1 text-xs text-slate-500">
-                        <Upload className="w-5 h-5 text-slate-400" />
-                        <span className="font-medium text-slate-700">คลิกเพื่อแนบรูปถ่ายใบขับขี่หรือบัตรประชาชน</span>
-                        <span className="text-[11px] text-slate-400">รองรับไฟล์ภาพ JPG, PNG, WEBP (ภาพจะถูกส่งเข้าหน้าผู้ดูแลระบบทันที)</span>
+                        <Upload className="w-5 h-5 text-muted" aria-hidden />
+                        <span className="text-ink">คลิกเพื่อแนบรูปถ่ายใบขับขี่หรือบัตรประชาชน</span>
+                        <span className="text-[11px] text-slate-500">รองรับไฟล์ภาพ JPG, PNG, WEBP (ภาพจะถูกส่งเข้าหน้าผู้ดูแลระบบทันที)</span>
                       </div>
                     </div>
                   )}
@@ -539,14 +469,15 @@ export default function DriverRecruitmentForm({ content }: { content?: Partial<S
 
                 {/* Additional Notes */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-sm text-ink mb-1.5">
                     ข้อมูลเพิ่มเติม / หมายเหตุ (เช่น มีผู้ช่วยยกสินค้า, ประสบการณ์งาน DC):
                   </label>
                   <textarea
                     rows={2}
                     placeholder="ระบุข้อมูลที่ต้องการแจ้งให้ฝ่ายบุคคลทราบเพิ่มเติม..."
-                    {...register("notes")}
-                    className="w-full px-3.5 py-2.5 rounded-md border border-slate-300 text-slate-900 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:border-[#D32F2F] focus:ring-1 focus:ring-[#D32F2F]"
+                    id="rf-notes"
+                  {...register("notes")}
+                    className={`${field(false)} h-auto py-2.5`}
                   />
                 </div>
 
@@ -554,7 +485,7 @@ export default function DriverRecruitmentForm({ content }: { content?: Partial<S
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-4 rounded-full bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-extrabold text-base shadow-lg shadow-red-900/30 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+                  className="w-full h-14 bg-brand hover:bg-brand-deep text-white font-medium text-base transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
                     <>
@@ -564,7 +495,7 @@ export default function DriverRecruitmentForm({ content }: { content?: Partial<S
                   ) : (
                     <>
                       <Send className="w-4 h-4" />
-                      <span>ส่งใบสมัครเข้าร่วมงานทันที</span>
+                      <span>ส่งใบสมัคร</span>
                     </>
                   )}
                 </button>

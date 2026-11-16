@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { CheckCircle2, ShieldCheck, Clock, Award, Headphones, ArrowRight, Phone } from "lucide-react";
+import { ArrowRight, Phone } from "lucide-react";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
 import type { SiteLayout } from "@/lib/site-layout";
 import { Editable, ImageEditButton } from "@/components/editor/EditorContext";
@@ -14,9 +14,9 @@ export default function FeaturesSection({
 }) {
   const phone = content?.phone || COMPANY_INFO.phone;
   const phoneRaw = content?.phoneRaw || COMPANY_INFO.phoneRaw;
-  const featureImage = layout?.textOverrides?.["t:features:image"] || "/images/solution-truck.jpg";
-  const badge = layout?.textOverrides?.["t:features:badge"] || "WHY CHOOSE US";
-  const title = layout?.textOverrides?.["t:features:title"] || "Faster, Safe and Trusted Logistics Services";
+  const featureImage = layout?.textOverrides?.["t:features:image"] || "/images/thai_transport_fleet_yard.jpg";
+  const badge = layout?.textOverrides?.["t:features:badge"] || "ทำไมต้องเรา";
+  const title = layout?.textOverrides?.["t:features:title"] || "เร็ว ปลอดภัย และตรวจสอบได้ทุกเที่ยว";
   const subtitle =
     layout?.textOverrides?.["t:features:subtitle"] ||
     "บริษัท 5 สิงหา ทรานสปอร์ต จำกัด มุ่งมั่นส่งมอบบริการขนส่งสินค้าและโลจิสติกส์ที่รวดเร็ว ปลอดภัย และตรงต่อเวลา เพื่อสนับสนุนการเติบโตอย่างยั่งยืนของธุรกิจคุณ พร้อมระบบบริหารจัดการกองยานพาหนะทันสมัย";
@@ -41,83 +41,72 @@ export default function FeaturesSection({
   ];
 
   return (
-    <section id="features" className="py-20 sm:py-24 bg-[#F2F2F4] text-slate-900 border-b border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-          {/* Left Column: Fitted Fleet Image (matching FASTER format exactly) */}
-          <div className="lg:col-span-5">
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg shadow-xl border border-slate-200 group bg-slate-900">
-              <Image
-                src={featureImage}
-                alt="5 August Transport Fleet Safety & Reliability"
-                fill
-                sizes="(max-width: 1024px) 100vw, 45vw"
-                className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-              />
-              <ImageEditButton field="t:features:image" label="📷 เปลี่ยนรูปภาพ" className="absolute top-3 right-3 z-30" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-6">
-                <span className="px-3 py-1 bg-[#D32F2F] text-white text-xs font-bold rounded">
-                  GPS Tracking 24 ชม. • ประกันสินค้า 100%
-                </span>
-              </div>
-            </div>
+    <section id="features" className="bg-ink text-paper">
+      <div className="grid lg:grid-cols-2">
+        {/* Photo, bleeding to the viewport edge */}
+        <div className="relative min-h-[360px] lg:min-h-full">
+          <Image
+            src={featureImage}
+            alt="รถขนส่ง 5 August Transport พร้อมระบบ GPS"
+            fill
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-cover"
+          />
+          <ImageEditButton field="t:features:image" label="เปลี่ยนรูปภาพ" className="absolute top-3 right-3 z-30" />
+        </div>
+
+        <div className="px-4 sm:px-8 lg:px-16 py-20 sm:py-24 lg:max-w-[680px]">
+          <div className="flex items-center gap-4 border-t border-line-dark pt-4 eyebrow text-paper/60">
+            <span className="sec-index text-paper" aria-hidden />
+            <Editable field="t:features:badge" value={badge} noTransform />
           </div>
+          <h2 className="mt-6 text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight">
+            <Editable field="t:features:title" value={title} noTransform />
+          </h2>
+          <p className="mt-6 text-paper/70 leading-relaxed">
+            <Editable field="t:features:subtitle" value={subtitle} multiline noTransform />
+          </p>
 
-          {/* Right Column: Why Choose Us Content */}
-          <div className="lg:col-span-7 space-y-6">
-            <div>
-              <h6 className="text-[#D32F2F] text-xs sm:text-sm font-black uppercase tracking-widest mb-2 font-mono">
-                <Editable field="t:features:badge" value={badge} noTransform />
-              </h6>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-                <Editable field="t:features:title" value={title} noTransform />
-              </h2>
-            </div>
-
-            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-              <Editable field="t:features:subtitle" value={subtitle} multiline noTransform />
-            </p>
-
-            {/* Bullet points with red check icons */}
-            <div className="space-y-4 pt-2">
-              {features.map((f, i) => (
-                <div key={i} className="flex items-start gap-3.5">
-                  <div className="w-6 h-6 rounded-full bg-red-100 text-[#D32F2F] flex items-center justify-center shrink-0 mt-0.5">
-                    <CheckCircle2 className="w-4 h-4 stroke-[3]" />
-                  </div>
+          <ol className="mt-10 border-t border-line-dark">
+            {features.map((f, i) => {
+              const [th, en] = splitTitle(f.title);
+              return (
+                <li key={i} className="grid grid-cols-[2.5rem_1fr] py-5 border-b border-line-dark">
+                  <span className="font-mono text-sm text-brand tabular pt-0.5">{String(i + 1).padStart(2, "0")}</span>
                   <div>
-                    <h4 className="text-sm sm:text-base font-bold text-slate-900 leading-snug">
-                      {f.title}
-                    </h4>
-                    <p className="text-xs sm:text-sm text-slate-600 font-normal mt-0.5 leading-relaxed">
-                      {f.desc}
-                    </p>
+                    <h3 className="text-lg font-medium">{th}</h3>
+                    {en && <p className="eyebrow text-paper/45 mt-1 normal-case tracking-normal">{en}</p>}
+                    <p className="mt-2 text-sm text-paper/70 leading-relaxed">{f.desc}</p>
                   </div>
-                </div>
-              ))}
-            </div>
+                </li>
+              );
+            })}
+          </ol>
 
-            {/* CTA Buttons */}
-            <div className="pt-4 flex flex-wrap items-center gap-4">
-              <a
-                href="#quote"
-                className="px-6 py-3 rounded-lg bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-bold text-sm shadow-md shadow-red-950/20 transition-all hover:scale-[1.02] flex items-center gap-2"
-              >
-                <span>ขอใบเสนอราคา / เช็คราคา</span>
-                <ArrowRight className="w-4 h-4" />
-              </a>
-
-              <a
-                href={`tel:${phoneRaw}`}
-                className="px-6 py-3 rounded-lg bg-[#1F1F2E] hover:bg-black text-white font-bold text-sm transition-all hover:scale-[1.02] flex items-center gap-2"
-              >
-                <Phone className="w-4 h-4 text-[#D32F2F]" />
-                <span>โทรด่วน: {phone}</span>
-              </a>
-            </div>
+          <div className="mt-10 flex flex-wrap gap-3">
+            <a
+              href="#quote"
+              className="inline-flex items-center gap-2 h-12 px-6 bg-brand hover:bg-brand-deep text-white font-medium transition-colors"
+            >
+              เช็คราคาขนส่ง
+              <ArrowRight className="w-4 h-4" aria-hidden />
+            </a>
+            <a
+              href={`tel:${phoneRaw}`}
+              className="inline-flex items-center gap-2 h-12 px-6 border border-paper/30 hover:border-paper font-mono text-sm tabular transition-colors"
+            >
+              <Phone className="w-4 h-4" aria-hidden />
+              {phone}
+            </a>
           </div>
         </div>
       </div>
     </section>
   );
+}
+
+/** "English Title (ชื่อไทย)" → ["ชื่อไทย", "English Title"] */
+function splitTitle(t: string): [string, string] {
+  const m = t.match(/^(.*?)\s*\((.+)\)\s*$/);
+  return m ? [m[2], m[1]] : [t, ""];
 }

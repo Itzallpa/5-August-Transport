@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import { useEscapeKey } from "@/lib/use-escape-key";
 import Image from "next/image";
 import { COMPANY_INFO } from "@/lib/constants";
-import { Truck, CheckCircle2, Ruler, Weight, Box, Sparkles, ArrowRight } from "lucide-react";
+import { Truck, CheckCircle2, Ruler, Weight, Box, Sparkles, ArrowRight, X } from "lucide-react";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
 import { getDefaultLayout, type FleetItem } from "@/lib/site-layout";
 import { Editable, Movable, ImageEditButton } from "@/components/editor/EditorContext";
@@ -11,6 +12,8 @@ import { Editable, Movable, ImageEditButton } from "@/components/editor/EditorCo
 export default function FleetSection({ content, items }: { content?: Partial<SiteContentData>; items?: FleetItem[] }) {
   const [activeFilter, setActiveFilter] = useState<string>("ALL");
   const [selectedVehicle, setSelectedVehicle] = useState<FleetItem | null>(null);
+  const closeVehicle = useCallback(() => setSelectedVehicle(null), []);
+  useEscapeKey(selectedVehicle !== null, closeVehicle);
 
   const fleetItems: FleetItem[] = items ?? getDefaultLayout().fleetItems;
   const phone = content?.phone || COMPANY_INFO.phone;
@@ -90,6 +93,7 @@ export default function FleetSection({ content, items }: { content?: Partial<Sit
             <button
               key={tab.id}
               onClick={() => setActiveFilter(tab.id)}
+              aria-pressed={activeFilter === tab.id}
               className={`px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
                 activeFilter === tab.id
                   ? "bg-[#D32F2F] text-white shadow-lg shadow-red-700/25 scale-105"
@@ -170,7 +174,8 @@ export default function FleetSection({ content, items }: { content?: Partial<Sit
                 </a>
                 <button
                   onClick={() => setSelectedVehicle(truck)}
-                  className="p-2.5 rounded-full border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-medium transition-colors"
+                  aria-label={`ดูรายละเอียดเพิ่มเติม: ${truck.name}`}
+                  className="w-11 h-11 inline-flex items-center justify-center rounded-full border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-medium transition-colors"
                   title="ดูรายละเอียดเพิ่มเติม"
                 >
                   <ArrowRight className="w-4 h-4" />
@@ -182,8 +187,16 @@ export default function FleetSection({ content, items }: { content?: Partial<Sit
 
         {/* Modal for detail view */}
         {selectedVehicle && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={closeVehicle}
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label={selectedVehicle.name}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
               <div className="flex items-start justify-between border-b border-slate-100 pb-4">
                 <div>
                   <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-[#D32F2F]">
@@ -197,10 +210,12 @@ export default function FleetSection({ content, items }: { content?: Partial<Sit
                   </p>
                 </div>
                 <button
-                  onClick={() => setSelectedVehicle(null)}
-                  className="text-slate-400 hover:text-slate-700 text-xl font-bold p-1"
+                  onClick={closeVehicle}
+                  aria-label="ปิด"
+                  autoFocus
+                  className="w-11 h-11 -mr-2 -mt-2 inline-flex items-center justify-center rounded-full text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
                 >
-                  ✕
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 

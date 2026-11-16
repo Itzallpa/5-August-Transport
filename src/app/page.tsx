@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
 import { parseLayout, BLOCK_KEY_PREFIX, type SectionKey } from "@/lib/site-layout";
 import { Fragment } from "react";
+import { TextPositionsProvider } from "@/components/editor/EditorContext";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,7 @@ export default async function HomePage() {
   const builtin = buildBuiltinSections(c, layout, milestones);
 
   return (
+    <TextPositionsProvider positions={layout.textPositions}>
     <div className="min-h-screen flex flex-col bg-white text-slate-800 selection:bg-[#D32F2F] selection:text-white">
       {/* Global Navigation Bar with Topbar */}
       <Navbar content={c} navLinks={layout.navLinks} />
@@ -55,5 +57,6 @@ export default async function HomePage() {
       {/* Corporate Footer */}
       <Footer content={c} />
     </div>
+    </TextPositionsProvider>
   );
 }

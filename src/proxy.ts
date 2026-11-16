@@ -3,9 +3,9 @@ import type { NextRequest } from "next/server";
 import { validateAntiScraping } from "@/lib/anti-scraping";
 
 /**
- * Next.js Global Anti-Scraping & API Defense Middleware
+ * Next.js Global Anti-Scraping & API Defense Proxy
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Intercept all /api/* routes

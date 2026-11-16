@@ -154,8 +154,9 @@ if (typeof setInterval !== "undefined") {
       if (now > val.resetAt) rateLimitMap.delete(key);
     }
   }, 5 * 60 * 1000);
-  if (timer && typeof (timer as any).unref === "function") {
-    (timer as any).unref();
+  const maybeNode = timer as unknown as { unref?: () => void };
+  if (typeof maybeNode?.unref === "function") {
+    maybeNode.unref();
   }
 }
 

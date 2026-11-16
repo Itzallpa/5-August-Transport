@@ -1,4 +1,5 @@
-import { Check, Star, ArrowRight, Phone } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import SectionHeading from "@/components/ui/SectionHeading";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
 import type { SiteLayout } from "@/lib/site-layout";
 import { Editable } from "@/components/editor/EditorContext";
@@ -12,7 +13,7 @@ export default function PricingSection({
   layout?: SiteLayout;
 }) {
   const phoneRaw = content?.phoneRaw || COMPANY_INFO.phoneRaw;
-  const badge = layout?.textOverrides?.["t:pricing:badge"] || "PRICING PLAN";
+  const badge = layout?.textOverrides?.["t:pricing:badge"] || "อัตราค่าบริการ";
   const title = layout?.textOverrides?.["t:pricing:title"] || "อัตราค่าบริการขนส่งมาตรฐาน โปร่งใส คุ้มค่า";
   const subtitle =
     layout?.textOverrides?.["t:pricing:subtitle"] ||
@@ -90,83 +91,63 @@ export default function PricingSection({
   ];
 
   return (
-    <section id="pricing" className="py-20 sm:py-24 bg-white text-slate-900 border-b border-slate-200">
+    <section id="pricing" className="py-20 sm:py-28 bg-paper">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h6 className="text-[#D32F2F] text-xs sm:text-sm font-black uppercase tracking-widest mb-2 font-mono">
-            <Editable field="t:pricing:badge" value={badge} noTransform />
-          </h6>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight mb-4">
-            <Editable field="t:pricing:title" value={title} noTransform />
-          </h2>
-          <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-            <Editable field="t:pricing:subtitle" value={subtitle} multiline noTransform />
-          </p>
-        </div>
+        <SectionHeading
+          label={<Editable field="t:pricing:badge" value={badge} noTransform />}
+          title={<Editable field="t:pricing:title" value={title} noTransform />}
+          intro={<Editable field="t:pricing:subtitle" value={subtitle} multiline noTransform />}
+        />
 
-        {/* Pricing Cards in FASTER Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 border-t border-l border-line">
           {plans.map((p) => (
-            <div
+            <article
               key={p.id}
-              className={`bg-[#F2F2F4] rounded-lg overflow-hidden border ${
-                p.isPopular ? "border-[#D32F2F] shadow-xl ring-2 ring-[#D32F2F]/20" : "border-slate-200/80"
-              } hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative`}
+              className={`relative flex flex-col border-r border-b border-line ${p.isPopular ? "bg-white" : ""}`}
             >
-              {p.isPopular && (
-                <div className="absolute top-2 right-2 bg-[#D32F2F] text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded shadow">
-                  แนะนำ • POPULAR
-                </div>
-              )}
-
-              <div>
-                {/* Top Price Display */}
-                <div className="text-center py-6 px-4 bg-white border-b border-slate-200/60">
-                  <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block mb-1">
-                    เริ่มต้น
-                  </span>
-                  <div className="flex items-baseline justify-center gap-1">
-                    {p.price !== "พิเศษ" && <span className="text-lg font-bold text-slate-600">฿</span>}
-                    <span className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-                      {p.price}
-                    </span>
-                    <span className="text-xs font-semibold text-slate-500">{p.unit}</span>
+              {p.isPopular && <div className="absolute inset-x-0 -top-px h-1 bg-brand" aria-hidden />}
+              <div className="p-6 sm:p-7 flex-1">
+                <div className="flex items-start justify-between gap-3 min-h-[3.5rem]">
+                  <div>
+                    <h3 className="text-lg text-ink font-medium leading-snug">{p.name}</h3>
+                    <p className="text-xs text-muted mt-0.5">{p.nameEn}</p>
                   </div>
+                  {p.isPopular && <span className="eyebrow text-brand shrink-0">แนะนำ</span>}
                 </div>
 
-                {/* Red Plan Name Header */}
-                <div className="bg-[#D32F2F] text-center py-3.5 px-4 text-white">
-                  <h3 className="font-black text-base sm:text-lg leading-tight">{p.name}</h3>
-                  <span className="text-xs text-white/80 font-medium block">{p.nameEn}</span>
-                </div>
+                <p className="mt-8 text-xs text-muted">{p.price === "พิเศษ" ? "ราคา" : "เริ่มต้น"}</p>
+                <p className="mt-1 flex items-baseline gap-1.5">
+                  <span className="font-mono text-4xl text-ink tabular tracking-tight">
+                    {p.price === "พิเศษ" ? "ตามสัญญา" : `฿${p.price}`}
+                  </span>
+                  {p.price !== "พิเศษ" && <span className="text-sm text-muted">{p.unit}</span>}
+                </p>
 
-                {/* Feature Checklist */}
-                <div className="p-6 space-y-3">
+                <ul className="mt-8 space-y-3 text-sm text-ink-soft">
                   {p.features.map((f, fi) => (
-                    <div key={fi} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700">
-                      <div className="w-4 h-4 rounded-full bg-red-100 text-[#D32F2F] flex items-center justify-center shrink-0 mt-0.5">
-                        <Check className="w-3 h-3 stroke-[3]" />
-                      </div>
+                    <li key={fi} className="flex gap-3">
+                      <span className="mt-2 w-1.5 h-1.5 bg-ink shrink-0" aria-hidden />
                       <span>{f}</span>
-                    </div>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
 
-              {/* Action Button */}
-              <div className="p-6 pt-0">
-                <a
-                  href={p.href}
-                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-bold text-xs uppercase tracking-wider shadow transition-all hover:scale-[1.02]"
-                >
-                  <span>จองคิวรถ / ขอใบเสนอราคา</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </a>
-              </div>
-            </div>
+              <a
+                href={p.href}
+                className={`m-6 sm:m-7 mt-0 sm:mt-0 inline-flex items-center justify-between h-12 px-5 text-sm font-medium transition-colors ${
+                  p.isPopular
+                    ? "bg-brand hover:bg-brand-deep text-white"
+                    : "border border-ink text-ink hover:bg-ink hover:text-paper"
+                }`}
+              >
+                {p.id === "dedicated-contract" ? "โทรคุยสัญญา" : "จองรถคันนี้"}
+                <ArrowRight className="w-4 h-4" aria-hidden />
+              </a>
+            </article>
           ))}
         </div>
+        <p className="mt-4 text-xs text-muted">* ราคายังไม่รวมภาษีมูลค่าเพิ่ม ราคาจริงขึ้นกับระยะทาง ประเภทสินค้า และจำนวนจุดส่ง</p>
       </div>
     </section>
   );

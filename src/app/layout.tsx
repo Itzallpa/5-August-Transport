@@ -1,25 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Kanit, Inter, Poppins } from "next/font/google";
+import { IBM_Plex_Sans_Thai, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import BackToTop from "@/components/BackToTop";
 
-const kanit = Kanit({
+const plexThai = IBM_Plex_Sans_Thai({
   subsets: ["thai", "latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  variable: "--font-kanit",
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-plex-thai",
   display: "swap",
 });
 
-const inter = Inter({
+const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
-  variable: "--font-poppins",
+  weight: ["400", "500", "600"],
+  variable: "--font-plex-mono",
   display: "swap",
 });
 
@@ -27,7 +21,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#D32F2F",
+  themeColor: "#16130F",
 };
 
 export const metadata: Metadata = {
@@ -64,8 +58,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="th" className={`${kanit.variable} ${inter.variable} ${poppins.variable} scroll-smooth`}>
-      <body className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased selection:bg-[#D32F2F] selection:text-white">
+    <html lang="th" className={`${plexThai.variable} ${plexMono.variable} scroll-smooth`}>
+      <body className="min-h-screen bg-paper text-ink font-sans antialiased selection:bg-brand selection:text-white">
         {children}
         <BackToTop />
       </body>

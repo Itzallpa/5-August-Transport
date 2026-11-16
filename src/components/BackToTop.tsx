@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { ArrowUp } from "lucide-react";
@@ -21,7 +21,7 @@ export default function BackToTop() {
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
-      behavior: "smooth",
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
     });
   };
 
@@ -31,7 +31,7 @@ export default function BackToTop() {
     <button
       onClick={scrollToTop}
       aria-label="Back to Top"
-      className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-[#D32F2F] hover:bg-[#B71C1C] text-white flex items-center justify-center shadow-xl shadow-red-950/30 transition-all duration-300 hover:scale-110 active:scale-95 animate-bounce"
+      className="fixed bottom-5 right-5 z-40 w-12 h-12 bg-ink hover:bg-brand text-paper flex items-center justify-center transition-colors"
     >
       <ArrowUp className="w-5 h-5 stroke-[2.5]" />
     </button>

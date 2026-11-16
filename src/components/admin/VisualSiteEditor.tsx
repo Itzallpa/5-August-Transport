@@ -157,7 +157,7 @@ export default function VisualSiteEditor({
     const key = blockKey(block.id);
     const nextBlocks = [...layout.customBlocks, block];
     
-    let nextSections = [...layout.sections];
+    const nextSections = [...layout.sections];
     if (typeof insertIndex === "number" && insertIndex >= 0) {
       nextSections.splice(insertIndex + 1, 0, { key, visible: true });
     } else {
@@ -264,7 +264,7 @@ export default function VisualSiteEditor({
           body: fd,
         });
 
-        let data: any = null;
+        let data: { success?: boolean; url?: string; error?: string } | null = null;
         try {
           data = await res.json();
         } catch {
@@ -292,11 +292,11 @@ export default function VisualSiteEditor({
             confirmButtonColor: "#D32F2F",
           });
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         Swal.fire({
           icon: "error",
           title: "การเชื่อมต่อขัดข้อง",
-          text: err?.message || "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์อัปโหลดได้",
+          text: (err instanceof Error ? err.message : "") || "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์อัปโหลดได้",
           confirmButtonColor: "#D32F2F",
         });
       } finally {
@@ -318,7 +318,7 @@ export default function VisualSiteEditor({
         body: fd,
       });
 
-      let data: any = null;
+      let data: { success?: boolean; url?: string; error?: string } | null = null;
       try {
         data = await res.json();
       } catch {}
@@ -344,11 +344,11 @@ export default function VisualSiteEditor({
           confirmButtonColor: "#D32F2F",
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       Swal.fire({
         icon: "error",
         title: "การเชื่อมต่อขัดข้อง",
-        text: err?.message || "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์อัปโหลดได้",
+        text: (err instanceof Error ? err.message : "") || "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์อัปโหลดได้",
         confirmButtonColor: "#D32F2F",
       });
     } finally {
@@ -397,7 +397,7 @@ export default function VisualSiteEditor({
           body: fd,
         });
 
-        let data: any = null;
+        let data: { success?: boolean; url?: string; error?: string } | null = null;
         try {
           data = await res.json();
         } catch {
@@ -440,11 +440,11 @@ export default function VisualSiteEditor({
             confirmButtonColor: "#D32F2F",
           });
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         Swal.fire({
           icon: "error",
           title: "การเชื่อมต่อขัดข้อง",
-          text: err?.message || "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์อัปโหลดได้",
+          text: (err instanceof Error ? err.message : "") || "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์อัปโหลดได้",
           confirmButtonColor: "#D32F2F",
         });
       } finally {
@@ -561,8 +561,7 @@ export default function VisualSiteEditor({
                   const blockId = selectedKey.slice(BLOCK_KEY_PREFIX.length);
                   updateBlockField(blockId, { src: url });
                 } else {
-                  const block = createBlock("image");
-                  (block as any).src = url;
+                  const block = { ...createBlock("image"), src: url };
                   const key = blockKey(block.id);
                   commitLayout({
                     ...layout,
@@ -1085,8 +1084,7 @@ export default function VisualSiteEditor({
                       type="button"
                       onClick={() => {
                         handleUploadImage((url) => {
-                          const block = createBlock("image");
-                          (block as any).src = url;
+                          const block = { ...createBlock("image"), src: url };
                           const key = blockKey(block.id);
                           commitLayout({
                             ...layout,

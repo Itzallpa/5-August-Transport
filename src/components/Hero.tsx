@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Truck, ArrowRight, PhoneCall, Search, MessageSquare, ShieldCheck } from "lucide-react";
-import { COMPANY_INFO } from "@/lib/constants";
+import { ArrowRight, ArrowUpRight, Search } from "lucide-react";
+import { COMPANY_INFO, resolveLineId } from "@/lib/constants";
+import PartnerBanner from "@/components/home/PartnerBanner";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
 import type { SiteLayout } from "@/lib/site-layout";
 import { Editable, ImageEditButton } from "@/components/editor/EditorContext";
 import Swal from "sweetalert2";
+
 
 export default function Hero({
   content,
@@ -20,11 +22,28 @@ export default function Hero({
 
   const phone = content?.phone || COMPANY_INFO.phone;
   const phoneRaw = content?.phoneRaw || COMPANY_INFO.phoneRaw;
-  const lineId = content?.lineId && content.lineId !== "0843263546" ? content.lineId : "@486eyver";
+  const lineId = resolveLineId(content?.lineId);
+  const email = content?.email || COMPANY_INFO.email;
+  // The coded partner banner replaces the old poster images. If an admin uploads a
+  // different picture via the editor, show that picture instead (uncropped).
   const rawHeroImage = content?.heroImageUrl;
-  const heroBackgroundImage = (!rawHeroImage || rawHeroImage === "/images/hero-cover.jpg") 
-    ? "/images/hero-cover-v2.jpg?v=3" 
-    : `${rawHeroImage}?v=3`;
+  const LEGACY_POSTERS = ["/images/hero-cover.jpg", "/images/hero-cover-v2.jpg", "/images/hero.jpg"];
+  const customHeroImage = rawHeroImage && !LEGACY_POSTERS.includes(rawHeroImage) ? rawHeroImage : null;
+
+  const heading = content?.heroHeading || "ทุกเส้นทาง";
+  const headingHighlight = content?.heroHeadingHighlight || "เราพร้อมส่งต่อความมั่นใจ";
+  const subheading =
+    content?.heroSubheading || "บริการขนส่งสินค้าและโลจิสติกส์ ครบวงจร สำหรับธุรกิจของคุณ";
+  const badge = content?.heroBadge || "ครอบคลุมทั่วประเทศ • รวดเร็ว • ปลอดภัย • ตรงเวลา";
+  const ctaQuote = layout?.textOverrides?.["t:hero:ctaQuote"] || "ขอใบเสนอราคา";
+  const ctaDriver = content?.heroCtaDriverText || "สมัครขับรถร่วมกับเรา";
+
+  const stats = [
+    { vf: "heroStat1Value", lf: "heroStat1Label", v: content?.heroStat1Value || "99.8%", l: content?.heroStat1Label || "ตรงต่อเวลาเฉลี่ย" },
+    { vf: "heroStat2Value", lf: "heroStat2Label", v: content?.heroStat2Value || "200+", l: content?.heroStat2Label || "กองรถพร้อมให้บริการ" },
+    { vf: "heroStat3Value", lf: "heroStat3Label", v: content?.heroStat3Value || "77", l: content?.heroStat3Label || "จังหวัดที่ให้บริการ" },
+    { vf: "heroStat4Value", lf: "heroStat4Label", v: content?.heroStat4Value || "24/7", l: content?.heroStat4Label || "ศูนย์ควบคุมเดินรถ" },
+  ];
 
   const handleTrack = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,127 +51,140 @@ export default function Hero({
       Swal.fire({
         icon: "warning",
         title: "กรุณาระบุเลขพัสดุหรือปลายทาง",
-        text: "โปรดใส่หมายเลขติดตามพัสดุ (Tracking ID) หรือ จังหวัดปลายทางเพื่อตรวจสอบ",
-        confirmButtonColor: "#D32F2F",
+        text: "โปรดใส่หมายเลขติดตาม (Tracking ID) หรือจังหวัดปลายทาง",
+        confirmButtonColor: "#C1121F",
       });
       return;
     }
-
+    const safeId = trackingId.replace(/[<>&"']/g, "");
     Swal.fire({
       icon: "info",
-      title: "ระบบตรวจสอบสถานะขนส่ง",
-      html: `
-        <div class="text-left text-sm space-y-2">
-          <p>หมายเลขติดตาม: <strong class="text-slate-900">${trackingId}</strong></p>
-          <div class="p-3 bg-red-50 border border-red-200 rounded text-[#D32F2F] font-medium text-xs">
-            รถขนส่งอยู่ในระหว่างการปฏิบัติงานควบคุมด้วยระบบ GPS Tracking เรียลไทม์ ตลอด 24 ชม.
-          </div>
-          <p class="text-xs text-slate-500 mt-2">ต้องการสอบถามสถานะเพิ่มเติม โปรดติดต่อศูนย์ควบคุมเดินรถ</p>
-        </div>
-      `,
+      title: "ตรวจสอบสถานะการขนส่ง",
+      html: `<div style="text-align:left;font-size:14px;line-height:1.7">
+        <p>หมายเลขติดตาม: <strong>${safeId}</strong></p>
+        <p style="color:#4A443D">รถทุกคันติดตาม GPS แบบเรียลไทม์ตลอด 24 ชม. สอบถามสถานะล่าสุดได้ที่ศูนย์ควบคุมเดินรถ</p>
+      </div>`,
       showCancelButton: true,
-      confirmButtonText: "โทรหาศูนย์ควบคุม 24 ชม.",
-      cancelButtonText: "ปิดหน้าต่าง",
-      confirmButtonColor: "#D32F2F",
+      confirmButtonText: `โทร ${phone}`,
+      cancelButtonText: "ปิด",
+      confirmButtonColor: "#C1121F",
     }).then((res) => {
-      if (res.isConfirmed) {
-        window.location.href = `tel:${phoneRaw}`;
-      }
+      if (res.isConfirmed) window.location.href = `tel:${phoneRaw}`;
     });
   };
 
   return (
-    <section id="home" className="relative w-full bg-gradient-to-b from-slate-100 via-white to-slate-50 py-4 sm:py-6 px-3 sm:px-6 md:px-8 border-b border-slate-200 overflow-hidden">
-      <div className="max-w-[1600px] mx-auto w-full flex flex-col items-center">
-        {/* 1. Main Hero Banner Frame - 100% Crystal Clear Master Infographic (No Blur, No Dimming Overlay) */}
-        <div className="w-full">
-          <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl shadow-slate-300/60 border border-slate-200/90 bg-white ring-1 ring-slate-900/5 group">
-            <ImageEditButton field="heroImageUrl" label="📷 เปลี่ยนรูป Hero Banner" className="absolute top-4 right-4 z-30" />
-            <a href="#recruitment" className="block cursor-pointer w-full" title="คลิกเพื่อดูรายละเอียดและสมัครร่วมงาน">
-              {/* Desktop Widescreen Banner (3200x1312) - High Resolution Crisp Image */}
+    <section id="home" className="bg-ink text-paper">
+      {/* 1. Partner recruitment banner */}
+      <div className="bg-paper px-3 sm:px-6 md:px-8 py-4 sm:py-6">
+        <div className="relative max-w-[1600px] mx-auto">
+          <ImageEditButton field="heroImageUrl" label="เปลี่ยนเป็นรูปภาพแบนเนอร์" className="absolute top-4 right-4 z-30" />
+          {customHeroImage ? (
+            <a href="#recruitment" className="block border border-line bg-white" title="ดูรายละเอียดและสมัครร่วมงาน">
               <Image
-                src={heroBackgroundImage}
-                alt="5 August Transport x KEX Express Partner - บริการขนส่งและรับสมัครรถร่วม"
+                src={customHeroImage}
+                alt="5 August Transport — แบนเนอร์หน้าแรก"
                 width={3200}
                 height={1312}
                 priority
                 unoptimized
-                className="hidden sm:block w-full h-auto object-contain select-none"
-              />
-              {/* Mobile Seamless Portrait Banner (1440x2105) */}
-              <Image
-                src="/images/hero-cover-mobile.jpg?v=3"
-                alt="5 August Transport x KEX Express Partner - บริการขนส่งและรับสมัครรถร่วม"
-                width={1440}
-                height={2105}
-                priority
-                unoptimized
-                className="sm:hidden w-full h-auto block select-none"
+                className="w-full h-auto select-none"
               />
             </a>
-          </div>
+          ) : (
+            <PartnerBanner phone={phone} phoneRaw={phoneRaw} lineId={lineId} email={email} />
+          )}
         </div>
+      </div>
 
-        {/* 2. FASTER Interactive Command Console (Track & Trace + Fast Actions) */}
-        <div className="w-full max-w-6xl mt-4 sm:mt-5 bg-white rounded-2xl shadow-xl shadow-slate-200/80 border border-slate-200/90 p-4 sm:p-5">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-            {/* FASTER Track & Trace Search Form */}
-            <form onSubmit={handleTrack} className="flex-1 w-full flex flex-col sm:flex-row gap-2">
+      {/* 2. Headline + actions */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 sm:pt-20 pb-12 grid lg:grid-cols-12 gap-8 lg:gap-12 items-end">
+        <div className="lg:col-span-8">
+          <p className="eyebrow text-paper/70 mb-5 flex items-center gap-3">
+            <span className="inline-block w-8 h-px bg-brand" aria-hidden />
+            <Editable field="heroBadge" value={badge} noTransform />
+          </p>
+          <h1 className="text-4xl leading-[1.15] sm:text-5xl lg:text-6xl lg:leading-[1.1] font-semibold tracking-tight">
+            <Editable field="heroHeading" value={heading} noTransform />{" "}
+            <span className="text-paper/70">
+              <Editable field="heroHeadingHighlight" value={headingHighlight} noTransform />
+            </span>
+          </h1>
+          <p className="mt-5 max-w-xl text-base sm:text-lg text-paper/75 leading-relaxed">
+            <Editable field="heroSubheading" value={subheading} multiline noTransform />
+          </p>
+        </div>
+        <div className="lg:col-span-4 flex flex-wrap lg:flex-col lg:items-stretch gap-3">
+          <a
+            href="#quote"
+            className="inline-flex items-center justify-between gap-2 h-12 px-6 bg-brand hover:bg-brand-deep text-white font-medium transition-colors"
+          >
+            <Editable field="t:hero:ctaQuote" value={ctaQuote} noTransform />
+            <ArrowRight className="w-4 h-4" aria-hidden />
+          </a>
+          <a
+            href="#recruitment"
+            className="inline-flex items-center justify-between gap-2 h-12 px-6 border border-paper/40 hover:border-paper hover:bg-paper hover:text-ink font-medium transition-colors"
+          >
+            <Editable field="heroCtaDriverText" value={ctaDriver} noTransform />
+            <ArrowRight className="w-4 h-4" aria-hidden />
+          </a>
+          <a
+            href={`tel:${phoneRaw}`}
+            className="inline-flex items-center justify-between gap-2 h-12 px-6 text-paper/80 hover:text-paper font-mono tabular border border-transparent hover:border-line-dark transition-colors"
+          >
+            {phone}
+            <ArrowUpRight className="w-4 h-4" aria-hidden />
+          </a>
+        </div>
+      </div>
+
+      {/* Stats + tracking strip */}
+      <div className="border-t border-line-dark">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-12">
+          <dl className="lg:col-span-8 grid grid-cols-2 sm:grid-cols-4">
+            {stats.map((s, i) => (
+              <div
+                key={s.vf}
+                className={`py-6 sm:py-8 pr-4 ${i > 0 ? "sm:border-l sm:pl-6" : ""} ${i % 2 === 1 ? "border-l pl-4 sm:pl-6" : ""} ${i > 1 ? "border-t sm:border-t-0" : ""} border-line-dark`}
+              >
+                <dt className="text-xs text-paper/60 leading-snug">
+                  <Editable field={s.lf} value={s.l} noTransform />
+                </dt>
+                <dd className="mt-2 font-mono text-3xl sm:text-4xl text-paper tabular tracking-tight">
+                  <Editable field={s.vf} value={s.v} noTransform />
+                </dd>
+              </div>
+            ))}
+          </dl>
+
+          <form
+            onSubmit={handleTrack}
+            className="lg:col-span-4 lg:border-l border-t lg:border-t-0 border-line-dark py-6 sm:py-8 lg:pl-8 flex flex-col justify-center"
+          >
+            <label htmlFor="hero-track" className="text-xs text-paper/60 mb-2">
+              ติดตามสถานะการขนส่ง
+            </label>
+            <div className="flex">
               <div className="relative flex-1">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-paper/50" aria-hidden />
                 <input
+                  id="hero-track"
                   type="text"
                   value={trackingId}
                   onChange={(e) => setTrackingId(e.target.value)}
-                  placeholder="ระบุรหัสติดตามพัสดุ (Tracking ID) หรือ ปลายทางเพื่อคำนวณราคา..."
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#D32F2F] focus:bg-white transition-all placeholder:text-slate-400"
+                  placeholder="เลขพัสดุ หรือ จังหวัดปลายทาง"
+                  className="w-full h-12 pl-9 pr-3 bg-ink-2 border border-line-dark text-paper placeholder:text-paper/45 text-sm focus:outline-none focus:border-paper"
                 />
               </div>
               <button
                 type="submit"
-                className="px-6 py-3 bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider rounded-xl shadow-md shadow-red-950/20 transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2 shrink-0"
+                className="h-12 px-5 bg-paper text-ink text-sm font-medium hover:bg-white transition-colors"
               >
-                <span>Track & Trace</span>
-                <ArrowRight className="w-4 h-4" />
+                ตรวจสอบ
               </button>
-            </form>
-
-            {/* Quick Action CTA Group */}
-            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 w-full lg:w-auto shrink-0">
-              <a
-                href="#quote"
-                className="px-5 py-3 rounded-xl bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-bold text-xs sm:text-sm uppercase tracking-wider shadow-md shadow-red-950/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5"
-              >
-                <Editable field="t:hero:ctaQuote" value={layout?.textOverrides?.["t:hero:ctaQuote"] || "ขอใบเสนอราคา"} noTransform />
-                <ArrowRight className="w-3.5 h-3.5" />
-              </a>
-
-              <a
-                href="#recruitment"
-                className="px-5 py-3 rounded-xl bg-[#1F1F2E] hover:bg-black text-white font-bold text-xs sm:text-sm uppercase tracking-wider transition-all hover:scale-105 active:scale-95 text-center"
-              >
-                <Editable field="heroCtaDriverText" value={content?.heroCtaDriverText || "สมัครร่วมงานคนขับ"} noTransform />
-              </a>
-
-              <a
-                href={`tel:${phoneRaw}`}
-                className="px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs sm:text-sm border border-slate-200 transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5"
-              >
-                <PhoneCall className="w-3.5 h-3.5 text-[#D32F2F]" />
-                <Editable field="phone" value={phone} noTransform />
-              </a>
-
-              <a
-                href={`https://line.me/R/ti/p/${lineId.startsWith("@") ? lineId : `@${lineId}`}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-3 rounded-xl bg-[#06C755] hover:bg-[#05a847] text-white font-bold text-xs sm:text-sm transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5"
-              >
-                <MessageSquare className="w-3.5 h-3.5" />
-                <span>LINE</span>
-              </a>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </section>

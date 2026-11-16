@@ -1,9 +1,10 @@
 import Image from "next/image";
-import { Phone, MessageSquare, ShieldCheck, Truck } from "lucide-react";
+import { Phone, MessageSquare } from "lucide-react";
+import SectionHeading from "@/components/ui/SectionHeading";
 import type { SiteContentData } from "@/app/actions/site-content-actions";
 import type { SiteLayout } from "@/lib/site-layout";
 import { Editable } from "@/components/editor/EditorContext";
-import { COMPANY_INFO } from "@/lib/constants";
+import { COMPANY_INFO, resolveLineId } from "@/lib/constants";
 
 export default function DeliveryTeamSection({
   content,
@@ -13,112 +14,76 @@ export default function DeliveryTeamSection({
   layout?: SiteLayout;
 }) {
   const phoneRaw = content?.phoneRaw || COMPANY_INFO.phoneRaw;
-  const lineId = content?.lineId || COMPANY_INFO.lineId;
-  const badge = layout?.textOverrides?.["t:team:badge"] || "DELIVERY TEAM";
+  const lineId = resolveLineId(content?.lineId);
+  const badge = layout?.textOverrides?.["t:team:badge"] || "ทีมงาน";
   const title = layout?.textOverrides?.["t:team:title"] || "ทีมงานและบุคลากรขนส่งมืออาชีพ";
   const subtitle =
     layout?.textOverrides?.["t:team:subtitle"] ||
     "ขับเคลื่อนทุกการขนส่งด้วยความปลอดภัย ซื่อสัตย์ และตรงต่อเวลา ผ่านการอบรมและตรวจประวัติอาชญากรรมอย่างเข้มงวด";
 
-  const teamMembers = [
-    {
-      id: "t1",
-      name: "ทีมคนขับสายหลัก (Linehaul Drivers)",
-      role: "ผู้เชี่ยวชาญเส้นทางข้ามภาค KEX Express",
-      image: "/images/faster/team-1.jpg",
-      badge: "ประสบการณ์ 10+ ปี",
-    },
-    {
-      id: "t2",
-      name: "ศูนย์ควบคุมเดินรถ (Dispatch Center)",
-      role: "ติดตาม GPS & ตรวจสอบความเร็ว 24 ชม.",
-      image: "/images/faster/team-2.jpg",
-      badge: "ความปลอดภัย 100%",
-    },
-    {
-      id: "t3",
-      name: "ทีมงานคลังและโหลดสินค้า (Cargo Staging)",
-      role: "ตรวจนับและจัดเรียงพัสดุป้องกันการกระแทก",
-      image: "/images/faster/team-3.jpg",
-      badge: "มาตรฐานคลังสากล",
-    },
-    {
-      id: "t4",
-      name: "ฝ่ายบริการลูกค้า & สนับสนุนฉุกเฉิน",
-      role: "ประสานงานแก้ไขปัญหาเฉพาะหน้า 24 ชม.",
-      image: "/images/faster/team-4.jpg",
-      badge: "พร้อมดูแล 24/7",
-    },
+  const teams = [
+    { id: "t1", name: "ทีมคนขับสายหลัก", en: "Linehaul Drivers", role: "ชำนาญเส้นทางข้ามภาค วิ่งงาน KEX Express", stat: "10+ ปี" },
+    { id: "t2", name: "ศูนย์ควบคุมเดินรถ", en: "Dispatch Center", role: "ติดตาม GPS และความเร็วรถทุกคัน", stat: "24 ชม." },
+    { id: "t3", name: "ทีมคลังและโหลดสินค้า", en: "Cargo Handling", role: "ตรวจนับ จัดเรียง รัดสินค้ากันกระแทก", stat: "ทุกเที่ยว" },
+    { id: "t4", name: "ฝ่ายบริการลูกค้า", en: "Customer Support", role: "ประสานงานและแก้ปัญหาเฉพาะหน้า", stat: "7 วัน" },
   ];
 
   return (
-    <section id="team" className="py-20 sm:py-24 bg-[#F2F2F4] text-slate-900 border-b border-slate-200">
+    <section id="team" className="py-20 sm:py-28 bg-paper-2">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h6 className="text-[#D32F2F] text-xs sm:text-sm font-black uppercase tracking-widest mb-2 font-mono">
-            <Editable field="t:team:badge" value={badge} noTransform />
-          </h6>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight mb-4">
-            <Editable field="t:team:title" value={title} noTransform />
-          </h2>
-          <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-            <Editable field="t:team:subtitle" value={subtitle} multiline noTransform />
-          </p>
-        </div>
+        <SectionHeading
+          label={<Editable field="t:team:badge" value={badge} noTransform />}
+          title={<Editable field="t:team:title" value={title} noTransform />}
+          intro={<Editable field="t:team:subtitle" value={subtitle} multiline noTransform />}
+        />
 
-        {/* Team Grid in FASTER style */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {teamMembers.map((m) => (
-            <div
-              key={m.id}
-              className="team-card bg-white rounded-lg overflow-hidden border border-slate-200 shadow hover:shadow-2xl transition-all duration-300 group"
-            >
-              {/* Photo */}
-              <div className="relative aspect-[3/4] w-full overflow-hidden bg-slate-100">
-                <Image
-                  src={m.image}
-                  alt={m.name}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute top-3 left-3 bg-[#1F1F2E] text-white text-[10px] font-bold px-2 py-0.5 rounded">
-                  {m.badge}
-                </div>
-              </div>
-
-              {/* Text Info */}
-              <div className="p-5 text-center bg-white relative z-10 border-t border-slate-100">
-                <h3 className="font-extrabold text-slate-900 text-base leading-tight mb-1">
-                  {m.name}
-                </h3>
-                <p className="text-xs text-slate-500 font-medium">
-                  {m.role}
-                </p>
-              </div>
-
-              {/* Hover Social / Contact Bar in Primary Red */}
-              <div className="team-social bg-[#D32F2F] text-white p-3 flex items-center justify-center gap-3">
-                <a
-                  href={`tel:${phoneRaw}`}
-                  className="w-8 h-8 rounded-full bg-white text-[#D32F2F] flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform"
-                  title="โทรติดต่อ"
-                >
-                  <Phone className="w-4 h-4" />
-                </a>
-                <a
-                  href={`https://line.me/ti/p/~${lineId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-full bg-[#06C755] text-white flex items-center justify-center text-xs font-bold hover:scale-110 transition-transform"
-                  title="ติดต่อ LINE"
-                >
-                  <MessageSquare className="w-4 h-4" />
-                </a>
-              </div>
+        <div className="grid lg:grid-cols-12 gap-10 lg:gap-12">
+          <figure className="lg:col-span-7">
+            <div className="relative aspect-[4/3] bg-ink overflow-hidden">
+              <Image
+                src="/images/thai_transport_loading.jpg"
+                alt="ทีมงาน 5 August Transport กำลังโหลดสินค้าขึ้นรถที่คลังสินค้า"
+                fill
+                sizes="(max-width: 1024px) 100vw, 58vw"
+                className="object-cover"
+              />
             </div>
-          ))}
+            <figcaption className="mt-3 text-sm text-muted">ทีมโหลดสินค้า ณ ศูนย์กระจายสินค้า บางพลี สมุทรปราการ</figcaption>
+          </figure>
+
+          <div className="lg:col-span-5 flex flex-col">
+            <ul className="border-t border-ink">
+              {teams.map((m) => (
+                <li key={m.id} className="py-5 border-b border-line grid grid-cols-[1fr_auto] gap-4 items-baseline">
+                  <div>
+                    <h3 className="text-lg text-ink font-medium">{m.name}</h3>
+                    <p className="eyebrow text-muted mt-0.5 normal-case tracking-normal">{m.en}</p>
+                    <p className="mt-2 text-sm text-ink-soft">{m.role}</p>
+                  </div>
+                  <span className="font-mono text-sm text-brand tabular">{m.stat}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-8 grid sm:grid-cols-2 gap-3">
+              <a
+                href={`tel:${phoneRaw}`}
+                className="inline-flex items-center justify-center gap-2 h-12 px-5 bg-ink hover:bg-brand text-paper font-medium transition-colors"
+              >
+                <Phone className="w-4 h-4" aria-hidden />
+                โทรหาทีมงาน
+              </a>
+              <a
+                href={`https://line.me/R/ti/p/${lineId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 h-12 px-5 border border-ink text-ink hover:bg-[#06C755] hover:border-[#06C755] hover:text-white font-medium transition-colors"
+              >
+                <MessageSquare className="w-4 h-4" aria-hidden />
+                แชท LINE
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </section>

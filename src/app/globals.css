@@ -1,24 +1,71 @@
 @import "tailwindcss";
 @import "sweetalert2/dist/sweetalert2.min.css";
 
+/* ===== 5 August — design tokens =====
+   Editorial / industrial: warm paper, near-black ink, brand red used sparingly. */
+@theme {
+  --font-sans: var(--font-plex-thai), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), var(--font-plex-thai), ui-monospace, monospace;
+
+  --color-paper: #F5F2EC;
+  --color-paper-2: #ECE6DB;
+  --color-ink: #16130F;
+  --color-ink-2: #2B2722;
+  --color-ink-soft: #4A443D;
+  --color-muted: #6B645B;
+  --color-line: #D8D0C2;
+  --color-line-dark: #3A352F;
+  --color-brand: #C1121F;
+  --color-brand-deep: #8F0D17;
+  --color-signal: #E8B021;
+}
+
 :root {
-  --font-kanit: 'Kanit', sans-serif;
-  --font-inter: 'Inter', sans-serif;
-  --primary-red: #D32F2F;
-  --primary-red-hover: #B71C1C;
-  --primary-red-light: #FFEBEE;
-  --dark-charcoal: #18181B;
+  --primary-red: #C1121F;
+  --primary-red-hover: #8F0D17;
+  --primary-red-light: #FBEAEA;
+  --dark-charcoal: #16130F;
 }
 
 body {
-  font-family: var(--font-kanit), var(--font-inter), system-ui, -apple-system, sans-serif;
-  background-color: #F8FAFC;
-  color: #1E293B;
+  font-family: var(--font-sans);
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-feature-settings: "kern";
+}
+
+/* Thai needs extra line-height; keep headings tight but never clipped */
+h1, h2, h3 {
+  line-height: 1.2;
+  text-wrap: balance;
+}
+p {
+  text-wrap: pretty;
+}
+
+/* Hairline section rule with mono label */
+.eyebrow {
+  /* Thai must not be letter-spaced; numbers inside use tabular mono via .font-mono where needed */
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+main {
+  counter-reset: sec;
+}
+.sec-index::before {
+  counter-increment: sec;
+  content: counter(sec, decimal-leading-zero);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Custom SweetAlert2 corporate Thai font and color overrides */
 div:where(.swal2-container) {
-  font-family: var(--font-kanit), var(--font-inter), system-ui, -apple-system, sans-serif !important;
+  font-family: var(--font-sans) !important;
 }
 
 div:where(.swal2-container) .swal2-popup {
@@ -291,3 +338,43 @@ div:where(.swal2-container) button.swal2-cancel {
   bottom: 0;
 }
 
+
+/* ===== Accessibility baseline (ui-ux-pro-max audit) ===== */
+
+/* Visible keyboard focus everywhere; mouse clicks stay clean via :focus-visible.
+   In @layer base so component-level focus utilities still win. */
+@layer base {
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--primary-red);
+    outline-offset: 2px;
+  }
+}
+.btn-play:focus-visible {
+  outline: 3px solid var(--primary-red) !important;
+  outline-offset: 12px;
+}
+
+/* Team socials: also reveal for keyboard users and touch devices (not hover-only) */
+.team-card:focus-within .team-social {
+  bottom: 0;
+}
+@media (hover: none) {
+  .team-card .team-social {
+    bottom: 0;
+  }
+}
+
+/* Respect users who ask for less motion */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

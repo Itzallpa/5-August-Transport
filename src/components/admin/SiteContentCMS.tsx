@@ -54,6 +54,198 @@ interface SiteContentCMSProps {
   onGoToMilestonesTab: () => void;
 }
 
+// Reusable Image Field Component
+function ImageUploaderBox({
+  field,
+  label,
+  description,
+  currentValue,
+  recommendedSize,
+  presets,
+  uploadingField,
+  onFieldChange,
+  onFileSelected,
+}: {
+  field: keyof SiteContentData;
+  label: string;
+  description: string;
+  currentValue: string;
+  recommendedSize: string;
+  presets: { label: string; url: string }[];
+  uploadingField: string | null;
+  onFieldChange: (field: keyof SiteContentData, value: string) => void;
+  onFileSelected: (field: keyof SiteContentData, file: File) => void;
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const isUploading = uploadingField === field;
+
+  return (
+    <div className="p-5 rounded-2xl bg-slate-50 border border-slate-300 space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
+        <div>
+          <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+            <Upload className="w-3.5 h-3.5 text-red-500" />
+            <span>{label}</span>
+          </span>
+          <p className="text-[11px] text-slate-500 mt-0.5">{description}</p>
+        </div>
+        <span className="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-[10px] font-mono text-slate-600 shrink-0">
+          ขนาดแนะนำ: {recommendedSize}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+        {/* Image Thumbnail Preview */}
+        <div className="md:col-span-4 relative h-36 sm:h-44 rounded-xl overflow-hidden bg-slate-900 border border-slate-700/80 group">
+          {currentValue ? (
+            <Image
+              src={currentValue}
+              alt={label}
+              fill
+              sizes="(max-width: 768px) 100vw, 300px"
+              className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 text-xs gap-2">
+              <Upload className="w-6 h-6 text-slate-600" />
+              <span>ยังไม่มีรูปภาพ</span>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-2.5">
+            <span className="text-[10px] text-white font-mono truncate max-w-full bg-black/60 px-2 py-0.5 rounded">
+              {currentValue || "ไม่มีรูป"}
+            </span>
+          </div>
+        </div>
+
+        {/* Upload Controls & Presets */}
+        <div className="md:col-span-8 space-y-3">
+          <div>
+            <label className="text-[11px] font-semibold text-slate-700 block mb-1">
+              ที่อยู่ไฟล์รูปภาพ (URL หรือ Path)
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={currentValue || ""}
+                onChange={(e) => onFieldChange(field, e.target.value)}
+                placeholder="เช่น /images/hero.jpg หรือ https://..."
+                className="flex-1 px-3.5 py-2 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs font-mono focus:outline-none focus:border-[#D32F2F] shadow-sm"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                className="px-4 py-2 rounded-xl bg-[#D32F2F] hover:bg-[#B71C1C] text-white text-xs font-bold shrink-0 flex items-center gap-1.5 transition-colors shadow-md disabled:opacity-50"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                <span>{isUploading ? "กำลังอัปโหลด..." : "เลือกไฟล์จากเครื่อง"}</span>
+              </button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  e.target.value = "";
+                if (f) onFileSelected(field, f);
+                }}
+                className="hidden"
+              />
+            </div>
+          </div>
+
+          {/* Quick Presets */}
+          {presets.length > 0 && (
+            <div className="pt-2 border-t border-slate-200">
+              <span className="text-[11px] text-slate-500 font-medium block mb-1.5">
+                หรือคลิกเลือกรูปภาพตัวอย่างมาตรฐานของระบบ:
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {presets.map((preset) => (
+                  <button
+                    key={preset.url}
+                    type="button"
+                    onClick={() => onFieldChange(field, preset.url)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      currentValue === preset.url
+                        ? "bg-red-50 text-[#D32F2F] border border-red-300 font-bold"
+                        : "bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 shadow-sm"
+                    }`}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Section Header Card Banner
+function SectionHeader({
+  number,
+  title,
+  location,
+  anchor,
+  badge,
+  onSave,
+  isPending,
+}: {
+  number: string;
+  title: string;
+  location: string;
+  anchor: string;
+  badge: string;
+  onSave: () => Promise<void>;
+  isPending: boolean;
+}) {
+  return (
+  <div className="border-b border-slate-200 pb-4 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-1">
+      <div className="flex items-center gap-2">
+        <span className="px-2.5 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 text-[11px] font-black uppercase tracking-wider">
+          {number}
+        </span>
+        <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-mono">
+          ID: #{anchor}
+        </span>
+        <span className="text-xs text-slate-500">• {badge}</span>
+      </div>
+      <h3 className="text-lg sm:text-xl font-black text-slate-900">{title}</h3>
+      <p className="text-xs text-emerald-700 font-medium flex items-center gap-1.5 pt-0.5">
+        <MapPin className="w-3.5 h-3.5 shrink-0" />
+        <span>{location}</span>
+      </p>
+    </div>
+
+    <div className="flex items-center gap-2 shrink-0">
+      <Link
+        href={`/#${anchor}`}
+        target="_blank"
+        className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm"
+      >
+        <Eye className="w-3.5 h-3.5 text-blue-400" />
+        <span>ดูในหน้าเว็บจริง</span>
+        <ExternalLink className="w-3 h-3 text-slate-500" />
+      </Link>
+      <button
+        type="button"
+        onClick={() => onSave()}
+        disabled={isPending}
+        className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-md transition-all disabled:opacity-50"
+      >
+        <Save className="w-3.5 h-3.5" />
+        <span>{isPending ? "บันทึก..." : "บันทึกส่วนนี้"}</span>
+      </button>
+    </div>
+  </div>
+);
+}
+
 export default function SiteContentCMS({
   siteContent,
   onFieldChange,
@@ -96,186 +288,6 @@ export default function SiteContentCMS({
     }
   };
 
-  // Reusable Image Field Component
-  const ImageUploaderBox = ({
-    field,
-    label,
-    description,
-    currentValue,
-    recommendedSize,
-    presets,
-  }: {
-    field: keyof SiteContentData;
-    label: string;
-    description: string;
-    currentValue: string;
-    recommendedSize: string;
-    presets: { label: string; url: string }[];
-  }) => {
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const isUploading = uploadingField === field;
-
-    return (
-      <div className="p-5 rounded-2xl bg-slate-50 border border-slate-300 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-850 pb-3">
-          <div>
-            <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-              <Upload className="w-3.5 h-3.5 text-red-500" />
-              <span>{label}</span>
-            </span>
-            <p className="text-[11px] text-slate-500 mt-0.5">{description}</p>
-          </div>
-          <span className="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-800 text-[10px] font-mono text-slate-500 shrink-0">
-            ขนาดแนะนำ: {recommendedSize}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
-          {/* Image Thumbnail Preview */}
-          <div className="md:col-span-4 relative h-36 sm:h-44 rounded-xl overflow-hidden bg-slate-900 border border-slate-700/80 group">
-            {currentValue ? (
-              <Image
-                src={currentValue}
-                alt={label}
-                fill
-                sizes="(max-width: 768px) 100vw, 300px"
-                className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
-              />
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 text-xs gap-2">
-                <Upload className="w-6 h-6 text-slate-600" />
-                <span>ยังไม่มีรูปภาพ</span>
-              </div>
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-2.5">
-              <span className="text-[10px] text-white font-mono truncate max-w-full bg-black/60 px-2 py-0.5 rounded">
-                {currentValue || "ไม่มีรูป"}
-              </span>
-            </div>
-          </div>
-
-          {/* Upload Controls & Presets */}
-          <div className="md:col-span-8 space-y-3">
-            <div>
-              <label className="text-[11px] font-semibold text-slate-700 block mb-1">
-                ที่อยู่ไฟล์รูปภาพ (URL หรือ Path)
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={currentValue || ""}
-                  onChange={(e) => onFieldChange(field, e.target.value)}
-                  placeholder="เช่น /images/hero.jpg หรือ https://..."
-                  className="flex-1 px-3.5 py-2 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs font-mono focus:outline-none focus:border-[#D32F2F] shadow-sm"
-                />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
-                  className="px-4 py-2 rounded-xl bg-[#D32F2F] hover:bg-[#B71C1C] text-white text-xs font-bold shrink-0 flex items-center gap-1.5 transition-colors shadow-md disabled:opacity-50"
-                >
-                  <Upload className="w-3.5 h-3.5" />
-                  <span>{isUploading ? "กำลังอัปโหลด..." : "เลือกไฟล์จากเครื่อง"}</span>
-                </button>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) handleFileUpload(field, f);
-                  }}
-                  className="hidden"
-                />
-              </div>
-            </div>
-
-            {/* Quick Presets */}
-            {presets.length > 0 && (
-              <div className="pt-2 border-t border-slate-900">
-                <span className="text-[11px] text-slate-500 font-medium block mb-1.5">
-                  หรือคลิกเลือกรูปภาพตัวอย่างมาตรฐานของระบบ:
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  {presets.map((preset) => (
-                    <button
-                      key={preset.url}
-                      type="button"
-                      onClick={() => onFieldChange(field, preset.url)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                        currentValue === preset.url
-                          ? "bg-red-50 text-[#D32F2F] border border-red-300 font-bold"
-                          : "bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 shadow-sm"
-                      }`}
-                    >
-                      {preset.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Section Header Card Banner
-  const SectionHeader = ({
-    number,
-    title,
-    location,
-    anchor,
-    badge,
-    color = "red",
-  }: {
-    number: string;
-    title: string;
-    location: string;
-    anchor: string;
-    badge: string;
-    color?: string;
-  }) => (
-    <div className="border-b border-slate-200 pb-4 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div className="space-y-1">
-        <div className="flex items-center gap-2">
-          <span className="px-2.5 py-0.5 rounded-full bg-red-600/20 text-red-400 border border-red-500/30 text-[11px] font-black uppercase tracking-wider">
-            {number}
-          </span>
-          <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-mono">
-            ID: #{anchor}
-          </span>
-          <span className="text-xs text-slate-500">• {badge}</span>
-        </div>
-        <h3 className="text-lg sm:text-xl font-black text-slate-900">{title}</h3>
-        <p className="text-xs text-emerald-400 font-medium flex items-center gap-1.5 pt-0.5">
-          <MapPin className="w-3.5 h-3.5 shrink-0" />
-          <span>{location}</span>
-        </p>
-      </div>
-
-      <div className="flex items-center gap-2 shrink-0">
-        <Link
-          href={`/#${anchor}`}
-          target="_blank"
-          className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm"
-        >
-          <Eye className="w-3.5 h-3.5 text-blue-400" />
-          <span>ดูในหน้าเว็บจริง</span>
-          <ExternalLink className="w-3 h-3 text-slate-500" />
-        </Link>
-        <button
-          type="button"
-          onClick={() => onSave()}
-          disabled={isPending}
-          className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-md transition-all disabled:opacity-50"
-        >
-          <Save className="w-3.5 h-3.5" />
-          <span>{isPending ? "บันทึก..." : "บันทึกส่วนนี้"}</span>
-        </button>
-      </div>
-    </div>
-  );
 
   return (
     <div className="space-y-8 animate-in fade-in duration-200">
@@ -291,7 +303,7 @@ export default function SiteContentCMS({
               แก้ไขเนื้อหา & รูปภาพ แยกตาม Section หน้าเว็บไซต์
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-1 font-light">
-              คลิกเลือกส่วนที่ต้องการแก้ไขด้านล่าง หรือเลือก "แสดงทุกส่วน" เพื่อดูหน้าเว็บทั้งหมดพร้อมกัน
+              คลิกเลือกส่วนที่ต้องการแก้ไขด้านล่าง หรือเลือก &ldquo;แสดงทุกส่วน&rdquo; เพื่อดูหน้าเว็บทั้งหมดพร้อมกัน
             </p>
           </div>
 
@@ -382,6 +394,8 @@ export default function SiteContentCMS({
         {(activeSection === "hero" || activeSection === "all") && (
           <div className="p-6 sm:p-8 rounded-lg bg-white border border-slate-200 text-slate-800 space-y-6 shadow-xl">
             <SectionHeader
+              onSave={onSave}
+              isPending={isPending}
               number="ส่วนที่ 1 จาก 8"
               title="Hero Banner ด้านบนสุดของหน้าเว็บ & สถิติความสำเร็จ"
               location="ปรากฏเป็นส่วนแรกทันทีที่เปิดเว็บไซต์เข้ามา (ภาพพื้นหลังเต็มจอขนาดใหญ่ + พาดหัวเด่น)"
@@ -391,6 +405,9 @@ export default function SiteContentCMS({
 
             {/* Hero Image Editor */}
             <ImageUploaderBox
+              uploadingField={uploadingField}
+              onFieldChange={onFieldChange}
+              onFileSelected={handleFileUpload}
               field="heroImageUrl"
               label="ภาพพื้นหลังส่วนบนสุด (Hero Background Image)"
               description="ภาพพื้นหลังหลักขนาดใหญ่ที่จะแสดงเป็นฉากหลังของเว็บไซต์ พร้อมเลเยอร์ไล่เฉดสีดำ Logistics"
@@ -581,6 +598,8 @@ export default function SiteContentCMS({
         {(activeSection === "company" || activeSection === "all") && (
           <div className="p-6 sm:p-8 rounded-lg bg-white border border-slate-200 text-slate-800 space-y-6 shadow-xl">
             <SectionHeader
+              onSave={onSave}
+              isPending={isPending}
               number="ส่วนที่ 2 จาก 8"
               title="ข้อมูลแบรนด์ บริษัท และช่องทางติดต่อสื่อสาร"
               location="ใช้ร่วมกันทั่วทั้งเว็บไซต์ เช่น แถบเมนูด้านบน (Navbar), ส่วนท้ายเว็บ (Footer), และปุ่มโทร/LINE ด่วน"
@@ -733,6 +752,8 @@ export default function SiteContentCMS({
         {(activeSection === "values" || activeSection === "all") && (
           <div className="p-6 sm:p-8 rounded-lg bg-white border border-slate-200 text-slate-800 space-y-6 shadow-xl">
             <SectionHeader
+              onSave={onSave}
+              isPending={isPending}
               number="ส่วนที่ 3 จาก 8"
               title="จุดเด่นและมาตรฐานการบริการ (Value Propositions)"
               location="แสดงอยู่ถัดลงมาจาก Hero Section (กล่องสีเข้ม แสดงจุดแข็ง 6 ข้อ: ตรงต่อเวลา, ปลอดภัย, คุ้มค่า ฯลฯ)"
@@ -802,6 +823,8 @@ export default function SiteContentCMS({
         {(activeSection === "fleet" || activeSection === "all") && (
           <div className="p-6 sm:p-8 rounded-lg bg-white border border-slate-200 text-slate-800 space-y-6 shadow-xl">
             <SectionHeader
+              onSave={onSave}
+              isPending={isPending}
               number="ส่วนที่ 4 จาก 8"
               title="กองยานพาหนะและประเภทรถที่ให้บริการ (Fleet Showcase)"
               location="แสดงประเภทรถทั้ง 7 แบบ (4 ล้อ ตู้ทึบ, 6 ล้อ, 10 ล้อ, เทรลเลอร์, หัวลาก Container) พร้อมภาพแบนเนอร์กองรถ"
@@ -811,6 +834,9 @@ export default function SiteContentCMS({
 
             {/* Fleet Banner Image Uploader */}
             <ImageUploaderBox
+              uploadingField={uploadingField}
+              onFieldChange={onFieldChange}
+              onFileSelected={handleFileUpload}
               field="fleetImageUrl"
               label="ภาพแบนเนอร์แสดงกองรถขนส่ง (Fleet Lineup Banner Image)"
               description="ภาพแบนเนอร์แนวนอนขนาดใหญ่ที่แสดงกองรถหลากหลายประเภทเรียงแถว พร้อมกล่องข้อความทับบนภาพ"
@@ -911,6 +937,8 @@ export default function SiteContentCMS({
         {(activeSection === "quote" || activeSection === "all") && (
           <div className="p-6 sm:p-8 rounded-lg bg-white border border-slate-200 text-slate-800 space-y-6 shadow-xl">
             <SectionHeader
+              onSave={onSave}
+              isPending={isPending}
               number="ส่วนที่ 5 จาก 8"
               title="เครื่องคิดเลขประเมินราคาค่าขนส่ง (Freight Cost Estimator)"
               location="เครื่องมือคำนวณราคาขนส่งแบบโต้ตอบ ให้ลูกค้าเลือกรถและเส้นทางเพื่อดูราคาประมาณการ"
@@ -967,6 +995,8 @@ export default function SiteContentCMS({
         {(activeSection === "about" || activeSection === "all") && (
           <div className="p-6 sm:p-8 rounded-lg bg-white border border-slate-200 text-slate-800 space-y-6 shadow-xl">
             <SectionHeader
+              onSave={onSave}
+              isPending={isPending}
               number="ส่วนที่ 6 จาก 8"
               title="เกี่ยวกับเรา วิสัยทัศน์ และความน่าเชื่อถือองค์กร (About Us)"
               location="แสดงความเป็นมาของบริษัท ภาพห้องควบคุม 24/7 Control Tower, ทุนจดทะเบียน, วิสัยทัศน์ และพันธกิจ"
@@ -976,6 +1006,9 @@ export default function SiteContentCMS({
 
             {/* About Image Uploader */}
             <ImageUploaderBox
+              uploadingField={uploadingField}
+              onFieldChange={onFieldChange}
+              onFileSelected={handleFileUpload}
               field="aboutImageUrl"
               label="ภาพห้องควบคุมและปฏิบัติการเดินรถ (Operations Control Tower Image)"
               description="ภาพประกอบด้านซ้ายของส่วนเกี่ยวกับเรา แสดงห้องสั่งการ Control Tower และความทันสมัยด้านเทคโนโลยี"
@@ -1112,7 +1145,7 @@ export default function SiteContentCMS({
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-slate-900">ต้องการจัดการไทม์ไลน์ประวัติบริษัท (Milestones)?</h4>
-                  <p className="text-xs text-slate-500">เพิ่ม ลบ แก้ไข และสลับลำดับปีประวัติศาสตร์ของบริษัทได้ที่แท็บ "ก้าวสำคัญ"</p>
+                  <p className="text-xs text-slate-500">เพิ่ม ลบ แก้ไข และสลับลำดับปีประวัติศาสตร์ของบริษัทได้ที่แท็บ &ldquo;ก้าวสำคัญ&rdquo;</p>
                 </div>
               </div>
               <button
@@ -1132,6 +1165,8 @@ export default function SiteContentCMS({
         {(activeSection === "recruitment" || activeSection === "all") && (
           <div className="p-6 sm:p-8 rounded-lg bg-white border border-slate-200 text-slate-800 space-y-6 shadow-xl">
             <SectionHeader
+              onSave={onSave}
+              isPending={isPending}
               number="ส่วนที่ 7 จาก 8"
               title="ส่วนรับสมัครงานคนขับ รายได้ และสิทธิประโยชน์ (Careers)"
               location="ปรากฏเป็นฟอร์มรับสมัครงานพนักงานขับรถร่วมและคนขับประจำ พร้อมรายการผลประโยชน์และตัวเลขรายได้"
@@ -1250,6 +1285,8 @@ export default function SiteContentCMS({
         {(activeSection === "footer" || activeSection === "all") && (
           <div className="p-6 sm:p-8 rounded-lg bg-white border border-slate-200 text-slate-800 space-y-6 shadow-xl">
             <SectionHeader
+              onSave={onSave}
+              isPending={isPending}
               number="ส่วนที่ 8 จาก 8"
               title="ส่วนท้ายเว็บไซต์ & ป้ายติดต่อฝ่ายเดินรถ (Footer & Legal)"
               location="ปรากฏที่ขอบล่างสุดของเว็บไซต์ ประกอบด้วยแบนเนอร์ติดต่อด่วนและข้อความสงวนลิขสิทธิ์"
